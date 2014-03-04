@@ -13,7 +13,7 @@
 
 \issue{Issue 23}
 
-%\author{First Last\email{foo@example.com}}
+\author{Maciej Pir{\'o}g\email{maciej.adam.pirog@@gmail.com}}
 
 \publishers{Edward Z. Yang, editor.}
 
