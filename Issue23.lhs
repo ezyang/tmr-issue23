@@ -23,6 +23,6 @@
 \tableofcontents
 
 \article{Editorial}
-%\article{articlename}
+\article{fizzbuzz}
 
 \end{document}

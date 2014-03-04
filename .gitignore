@@ -4,3 +4,5 @@ Issue*.pdf
 *.log
 *.toc
 *.out
+fizzbuzz.tex
+*.ptb

@@ -1,7 +1,7 @@
 issue = Issue23
 
-#lhssources = 
-texsources = Editorial.tex
+lhssources = fizzbuzz.lhs
+texsources = Editorial.tex fizzbuzz.tex
 
 default: $(issue).pdf
 
