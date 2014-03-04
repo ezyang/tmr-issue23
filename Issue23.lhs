@@ -11,7 +11,7 @@
 \usepackage{ifthen}
 \usepackage[all]{xy}
 
-\issue{Issue N}
+\issue{Issue 23}
 
 %\author{First Last\email{foo@example.com}}
 
