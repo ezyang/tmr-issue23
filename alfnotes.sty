@@ -1,0 +1,64 @@
+%%
+%% In the European tradition, the footnote marks are generally
+%% placed before the punctuation marks (dots, commas, etc).
+%% This version of \footnote makes such European punctuation marks appear
+%% under the footnote instead of appearing after it.
+%%
+%% http://www.artlebedev.ru/kovodstvo/sections/143/
+%% http://community.livejournal.com/ru_tex/131310.html
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{alfnotes}
+                [2009/06/30 1.0 Tighter punctuation marks after footnotes]
+
+% Disable copying footnotes out of PDF 1.5 during cut-n-paste operation.
+% Requires accsupp package.
+% (Only Adobe Acrobat has support for that at this moment).
+\DeclareOption{nopdfcopy}{
+	\@ifpackageloaded{accsupp}{
+		\newcommand{\alfn@pdfhide}[1]{%
+			\BeginAccSupp{method=plain,unicode,ActualText={}}%
+			#1\EndAccSupp{}%
+		}
+	}{
+		\PackageError{alfnotes}
+			{Required dependency missing.\MessageBreak
+			Load package accsupp first or drop [nopdfcopy]}
+			{Load package accsupp prior to using alfnotes.}
+	}
+}
+\ProcessOptions
+\providecommand{\alfn@pdfhide}[1]{#1}
+
+\let\alfn@savedfootnote\footnote
+\renewcommand{\footnote}[2][]{%
+  \def\alfn@fnum{#1}%
+  \ifx\alfn@fnum\@empty\stepcounter{footnote}%
+	\else\setcounter{footnote}{\alfn@fnum}\fi%
+  \footnotetext[\thefootnote]{#2}%
+  \alfn@ifnextchar,{\alfn@nextsymbelowfootnote}{%
+  \alfn@ifnextchar.{\alfn@nextsymbelowfootnote}{%
+  \alfn@pdfhide{\footnotemark[\thefootnote]}%
+  }}}
+
+% Place the symbol underneath the footnote
+\newcommand{\alfn@nextsymbelowfootnote}[1]{%
+  \def\alfn@spfact{\the\spacefactor}%
+  \rlap{\alfn@pdfhide{\footnotemark[\thefootnote]}}%
+  \rlap{\spacefactor\alfn@spfact#1\xdef\alfn@spfact{\the\spacefactor}}%
+  \phantom{\footnotemark[\thefootnote]}%
+  \spacefactor\alfn@spfact{}%
+}
+
+% Non-eager version of \ifnextchar (does not gobble the following spaces).
+\newcommand{\alfn@ifnextchar}[3]{%
+	\let\alfn@tt#1%
+	\def\alfn@ifna{#2}%
+	\def\alfn@ifnb{#3}%
+	\futurelet\nexttoken\alfn@ifnchr}
+\newcommand*{\alfn@ifnchr}{\ifx\nexttoken\alfn@tt
+	\expandafter\alfn@ifna
+	\else
+	\expandafter\alfn@ifnb
+	\fi}
+

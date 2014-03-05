@@ -1,0 +1,48 @@
+\section{The Essence of Supercompilation}
+\label{sec:idea}
+
+Supercompilation was invented by V.F.Turchin in the Soviet Union in the 1970s. 
+In his own words \cite{Turchin1986Supercompiler}:
+\begin{quote}
+A program is seen as a machine.
+To make sense of it, one must observe its operation. So a supercompiler does not transform the
+program by steps; it controls and observes (SUPERvises) the machine, let us call it $M_1$, which is
+represented by the program. In observing the operation of $M_1$, the supercompiler COMPILES a
+program which describes the activities of $M_1$, but it makes shortcuts and whatever clever tricks
+it knows, in order to produce the same effect as $M_1$, but faster. The goal of the supercompiler is
+to make the definition of this program (machine) $M_2$, self-sufficient. When this is achieved, it
+outputs $M_2$, and simply throws away the (unchanged) machine $M_1$.
+
+% The supercompiler concept comes closest to the way humans think and make science.
+% We do not think in terms of rules of formal logic. We create mental and linguistic \emph{models} of
+% the reality we observe. How do we do that? We observe phenomena, generalize observations, and try to
+% construct a self-sufficient model in terms of these generalizations.
+% This is also what the supercompiler is doing. \ldots
+A supercompiler would run $M_1$ in a general
+form, with unknown values of variables, and create a graph of states and transitions between
+possible configurations of the computing system \ldots in terms of which the behavior of the system
+can be expressed. Thus the new program becomes a self-sufficient model of the old one.
+\end{quote}
+
+%Суммируем кратко:
+%\begin{enumerate}
+%  \item Программе $P_1$ ставится в соответствие машина $M_1$, \emph{моделирующая в общем виде}
+%  выполнение программы $P_1$.
+%  \item \emph{Контролируя и наблюдая} (SUPERvises) работу машины $M_1$, суперкомпилятор
+%  \emph{создает} (компилирует, COMPILEs) другую машину $M_2$, которая полностью описывает $M_1$.
+%  \item Машина $M_2$ далее может быть представлена в виде программы $P_2$.
+%\end{enumerate}
+
+% Cуперкомпилятор преобразует одну модель программы ($M_1$) в другую модель ($M_2$).
+% Принципиальным является то, что программа $M_2$ конструируется исключительно на основе наблюдений
+% за поведением программы $M_1$.
+
+% Здесь же хочу подчеркнуть принципиальность момента. Большинство других преобразователей программ
+% делают преобразования пошагово, как правило переписывая старую программу в новую~--- за счет серии
+% локальных преобразований. Здесь же четкое разделение этапа наблюдения за программой и этапа построения новой
+% программы.
+%
+% Суммируем идею суперкомпиляции в формульном виде:
+% \begin{quote}
+% $M_1$ $\xRightarrow{SUPERvises}$ Результат наблюдений $\xRightarrow{COMPILEs}$ $M_2$
+% \end{quote}

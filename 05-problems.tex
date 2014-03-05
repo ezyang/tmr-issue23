@@ -1,0 +1,208 @@
+% А где 04-...?
+\section{Problems}
+
+% \epigraph{Я недоумевал, почему никто не применяет суперкомпиляцию для построения настоящих
+% оптимизирующих компиляторов? Теперь я кое-что понимаю! На первый взгляд кажется, что эту технологию
+% можно просто реализовать по статье, но на самом деле там много <<ручек>>. Нужно принять много
+% архитектурных решений. И неочевидно, какие именно решения надо принять.}{С. Пейтон Джоунс}
+
+The aim of this section is to outline what are the practical problems 
+our simple supercompiler faces.
+These problems are typical -- by a varying degree -- for most existing supercompilers.
+
+\subsection{Result unpredictability}
+
+The KMP test we saw indeed shows supercompilation at its best.
+We were lucky, that the whistle did not blow, and we managed to fold the tree of configurations
+to a graph without resorting to generalization.
+In many other cases, however, the size of configurations in the tree will
+continue to grow, and, sooner or later, we shall be forced to 
+perform generalization in order to ensure building a finite 
+graph of configurations.
+
+Recall a task we have already seen:
+\begin{lstlisting}[language=sll]
+(even(sqr(x)), prog1)
+\end{lstlisting}
+
+Deforestation manages to build a finite graph of configurations  without applying generalization.
+This is not the case when we move to supercompilation -- generalization becomes necessary.
+This is one drawback of information propagation, as it typically
+increases the size of the new configuration.
+The appendix accompanying this article lists the results of deforesting and of supercompiling this task,
+and also a comparison of the speed of the corresponding residual programs.
+Based on these observations, we can draw the following conclusions:
+\begin{enumerate}
+  \item The supercompiled program is much larger than the deforested one.
+  \item For small numbers \texttt{x} the supercompiled program works faster.
+  Exactly the opposite is true for big numbers \texttt{x} however.
+\end{enumerate}
+
+In a way this example is an antithesis of the KMP test, as it displays the
+main weaknesses of the SC~Mini supercompiler.
+(We shall call it anti-KMP-test for brevity. Such an example can be found for 
+each of the other existing supercompilers.)
+
+While missing optimization opportunities is a feature we can readily consider acceptable,
+the fact that the supercompiler can produce much larger residual program, compared to
+the input one, is a more critical issue.
+The danger of code explosion is an important problem for supercompilation in general.
+In the case of SC~Mini, by limiting configuration size we indirectly limit
+the growth of graph width as well. 
+There is no similar indirect limit
+to the growth of graph depth (apart for ensuring it is finite),
+and this can result in very large residual programs.
+
+\begin{exercise}
+Try to modify SC~Mini, by imposing an explicit limit on graph depth as well. 
+What changes in the examples we considered so far?
+\end{exercise}
+
+\begin{exercise}
+Can we estimate the size of the residual program for a given input?
+\end{exercise}
+
+%В случае КМП-теста суперкомпилятор раздувает граф конфигураций, но затем оказывается в состоянии
+%его сильно упростить. В случае анти-КМП-теста SC~Mini раздувает граф конфигураций, но затем не может
+%его сильно упростить. Эффективного решение проблемы взрывоопасного роста кода пока что нет.
+
+%Самое плохое, что непредсказуемость суперкомпилятора может заметно проявляться даже
+%для небольших программ.
+
+SC~Mini is built in such a way as to guarantee that the residual program never takes more 
+reduction steps than the input one. This is but one possible measure of efficiency.
+Another one is memory consumption, and here the story is not so rosy.
+Existing supercompilers can produce programs, which -- although requiring
+less reduction steps -- can sometimes consume considerably more memory 
+than the original ones.
+% сама программа (код) будет занимать много места? или в ней будет какая-то дополнительная аллокация?
+
+\subsection{Scalability issues}
+
+The supercompiler imitates the behavior of the input program by taking into
+account the dynamic interactions of all its parts.
+This can result, unfortunately, in the size of the model (the graph of configurations),
+growing very super-linearly as a function of the size of the input program.
+For example, a new input program, larger by just 30\%, can make the
+supercompiler work 10 times longer.
+
+\begin{exercise}
+Try to find such examples for SC~Mini.
+\end{exercise}
+
+What is worse, the running time of the supercompiler usually 
+depends super-linearly on the size of the graph of configurations.
+
+\begin{exercise}
+Show that this statement is true for SC~Mini as well.
+\end{exercise}
+
+All this means that supercompiling big programs can be a very unpredictable process:
+in the worst case, the supercompiler may take a lot of time, and it may
+produce a huge program, which works only slightly faster than the original.
+It would be interesting to consider supercompiling
+programs piecewise, for example on module basis.
+Unfortunately no one has studied yet this possibility,
+and it remains a topic for future research.
+
+\subsection{What about debugging?}
+
+Supercompilation -- being a form of program transformation -- converts the
+input program into a new one, which is then submitted to the usual
+programming language compiler or interpreter.
+What if we want to debug the resulting program?
+It appears possible in principle -- in a way similar to
+standard compilers generating ``debug'' info --
+to generate some information about the correspondence of
+residual program lines to input program lines.
+This can be a tedious task, however, and
+authors of experimental supercompilers avoid it.
+We can hope that one day industrial-strength supercompilers
+will support this feature as well.
+
+\subsection{Details, details, details\ldots}
+
+We saw only a very small, toy supercompiler -- for a toy language -- which
+has some obvious deficiencies.
+Building a supercompiler for a similar toy language, but not having the
+problems we mentioned, is already a complicated, PhD-level task.
+If we consider more realistic programming languages,
+we will quickly stumble upon a number of details, which must be taken care of.
+
+% А как насчет функций высшего порядка? Не там ли самое интересное?
+
+\emph{Global state, side effects:} SC~Mini uses the compositionality of SLL semantics
+in an essential way, in order to perform generalization:
+\[\mathcal{I}_p\llbracket e_1 / \{v := e_2\}\rrbracket = \mathcal{I}_p \llbracket e_1 / \{v := \mathcal{I}_p\llbracket e_2\rrbracket\} \rrbracket\]
+The expression $e_2$ may be evaluated outside of the context, where it appears in
+the input program.
+
+If the language features global state and/or side effects (which is inevitable
+in one form or another for any practical programming language),
+then the notion of compositionality becomes more complicated, if it can be formulated at all.
+In order to take this into account, an additional analysis phase appears necessary.
+Things can get even more complicated in the presence of concurrency.
+What makes the situation less bleak is that many modern programming languages
+follow the lead of Haskell, and provide means to isolate pure functional code
+from side-effecting code. In such cases a simple solution is to supercompile only the 
+purely functional parts of the program, leaving the side-effecting parts unmodified.
+
+\emph{Taking strictness and laziness into account:} SC~Mini owns its simplicity,
+to a large extent, to the fact that we assumed a call-by-name semantics for SLL.
+Driving is simplest in the case of call-by-name evaluation.
+Call-by-name typically leads to bad performance, however, and
+most programming languages do not use it as the default evaluation mechanism.
+Call-by-value or call-by-need is used instead.
+While recent research has shown it is possible to build a 
+supercompiler for a call-by-need \cite{Mitchell2008taa,Mitchell2010Rethinking,Bolingbroke2010Eval} 
+or a call-by-value \cite{Jonsson2008Supercompilation,Jonsson2011Phd} language,
+the supercompilation process is typically much more involved,
+compared to the case of call-by-name.
+
+\begin{exercise}
+Write a call-by-value interpreter for SLL. Find a program, which behaves differently
+after supercompilation by SC~Mini, when run by the new interpreter.
+\end{exercise}
+
+\begin{exercise}
+Write a call-by-need interpreter for SLL. 
+Compare its size to the call-by-name one.
+What differences in driving would you expect in the case of call-by-need?
+\end{exercise}
+
+\subsection{Why is it worth it then?}
+
+The list of open problems for supercompilation contains many important items, 
+the results obtained are (thus far) difficult to rely upon.
+Why is it then, that interest in supercompilation has repeatedly 
+resurfaced and grown in the several decades since its invention,
+with the latest wave of renewed interest starting 6-7 years ago, and
+still going strong?
+% тут уместно упомянуть работу над суперкомпиляцией в ghc
+
+First of all, it turns out that many program optimization methods can be
+seen as special cases of supercompilation.
+This includes deforestation, partial evaluation, the different kinds of fusion,
+inlining, defunctionalization, etc. 
+(While this statement will be intuitively obvious to most researchers in the 
+area of supercompilation, not all of these cases have been formally
+described in research papers.)
+It is most impressing when a (relatively) simple supercompiler
+can optimize some programs equally well, or better than some 
+other complicated specialized tool.
+
+A second important reason is the conceptual simplicity of supercompilation.
+Supercompilation is not tied to a single specific language, nor even to a family
+of languages, although most of the existing research has been done
+in the context of functional languages.
+
+Another valuable feature of supercompilation is that it can be used
+not only for optimization. 
+There are very successful attempts to apply it to program analysis, for example. 
+It is tempting to image a 2-in-1, or even 3-in-1 tool,
+which can cover program optimization, analysis, synthesis, etc.
+
+Last but not least, supercompilation is itself just a specialized application
+of a very general philosophical principle, invented also by V.F. Turchin --
+the theory of ``metasystem transitions''. We shall speak a bit more
+about that in the next section.

@@ -1,0 +1,27 @@
+\begin{tikzpicture}[
+level distance=12mm,
+level/.style={sibling distance=35mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small} 
+]
+\tikzstyle{level 2}=[sibling distance=70mm]
+\node[conf](b) {m("AAB", s, "AAB", s)} 
+	child[->] {node[conf] {x(s, 'A', "AB", "AAB", s)} 
+		child[->] {node[conf] {False()}
+			edge from parent node[left] {\texttt{s = ""}}}
+		child[->] {node[conf] {if(eqA(v1), m("AB"), v2, "AAB", v1:v2), n(v1:v2, "AAB"))}
+			child[->] {node[conf] {\ldots}
+				edge from parent node[left] {\texttt{v1 = 'A'}}
+			}
+			child[->] {node[conf] {n('B':v2, "AAB")}
+				child[->] {node[conf](a) {m("AAB", v2, "AAB", v2)}
+					edge from parent[->,decorate,decoration=zigzag]
+				}
+				edge from parent node[right] {\texttt{v1 = 'B'}}
+			}
+			edge from parent node[right] {\texttt{s = v1:v2}}}};
+\draw [->,dashed,rounded corners = 10pt] 
+(a.east) -- ($ (a.east) + (20mm,0) $) -- ($ (b.east) + (70mm,0) $) -- (b.east);
+\end{tikzpicture}

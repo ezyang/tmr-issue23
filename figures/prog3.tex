@@ -1,0 +1,19 @@
+\begin{lstlisting}[language=sll]
+add(Z(), y) = y;
+add(S(x), y) = S(add(x, y));
+
+double(Z()) = Z();
+double(S(x)) = S(S(double(x)));
+
+half(Z()) = Z();
+half(S(x)) = half1(x);
+half1(Z()) = Z();
+half1(S(x)) = S(half(x));
+
+eq(Z(), y) = eqZ(y);
+eq(S(x), y) = eqS(y, x);
+eqZ(Z()) = True();
+eqZ(S(x)) = False();
+eqS(Z(), x) = False();
+eqS(S(y), x) = eq(x, y);
+\end{lstlisting}

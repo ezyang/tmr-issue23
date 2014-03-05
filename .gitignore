@@ -6,3 +6,6 @@ Issue*.pdf
 *.out
 fizzbuzz.tex
 *.ptb
+*.bbl
+*.blg
+tmr.dbj

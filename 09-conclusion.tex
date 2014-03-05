@@ -1,0 +1,69 @@
+\section{Instead of a conclusion}
+
+The main driving force leading to this article was the following idea: 
+using Haskell, describe -- in a clear and modular way --
+the main ingredients of a minimalistic supercompiler, and to show how they fit together.
+As a result we arrived at the following definition:
+\begin{lstlisting}
+supercompile :: Task -> Task
+supercompile (e, p) =
+	residuate $ simplify $ foldTree $
+		buildFTree (addPropagation $ driveMachine p) e
+\end{lstlisting}
+The text of the article is, in fact, just an attempt to describe each
+of the parts of this definition, and to show what effects they can
+achieve together.
+
+We hope the reader will take some time to study SC~Mini's sources,
+where comments describe some interesting technical details of
+the implementation.
+
+\subsection{Where can we go from here?}
+
+If you become more deeply interested in supercompilation, here a short
+list of possible next steps:
+%\marginpar{DK: Some English replacement for SA videos?}
+
+\begin{enumerate}
+%  \item Видеозаписи лекций Сергея Абрамова по метавычислениям. (TODO: выложить на Vimeo!!).
+%% status of this todo?
+%  Обязательно посмотрите первую лекцию~--- Сергей Михайлович великолепный рассказчик!
+  \item The articles \cite{Sorensen1998Introduction,Sorensen1996Positive} are 
+  still very good and readable introductions to the standard techniques used in supercompilation,
+  including some not covered here, such as using homeomorphic embedding as a whistle,
+  using most specific generalization as a generalization algorithm.
+%  \marginpar{DK: something else in English?}
+%  \item Блог Сергея Романенко, посвященный суперкомпиляции \url{http://metacomputation-ru.blogspot.com/}
+  \item the Google group ``Supercompilation and Related Techniques'' contains the most 
+  up-to-date discussions and announcements concerning supercompilation.
+  \end{enumerate}
+
+%\subsection{An invitation for collaboration}
+%
+%TODO: DK: Do we leave this? If yes, how to rewrite?
+
+%История суперкомпиляции напоминает раскачивание маятника - от простого к сложному, от сложного к
+%простому.
+%
+%Первый период~--- суперкомпиляция РЕФАЛа~--- развитие от простого к сложному: сделать хоть
+%какой-нибудь (сложный) суперкомпилятор, лишь бы он автоматически работал и выдавал разумные
+%результаты. Второй период~--- суперкомпиляция функциональных языков первого порядка~--- осмысление
+%полученных результатов, их схематизация и отчуждение. Нынешний период~--- это опять движение от
+%простого (осмысленного) к сложному (пока еще непонятному). Это что касается практики.
+%
+%С другой стороны, в области, близкой к суперкомпиляции~--- частичных вычислениях~--- очень важные
+%результаты были получены при экспериментах на совсем игрушечных, не имеющих практической ценности,
+%частичных вычислителях для игрушечных языков.
+%
+%Одно из крайне интересных для меня направлений для исследований~--- проведение различного рода
+%экспериментов на простых и понятных суперкомпиляторах. Проблема, что таких суперкомпиляторов
+%пока нет. Данная статья~--- это попытка движения в этом направлении. Предложенный суперкомпилятор
+%SC~Mini невелик, но некоторые части в нем написаны не очень элегантным способом. Буду рад
+%конструктивным предложениям и замечаниям по его улучшению.
+
+% Предложения и замечания по данной статье также приветствуются.
+
+% Опубликовать на гитхабе и дать ссылку с четким позывом "форкайте и исправляйте" и указанием, что
+% на гитхабе форкать - одно удовольствие.
+% Дать какие-либо метрики кода, чтобы люди поняли, что покопаться в нем - более чем обозримая задача.
+

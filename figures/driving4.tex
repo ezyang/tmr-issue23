@@ -1,0 +1,36 @@
+\begin{tikzpicture}[
+level distance=15mm,
+level/.style={sibling distance=35mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small},
+label/.style={font=\ttfamily\small}
+]
+\tikzstyle{level 2}=[sibling distance=60mm]
+\node[conf](n0) {even(sqr(x))} 
+	child[->] {node[conf](n1) {even(mult(x, x))} 
+		child[->] {node[conf] {even(Z())}
+			child[->] {node[conf] {True()}}
+			edge from parent node[left] {\texttt{x = Z()}}}
+		child[->] {node[conf](n2) {even(add(x, mult(v1, x)))}
+			child[->] {node[conf](n3) {even(mult(v1, x))}
+				child[->] {node[conf,xshift=-15mm] {even(Z())}
+					child[->] {node[conf] {True()}}
+					edge from parent node[left] {\texttt{v1 = Z()}}}
+				child[->] {node[conf](n4) {even(add(x, mult(v2, x)))}
+					edge from parent node[right] {\texttt{v1 = S(v2)}}}
+			edge from parent node[left] {\texttt{x = Z()}}}
+			child[->] {node[conf] {\ldots}
+				edge from parent node[right] {\texttt{x = S(v2)}}
+			}
+			edge from parent node[right] {\texttt{x = S(v1)}}}};
+\draw [->,dashed,rounded corners = 10pt] 
+(n4.east) -- ($ (n4.east) + (10mm,0) $) -- ($ (n2.east) + (20mm,0) $) -- (n2.east);
+\node[label,right] at ($ (n4.east) + (10mm,0) $) {(v1 := v2)};
+\node[left] at ($ (n0.west) + (-2mm,0) $) {$n_0$};
+\node[left] at ($ (n1.west) + (-2mm,0) $) {$n_1$};
+\node[left] at ($ (n2.west) + (-2mm,0) $) {$n_2$};
+\node[left] at ($ (n3.west) + (-2mm,0) $) {$n_3$};
+\node[left] at ($ (n4.west) + (-2mm,0) $) {$n_4$};
+\end{tikzpicture}

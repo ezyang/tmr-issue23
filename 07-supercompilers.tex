@@ -1,0 +1,135 @@
+\section{Existing supercompilers}
+\label{sec:supercompilers}
+
+% Для всех суперкомпиляторов очень не хватает описания предела их возможностей:
+% что во что они могут превратить, а что - нет?
+% Какие из них наиболее <<практичны>>? Применялись ли какие-либо из них
+% для практических задач?
+
+We list here some existing supercompilers.
+The list is not exhaustive; it contains implementations with interesting features,
+publicly accessible,
+and which are either actively developed, or at least have been until recently,
+so there is some greater chance to make them work.
+Note that all these implementations are considered experimental.
+
+\begin{longitem}
+
+\item \emph{SCP4 \cite{Scp4Url}.} SCP4 
+is the latest incarnation of the first ever supercompiler, which was
+developed for the Refal language. 
+It supercompiles programs in a recent version of Refal, Refal-5.
+SCP4 utilizes some of the features of Refal, which make it particularly
+suited to supercompilation, like associativity of sequence concatenation.
+It also features a number of extensions of the basic super-compilation method:
+recognition of constant functions,
+recognition of concatenation monomials,
+collection and analysis of output formats.
+% выглядит как набор специфических трюков (как rule-based оптимизация в обычных компиляторах).
+% это фундаментальные преобразования или действительно трюки?
+% нельзя ли в принципе сделать то же без трюков? казалось бы, именно в этом одна из сторон
+% привлекательности суперкомпиляции по сравнению с традиционным подходом.
+SCP4 is described in detail in \cite{Nemytykh2008PhD} and in the monograph \cite{Nemytykh2007SCP4}.
+SCP4 can extend the program domain in the following sense:
+if the input program loops or stops with an error on certain inputs,
+it is sometimes possible for the residual to successfully terminate on these inputs.
+
+\item \emph{A (nameless) supercompiler for the  TSG language \cite{TsgUrl}.} TSG 
+is a greatly simplified version of List, which is ``flat'' (no nested function calls are allowed).
+Besides the experimental supercompiler for TSG described in \cite{Abramov2006meta2},
+there exist implementations for a number of other methods, which have arisen 
+in the context of supercompilation, and which, unfortunately, get less attention
+than they deserve.
+These methods include neighborhood analysis, neighborhood testing, inverse programming,
+nonstandard semantics \cite{Abramov1995meta}.
+% либо сказать, что это такое, либо дать ссылки
+
+\item \emph{Jscp\cite{Klimov2008Jscp} \cite{JscpUrl}.} A supercompiler for Java.
+The first supercompiler for an object-oriented, real-world language.
+One of the main conclusions of this experiment: supercompilation of
+non-functional languages is much more complicated.
+Jscp, unlike most other supercompilers in this list, is closed-source.
+
+% http://code.haskell.org/timber/src/Scp.hs
+\item \emph{A supercompiler for Timber \cite{TimberUrl}.} Timber 
+is a pure object-oriented language with call-by-value semantics, mostly inspired by Haskell.
+Its supercompiler treats the purely functional subset of the language.
+The main goal of this project is to achieve similar optimizations 
+when supercompiling a call-by-value language -- compared to a call-by-name language --
+while fully preserving the semantics of the original program.
+Good descriptions exist in \cite{Jonsson2008Supercompilation,Jonsson2011Phd}.
+
+\item \emph{Supero \cite{SuperoUrl}.} A supercompiler for a subset of Haskell.
+Supero is the first supercompiler to treat a call-by-need language,
+which was actually the main goal of the 
+project \cite{Mitchell2008taa,Mitchell2010Rethinking}.
+
+\item \emph{SPSC \cite{SpscUrl}.} SPSC is another toy supercompiler for SLL.
+The main goal was to implement positive supercompilation,
+as described (but not implemented) by 
+S{\o}rensen \cite{Sorensen1996Positive,Sorensen1998Introduction}. 
+SPSC is described in \cite{Klyuchnikov2009SPSC}.
+
+\item \emph{HOSC \cite{HoscUrl}.} HOSC is
+a supercompiler for a (call-by-name) Haskell subset.
+Unlike many other projects, where the main goal is program optimization,
+here the main interest lies in program analysis by supercompilation.
+Besides standard supercompilation, HOSC can also perform
+``two-level'' supercompilation, based on discovering and applying 
+``improvement'' lemmas \cite{Klyuchnikov2010Phd,Klyuchnikov2010Fast}.
+
+\item \emph{Optimusprime \cite{OptimusprimeUrl}.} Optimizes
+functional programs, which are then run on a specialized FPGA-build
+processor (Reduceron) \cite{Reich2010Reduceron}.
+
+\item \emph{CHSC \cite{ChscUrl}.} Another
+supercompiler for a Haskell subset \cite{Bolingbroke2010Eval}.
+The main goal of this project was to include supercompilation
+as an optimization pass inside GHC.
+An important technical difference is that CHSC does not perform
+lambda-lifting as a preprocessing step, unlike most other
+supercompilers for higher-order languages.
+
+\item \emph{Distillation \cite{DistillUrl}.} Most
+supercompilers use configurations based on expressions with free variables.
+Distillation uses configurations, each of which in turn is 
+similar to a configuration graph. 
+In other words, the nodes of distillation's configuration graphs contain nested graphs;
+and folding and generalization must be defined over graphs. 
+Such complications are the price for obtaining more powerful
+optimizations, compared to standard 
+supercompilation \cite{Hamilton2007Distillation,Hamilton2010Graph}.
+
+\item \emph{MRSC \cite{MrscUrl}} A toolkit 
+for building ``multi-result'' supercompilers.
+Multi-result supercompilation \cite{klyuchnikov2011mrsc} is another generalization of the standard
+supercompilation technique, where the supercompiler is permitted to
+return multiple residual programs (all correct, of course).
+While this may seem useless at first glance, it turns our that 
+this extension opens the way for a much more flexible and modular
+description of supercompilation, and in the same time permits
+some optimizations, which are out of reach for the standard methods.
+
+\item \emph{A Coq framework for building formally verified supercompilers \cite{CoqGenScpUrl}} 
+A framework -- in Coq -- for building modular supercompilers by just defining 
+the basic ingredients (configurations, driving, folding, etc.),
+and plugging them into a prefabricated generic supercompiler \cite{TFP2012:CoqGenScp}.
+The organization of the supercompiler is very similar to the one we have just described,
+and there is a complete example supercompiler for a language very close to SLL.
+The main advantage of the framework is that it facilitates formally establishing
+the correctness of each new supercompiler, by just having to prove some simple properties
+concerning the basic building blocks.
+
+\item \emph{A supercompiler for Erlang \cite{ErlangScpUrl}} A recent
+first step towards a practical supercompiler for another popular language -- Erlang.
+
+\item \emph{TT-Lite \cite{TTliteUrl}} A supercompiler
+for a version of Martin-L\"{o}f's Type Theory (MLTT).
+TT-Lite is the first supercompiler for a terminating (non-Turing-complete) language
+with dependent types \cite{Klyuchnikov2013TTLite}. 
+Another interesting feature is the generation of ``certificates'',
+containing formal, automatically verifiable evidence 
+that the residual program is equivalent to the input one, in each specific instance. 
+The certificates themselves are encoded as MLTT terms.
+
+\end{longitem}

@@ -1,0 +1,80 @@
+\section{Article Goals}
+% Сюда бы добавить 1 предложение вроде "Суперкомпиляция - это ...",
+% ибо 1) для человека, впервые слышащего о ней, немного огорошивающий эффект от текста,
+% ИК: добавил в аннотацию
+
+% В последние три-четыре года заметен рост интереса к идеям суперкомпиляции в научном (больше
+% западном, чем в российском) сообществе, занимающемся функциональным программированием.
+%
+
+Those interested in the pragmatic aspects of functional programming (in the most general sense), 
+who have heard something about supercompilation, display varying attitudes.
+The most common reaction is one of mistrust and even full rejection, 
+mostly because of the fact that there is no industrial-strength supercompiler yet. 
+All existing supercompilers have an experimental status. 
+And in most cases they are successfully used only by their own authors.
+
+Supercompilation is, in a certain sense, a very general method, but in practice only
+specialized tools -- re-using just some of the ideas of supercompilation -- turn out 
+working well and useful. 
+And people usually expect a general tool coming out as a result of a general idea. 
+Another possible reason for the mistrust is the fact that supercompilation is still lacking a ``killer application''.
+% \footnote{Попробую привести здесь такую
+% аналогию. Есть общая идея распараллеливания существующих программ. И есть хорошие узко направленные
+% инструменты, распараллеливающие некоторые программы очень даже хорошо. Универсального
+% распараллеливателя пока что тоже нет.}.
+
+One common misconception persists: that supercompilation is only a tool for program optimization.
+Supercompilation is a \emph{program transformation technique}.
+Program transformations can have different goals.
+One such goal can be optimization, another -- program analysis.
+Supercompilation is equally applicable to both these goals.
+Most works dealing with supercompilation consider only the optimization aspect,
+but we should not be misled that optimization is the only useful application of supercompilation.
+
+We must distinguish the notions of \emph{supercompilation} and \emph{a supercompiler}.
+Many articles describe various technical difficulties arising from the implementation
+of a specific supercompiler, and ways to overcome these difficulties, while mostly
+leaving aside the underlying key ideas of supercompilation.
+In most cases the parts of a given supercompiler interact in intricate ways, which
+may give the impression of a complicated monolithic 
+construction.
+Or, as Simon Peyton-Jones put it: 
+``\ldots To build a supercompiler, if you look at how it works, there are a number of things all wound together in one rather complicated ball of mud. 
+I found it extremely difficult when I really wanted to understand it. 
+I found it very difficult to understand the papers. \ldots''
+(in an interview for ``Practice of Functional Programming'', 6).
+
+The main goal of this article is to give a clear and concise illustration of the
+aforementioned Turchin's quote, describing the essence of supercompilation,
+by using a minimalistic example supercompiler.
+The accent is on delineating and explaining the basic building blocks, 
+and showing how these blocks can be implemented and made to work together,
+in a clear and simple fashion.
+
+\textbf{Organization of the article:}
+A important companion to this article is the full source code of the toy supercompiler
+SC~Mini, with detailed comments \cite{SCMiniUrl}
+(250 lines of main code + 200 lines of auxiliary utilities in Haskell).
+The text of the article itself can be seen as an introduction to studying
+these supercompiler sources.
+The article introduces and explains the main supercompiler terminology and ingredients,
+and illustrates SC~Mini's behavior on suitable examples.
+These examples are chosen to be neither too complicated, nor oversimplified.
+The reader is thus invited to carefully study all examples.
+
+% Статья описывает идеи и методы
+% суперкомпиляции и демонстрирует некоторые ее возможности на простых работающих примерах. Рассмотренные методы
+% реализованы автором в учебном суперкомпиляторе SC Mini, написанном специально для данной статьи. Сам
+% суперкомпилятор SC Mini и его подробное описание
+% даны в дополнительных материалах, которые доступны на сайте журнала. Приложение может представлять
+% интерес для программиста на Хаскеле, желающего ближе познакомиться с техническими аспектами
+% устройства суперкомпилятора.
+
+\textbf{Things left out:} 
+Do not expect to find a detailed comparison of supercompilation to other methods
+of program optimization/transformation -- it would require a survey article
+of a much larger scope. 
+A comprehensive bibliography of supercompilation literature is similarly out of scope,
+although we do give many useful references where relevant.
+

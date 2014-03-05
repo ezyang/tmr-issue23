@@ -1,0 +1,19 @@
+\begin{tabular}{@{}l@{\hspace{1pt}} l@{\hspace{1pt}} l@{\hspace{1pt}} l@{\hspace{1pt}}}
+$\mathcal{I}_p \llbracket e \rrbracket$ &
+$\Rightarrow$
+$e$ & ($I_1$)\\&if $e$ is a value\\
+
+$\mathcal{I}_p \llbracket C(e_1, \ldots, e_n) \rrbracket$ &
+$\Rightarrow$
+$C(\mathcal{I}_p \llbracket e_1 \rrbracket, \ldots, \mathcal{I}_p \llbracket e_n \rrbracket)$ & ($I_2$) \\ \\
+
+$\mathcal{I}_p \llbracket con \langle f(e_1, \ldots, e_n) \rangle \rrbracket$ &
+$\Rightarrow$
+$\mathcal{I}_p \llbracket con \langle e / \{v_1 := e_1, \ldots, v_n := e_n\} \rangle \rrbracket$ & ($I_3$) \\
+&if $f(v_1, \ldots, v_n) \stackrel{\textrm{\tiny p}}{=} e$\\
+
+$\mathcal{I}_p \llbracket con \langle g(C(e_1, \ldots, e_m), e_{m+1},\ldots, e_n)\rangle \rrbracket$ &
+$\Rightarrow$
+$\mathcal{I}_p \llbracket con \langle e / \{v_1 := e_1, \ldots, v_n := e_n\} \rangle \rrbracket$ & ($I_4$)\\
+&if $g(C(v_1, \ldots, v_m), v_{m+1},\ldots, v_n) \stackrel{\textrm{\tiny p}}{=} e$
+\end{tabular}

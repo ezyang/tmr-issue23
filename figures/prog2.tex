@@ -1,0 +1,29 @@
+\begin{lstlisting}[language=sll]
+match(p, s) = m(p, s, p, s);
+
+-- matching routine
+-- current pattern is empty, so match succeeds
+m("", ss, op, os) = True();
+-- proceed to match first symbol of pattern
+m(p:pp, ss, op, os) = x(ss, p, pp, op, os);
+
+-- matching of the first symbol
+-- current string is empty, so match fails
+x("", p, pp, op, os) = False();
+-- compare first symbol of pattern with first symbol of string
+x(s:ss, p, pp, op, os) =
+  if(eq(p, s), m(pp, ss, op, os), n(os, op));
+
+-- failover
+-- current string is empty, so match fails
+n("", op) = False();
+-- trying the rest of the string
+n(s:ss, op) = m(op, ss, op, ss);
+
+-- equality routines
+eq('A', y) = eqA(y);  eqA('A') = True();   eqB('A') = False();
+eq('B', y) = eqB(y);  eqA('B') = False();  eqB('B') = True();
+-- if/else
+if(True(), x, y) = x;
+if(False(), x, y) = y;
+\end{lstlisting}

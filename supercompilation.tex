@@ -1,0 +1,66 @@
+%\documentclass[electronic]{pfp-journal}
+\documentclass[tikz]{tmr}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+\usepackage{tikz}
+\usetikzlibrary{calc,petri,decorations.pathmorphing}
+\usepgflibrary{shapes.multipart}
+
+%\usepackage{semantic}
+\usepackage{listings} % package `semantic` does not work with class `tmr`
+\usepackage{stmaryrd} % for \{ll,rr}bracket	
+
+\usepackage[]{subfig}
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.8\textwidth}
+
+%\usepackage{float}
+%\floatstyle{ruled}
+%\restylefloat{figure}
+
+%\newtheoremstyle{exercisestyle}% name of the style to be used
+%  {3pt}% measure of space to leave above the theorem. E.g.: 3pt
+%  {3pt}% measure of space to leave below the theorem. E.g.: 3pt
+%  {\footnotesize}% name of font to use in the body of the theorem
+%  {0pt}% measure of space to indent
+%  {\bfseries}% name of head font
+%  {}% punctuation between head and body
+%  {2mm}% space after theorem head
+%  {}% Manually specify head
+%\theoremstyle{exercisestyle}
+%\newtheorem{theorem}{Теорема}
+%\newcounter{exercise}
+%\newtheorem{exercise}[theorem]{Замечание}
+
+%\inlineCode{haskell}
+\lstset{language=haskell, basicstyle=\ttfamily\small}
+
+\lstdefinelanguage{sll}
+{morecomment=[l]{--},tabsize=4,moredelim=[is][\underbar]{\[}{\]}}[keywords,comments,strings]
+\lstdefinestyle{sll}{language=sll}
+
+
+\title{Supercompilation: Ideas and Methods}
+\author{Ilya Klyuchnikov\email{ilya.klyuchnikov@gmail.com}}
+\author{Dimitur Krustev\email{dkrustev@gmail.com}}
+
+%\maketitle
+
+\begin{document}
+
+\input{00-title}
+\input{01-idea}
+\input{02-my-goals}
+\input{03-methods}
+\input{05-problems}
+\input{06-history}
+\input{07-supercompilers}
+%\input{08-glossary}
+\input{09-conclusion}
+
+%\bibliographystyle{gost71s}
+%\bibliographystyle{tmr}
+\bibliography{references}
+
+\end{document}

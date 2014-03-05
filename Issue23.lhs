@@ -1,5 +1,5 @@
 % -*- LaTeX -*-
-\documentclass[complete]{tmr}
+\documentclass[tikz,complete]{tmr}
 
 %include polycode.fmt
 
@@ -10,6 +10,19 @@
 \usepackage{accents}
 \usepackage{ifthen}
 \usepackage[all]{xy}
+
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+\usepackage{tikz}
+\usetikzlibrary{calc,petri,decorations.pathmorphing}
+\usepgflibrary{shapes.multipart}
+
+\usepackage{listings} % package `semantic` does not work with class `tmr`
+\usepackage{stmaryrd} % for \{ll,rr}bracket	
+
+\usepackage[]{subfig}
+\usepackage{epigraph}
 
 \issue{Issue 23}
 
@@ -24,5 +37,6 @@
 
 \article{Editorial}
 \article{fizzbuzz}
+\article{supercompilation}
 
 \end{document}

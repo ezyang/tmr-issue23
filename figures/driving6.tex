@@ -1,0 +1,48 @@
+\begin{tikzpicture}[
+level distance=10mm,
+level/.style={sibling distance=35mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small},
+comp/.style={
+	font=\ttfamily\small
+} 
+]	 
+\node[conf](base){add'(x, y)}
+	child[->] {
+		node[conf] {y}
+		edge from parent node[left] {\texttt{x = Z()}}
+	}
+	child[->] {
+		node[conf] {add'(v1, S(y))} 
+		child[->] {
+			node[conf] {S(y)}
+			edge from parent node[left] {\texttt{v1 = Z()}}
+		}
+		child[->] {
+			node[conf] {add'(v2, S(S(y)))} 
+			child[->] {
+				node[conf](b) {S(S(y))}
+				edge from parent node[left] {\texttt{v2 = Z()}}
+			}
+			child[->] {
+				node[conf,text width=25mm](let) {}
+				child {node[conf](c1) {S(S(S(y)))} edge from parent[draw=none]}
+				child {node[conf](c2) {add'(v3, v4)} edge from parent[draw=none]}
+				edge from parent node[right] {\texttt{v2 = S(v3)}}
+			}
+			edge from parent node[right] {\texttt{v1 = S(v2)}}
+		}
+		edge from parent node[right] {\texttt{x = S(v1)}}
+	};
+
+%\node[conf](xxx) at (ggg) {xxx};	
+\matrix [column sep=0pt] at (let) {
+\node[comp]{let v4 =};&\node(v4)[token]{};&\node[comp]{in};&\node(in)[token]{}; \\ 
+};
+\draw [-] (v4.south) -- (c1.north);
+\draw [-] (in.south) -- (c2.north);
+\draw [->,dashed,rounded corners = 30pt] 
+(c2.east) -- ($ (c2.east) + (20mm,0) $) -- ($ (base.east) + (20mm,0) $) -- (base.east);
+\end{tikzpicture}

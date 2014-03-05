@@ -1,0 +1,22 @@
+\begin{tikzpicture}[
+level distance=10mm,
+level/.style={sibling distance=45mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small},
+label/.style={font=\ttfamily\small} 
+]
+\node[conf](s0) {even(\underline{sqr}(S(x)))}
+	child[->] {node[conf](s1) {even(\underline{mult}(S(x), S(x)))} 
+		child[->] {node[conf](s2) {even(\underline{add}(S(x), mult(x, S(x))))}
+			child[->] {node[conf](s3) {\underline{even}(S(add(x, mult(x, S(x)))))}
+				child[->] {node[conf](s4) {odd(\underline{add}(x, mult(x, S(x))))}
+				child[->] {node[conf] {ERROR}}}
+				}}};
+\node[label,right] at ($ (s0.east) + (2mm,0mm) $) {s0};
+\node[label,right] at ($ (s1.east) + (2mm,0mm) $) {s1};
+\node[label,right] at ($ (s2.east) + (2mm,0mm) $) {s2};
+\node[label,right] at ($ (s3.east) + (2mm,0mm) $) {s3};
+\node[label,right] at ($ (s4.east) + (2mm,0mm) $) {s4};
+\end{tikzpicture}

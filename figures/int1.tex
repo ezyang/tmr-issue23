@@ -1,0 +1,35 @@
+\begin{tikzpicture}[
+level distance=10mm,
+level/.style={sibling distance=45mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small}, 
+system/.style={
+	rectangle split, rectangle split parts=2, draw,
+	draw=black,fill=black!10,
+	font=\ttfamily\small}, 
+label/.style={
+font=\ttfamily\small
+}
+]
+\tikzstyle{level 1}=[level distance=12mm];
+\tikzstyle{level 2}=[level distance=10mm]
+\node[system]{(even(sqr(S(x))), prog1) \nodepart{second}x := Z()}
+child {node[conf](s0) {even(\underline{sqr}(S(Z())))}
+	child[->] {node[conf](s1) {even(\underline{mult}(S(Z()), S(Z())))} 
+		child[->] {node[conf](s2) {even(\underline{add}(S(Z()), mult(Z(), S(Z()))))}
+			child[->] {node[conf](s3) {\underline{even}(S(add(Z(), mult(Z(), S(Z())))))}
+				child[->] {node[conf](s4) {odd(\underline{add}(Z(), mult(Z(), S(Z()))))}
+					child[->] {node[conf](s5) {odd(\underline{mult}(Z(), S(Z())))}
+						child[->] {node[conf](s6) {\underline{odd}(Z())}
+							child[->] {node[conf](s7) {False()}}}}}}}}};
+\node[label,right] at ($ (s0.east) + (10mm,0mm) $) {s0};
+\node[label,right] at ($ (s1.east) + (10mm,0mm) $) {s1};
+\node[label,right] at ($ (s2.east) + (10mm,0mm) $) {s2};
+\node[label,right] at ($ (s3.east) + (10mm,0mm) $) {s3};
+\node[label,right] at ($ (s4.east) + (10mm,0mm) $) {s4};
+\node[label,right] at ($ (s5.east) + (10mm,0mm) $) {s5};
+\node[label,right] at ($ (s6.east) + (10mm,0mm) $) {s6};
+\node[label,right] at ($ (s7.east) + (10mm,0mm) $) {s7};
+\end{tikzpicture}

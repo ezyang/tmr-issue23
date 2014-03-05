@@ -1,0 +1,14 @@
+\begin{tikzpicture}[
+level distance=10mm,
+level/.style={sibling distance=45mm},
+conf/.style={
+	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
+	draw=black,
+	font=\ttfamily\small},
+label/.style={font=\ttfamily\small}
+]
+\node[conf](s5b) {\underline{odd}(S(add(v1, mult(x, S(x)))))} 
+	child[->] {node[conf](s6b) {even(add(v1, mult(x, S(x))))}};
+\node[label,right] at ($ (s5b.east) + (2mm,0mm) $) {s5b};
+\node[label,right] at ($ (s6b.east) + (2mm,0mm) $) {s6b};
+\end{tikzpicture}

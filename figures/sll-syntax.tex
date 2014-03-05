@@ -1,0 +1,15 @@
+\begin{tabular}[t]{l r l@{\hspace{20pt}} l}
+$P$ & ::=    & $d_1 \ldots d_n$                  & program   \\
+\\
+$d$ & ::=    &  $f(v_1, \ldots, v_n) = e;$       & ``indifferent'' function \\
+    & $\mid$ & $g(p_1, v_1, \ldots, v_n) = e_1;$ & ``curious'' function \\
+    &        & $\ldots$ \\
+    &        & $g(p_m, v_1, \ldots, v_n) = e_m;$ \\
+\\
+$e$ & ::= && expression  \\
+    && $v$                    &variable\\
+    &$\mid$  & $C(e_1, \ldots, e_n)$  &constructor\\
+    &$\mid$  & $f(e_1, \ldots, e_n)$  &function call\\
+\\
+$p$ & ::=    & $C(v_1, \ldots, v_n)$  &pattern
+\end{tabular}
