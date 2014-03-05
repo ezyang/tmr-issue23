@@ -1,7 +1,7 @@
 issue = Issue23
 
 lhssources = fizzbuzz.lhs
-texsources = Editorial.tex fizzbuzz.tex supercompilation.tex mflow.tex
+texsources = Editorial.tex fizzbuzz.tex supercompilation.tex mflow.tex nccb.tex
 
 default: $(issue).pdf
 

@@ -1,0 +1,382 @@
+\documentclass{tmr}
+
+\usepackage{multirow}
+\usepackage{listings}
+
+\lstdefinelanguage[improved]{Haskell}
+  {classoffset=0,
+   %If we don't specify at least one "non-other" keyword, listings doesn't work, hence:
+   morekeywords={hduisahfiuabfyasbyoasvbfuyvosf},
+   alsoother={@,|},
+   otherkeywords={=,$,+,\\,.,:,(),|>,<|,>,-,<,`,'},
+   classoffset=1,
+   morekeywords={data,forall,type,newtype,let,in,do,where,if,then,else,class,instance,case,of},
+   morecomment=[l]{--},
+   morestring=[b]",
+  }
+
+\lstset{language={[improved]Haskell},
+ 	columns=flexible,
+ 	basicstyle=\sffamily,
+ 	emphstyle=\bfseries,
+        keywordstyle=[1]{\bfseries},
+        keywordstyle=[0]{\bfseries\ttfamily},
+ 	identifierstyle=,
+ 	commentstyle=,
+	stringstyle=\footnotesize\ttfamily,
+        escapechar=\%,
+        showstringspaces=false}
+
+%$
+
+\lstnewenvironment{code}{}{}
+
+\title{Practical Type System Benefits}
+\author{Neil Brown\email{neil@twistedsquare.com}}
+
+\begin{document}
+
+\begin{introduction} 
+One of Haskell's key selling points is its type system.  This article provides several practical examples of how the type system helped while writing some data analysis software.  The article will touch on monads, concurrency, invariants, generic programming, and quasi-quoters.
+\end{introduction}
+
+\section{The Project}
+
+As part of a research project, we are collecting a large volume of Java source code which we want to analyse\footnote{For more details, see ``Blackbox: A Large Scale Repository of Novice Programmers' Activity'' by Brown et al., available shortly at \url{http://twistedsquare.com/publications.html}}.  At the time of writing we have 50 gigabytes of source code snapshots from six months' recording.  To perform the analysis, we have a machine with two 6-core hyperthreaded Xeon processors and 32 gigabytes of RAM.  I might term this ``medium data'': small enough to fit on one machine, but big enough that you can make multiple cups of tea while the analysis is running.
+
+I felt that for writing this analysis, Haskell was a good choice.  This was mainly because of its easy support for generic programming and parallel processing, as will be explained in the course of this article.  I thought my experiences may be of interest to others, by highlighting practical uses of Haskell's powerful type system in my project.  The article assumes general familiarity with Haskell, and is aimed at someone who has learned a little, but wants to see what the advantages are of learning more.
+
+
+\section{Generic Programming}
+
+One of the main reasons that I felt Haskell would give me an advantage for performing source code analysis was its easy support for generic programming\footnote{Generic programming refers to programming that works with multiple types.  Although they share the same name and concept, Java's generics are a fairly restrictive form of generic programming.  An example in Haskell might be a generic fold, which can fold the contents of a heterogenous container together.}. For example, one small analysis I wanted to perform was to look for \lstinline|if| statements in Java like this:
+
+\begin{lstlisting}[language=java]
+if (x < 5);
+{
+    x = 5;
+}
+\end{lstlisting}
+
+Note the crucial semi-colon after the if condition; a semi-colon is a valid statement in Java, so the semi-colon becomes the if body.  Thus the if statement is pointless, and the body is executed regardless of whether \lstinline|x| is less than 5.  Effectively, the compiler sees this version:
+
+\begin{lstlisting}[language=java]
+if (x < 5)
+    ; // if has empty body
+
+// This is now a totally separate block of code that is executed next:
+{
+    x = 5;
+}
+\end{lstlisting}
+
+This is not a compile-time or run-time error, but without an else clause, I think it can always be termed a programmer mistake (even if the condition has side-effects, why would you write it like this as an if condition, and not just as a statement?).  The first thing to do in looking for this mistake was to parse the source into an Abstract Syntax Tree (AST) -- for this, I used (a slightly augmented version of) the \texttt{language-java} library from Hackage.  The relevant portion of the AST data type is this\footnote{To be clear: the triple dots are omitted code, not Haskell syntax!}:
+
+\begin{code}
+data Stmt = Empty | IfThen Exp Stmt | IfThenElse Exp Stmt Stmt | ...
+\end{code}
+
+\lstinline|Exp| is the data type for expressions, while \lstinline|Stmt| is the data type for statements.  You can see that \lstinline|Stmt| has a constructor for the empty statement (i.e. the solitary semi-colon).  So my empty statement will be a value that looks like \lstinline|IfThen something Empty|.  That's easy to pattern-match for, given a specific \lstinline|Stmt|.  Here's the code:
+
+\begin{code}
+emptyIf :: Stmt -> Bool
+emptyIf (IfThen _ Empty) = True
+emptyIf _ = False
+\end{code}
+
+However, a full Java AST is of type \lstinline|CompilationUnit|, and can have \lstinline|Stmt| values in all sorts of places -- due to Java's support for anonymous inner classes, statements can be inside method declarations that are inside a class definition in an expression which itself could be in another inner class.  This is where generic programming enters the picture.
+
+Generic programming can be used to automatically find all values of one type (e.g. \lstinline|Stmt|) inside a complex structure containing many different types (e.g. \lstinline|CompilationUnit|).  The \lstinline|listifyDepth :: (b -> Bool) -> a -> [b]| function that finds a list of all values of type \lstinline|b| (\lstinline|Stmt|) within the given value of type \lstinline|a| (\lstinline|CompilationUnit|) that satisfy the given function.  It comes from the Alloy generic programming library, but the exact same function exists in Scrap Your Boilerplate (named \lstinline|listify|), and similar functions are available in other generic programming libraries.  This makes augmenting our function to look across the whole \lstinline|CompilationUnit| structure very easy:
+
+\begin{code}
+hasEmptyIf :: CompilationUnit -> Bool
+hasEmptyIf = not . null . listifyDepth emptyIf
+
+-- OR:
+
+findEmptyIfs :: CompilationUnit -> [Stmt]
+findEmptyIfs = listifyDepth emptyIf
+\end{code}
+
+This support for generic programming is particularly easy in the Haskell language, and in general, dealing with tree structures like an AST is much easier in Haskell than in a language like Java.
+
+\section{Concurrency and Parallelism}
+
+Being a pure functional language, Haskell has great support for functional parallelism: evaluating several pure functions in parallel.  However, it also has good support for concurrency: running several imperative threads of control alongside each other.  In our application, the analysis is almost always in a map-reduce style:
+
+\begin{enumerate}
+\item Read some initial state from the database to work out our list of tasks.
+\item Run a large batch of tasks that each fetch data from the database (or some files with cached intermediate state) and then process the data.
+\item Collate the results together.
+\end{enumerate}
+
+The middle step is amenable to being run across many processor cores, but since it requires imperative access to the database or file system, we must use imperative forms of concurrency (i.e. \lstinline|forkIO|).  The classic problem with parallel programming is synchronising and coordinating access to mutable variables.  In Haskell, this is not an issue.  However, there are still problem with synchronising concurrent access to \textit{external resources}, such as the database connection or files.  It is easy, at first, to accidentally write code like this:
+
+\begin{code}
+do conn <- newConnection
+   mapM_ forkIO [doTask i conn | i <- [0..9]]
+\end{code}
+
+This will unsafely use the connection in parallel from many tasks, but will produce no compile-time error.  It is particularly easy to do this in Haskell because you do not need to write a separate function to act as a thread main function (e.g. like in C) where you would need to explicitly pass the connection as a parameter.  In the above code, it is not obvious on first glance that the \lstinline|conn| parameter is being used wrongly.
+
+I found that the best way to avoid this problem was to build the connection into a monad, using a reader monad (called \lstinline|DB|).  (A reader monad encapsulates some read-only state, which you can read or use via a monadic action.)  This both avoided passing the connection parameter around (it could just be accessed from the monad), and meant that I could build a \lstinline|parallel| function that would automatically open a new database connection for each new thread.  The parallel function had a simple API:
+
+\begin{code}
+parallel :: [DB a] -> DB [a]
+\end{code}
+
+This API neatly hid the complexity of what it was doing.  The function started up a bunch of new worker threads (one per core) and opened a new connection for each thread.  Then each thread picked worker tasks from a list and executed them, before returning the results.  With lists of tasks being 10,000s, opening a database connection per worker thread (of which there were 24) was much lower overhead than opening one per task.  I have since generalised the functionality and released it as part of the \texttt{parallel-tasks} library on Hackage: \url{http://hackage.haskell.org/package/parallel-tasks}.
+
+\section{Models}
+
+The database that our application is reading from is originally written to by a Ruby on Rails application.  Rails uses a relational database as a persistence layer to store objects that it calls ``models''.  Each model has a column for each of its fields.  The primary key, ``id'', is an auto-incrementing integer, and thus foreign keys are also integers.  Our user and session models might be stored in a database table something like this:
+
+~\\
+
+\begin{minipage}[c]{0.45\textwidth}
+    \begin{tabular}{cc}
+\multicolumn{2}{c}{User}\\ \hline
+Field Name & Field Type \\ \hline
+\textbf{id} & 64-bit integer \\
+uuid & string \\
+created\_at & datetime \\ \hline
+\end{tabular}
+\end{minipage}
+%&
+\begin{minipage}[c]{0.45\textwidth}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Session}\\ \hline
+Field Name & Field Type \\ \hline
+\textbf{id} & 64-bit integer \\
+user\_id & 64-bit integer \\
+created\_at & datetime \\ \hline
+\end{tabular}
+\end{minipage}
+%\end{tabular}
+
+~\\
+
+A naive approach to dealing with this data from Haskell is to declare an Id type alias:
+
+\begin{code}
+type Id = Int64
+\end{code}
+
+You might get these from a query from the \texttt{mysql-simple} library:
+
+\begin{code}
+do (sessionId :: Id, userId :: Id) <- query conn "select s.id, u.id
+      from sessions as s, users as u inner join on s.user_id = u.id"
+\end{code}
+
+You might then have utility functions like these:
+
+\begin{code}
+getNewUsersSince :: Date -> DB [Id]
+
+getUserInfo :: Id -> DB User
+
+getSessionListForUser :: Id -> DB [Id]
+
+getSessionInfo :: Id -> DB Session
+\end{code}
+
+With all these \lstinline|Id| fields flying around, it is only a matter of time before you do something like this:
+
+\begin{code}
+do us <- getNewUsersSince d
+   mapM (\u -> do ss <- getSessionListForUser
+                  mapM getSessionInfo us {- whoops! -}) us
+\end{code}%$
+
+Instead of passing a list of session ids to \lstinline|mapM getSessionInfo|, we passed user ids.  But they all have the same type, so this type checks, and the database is fine with it too, so it won't even produce an error, just wrong results.  This small example is slightly contrived; but these things do happen, especially if the function took a list of user ids and a list of session ids -- it's easy to get the parameter order wrong.
+
+The solution is to give each id its own type, to prevent mixing them up.  A first attempt might look like this:
+
+\begin{code}
+newtype UserId = UserId Int64
+newtype SessionId = SessionId Int64
+
+data User = User { userId :: UserId,
+                   userUuid :: String,
+                   userCreatedAt :: Datetime }
+data Session = Session { sessionId :: SessionId,
+                         sessionCreatedAt :: Datetime }
+
+getNewUsersSince :: Date -> DB [UserId]
+
+getUserInfo :: UserId -> DB User
+
+getSessionListForUser :: UserId -> DB [SessionId]
+
+getSessionInfo :: SessionId -> DB Session
+\end{code}
+
+Immediately, the functions are much clearer in their behaviour.
+% There is an alternate approach.  For all models, I may want to have a ``get'' function that gets the full database record given the id field.  With the above system, I'm defining a new get function for each record.  I could instead parameterise the Id type by the table it is referring to:
+%
+% \begin{code}
+% newtype Id a = Id Int64
+%
+% data User = User { userId :: Id User, userUuid :: String, userCreatedAt :: Datetime }
+% data Session = Session { sessionId :: Id Session, sessionCreatedAt :: Datetime }
+%
+% getNewUsersSince :: Date -> DB [UserId]
+%
+% getSessionListForUser :: UserId -> DB [SessionId]
+%
+% class Model m where
+%   get :: Id m -> DB m
+% \end{code}
+%
+% Now, I can just say \lstinline|get uid| and if uid has type \lstinline|Id User|, the function will give \lstinline|DB User|.  You may prefer the first approach, where you more verbose about what you were getting, or you may prefer the second approach where the function names are simpler.  I will continue this article with the first approach, because I think it is a little more understandable if you know less Haskell.
+%
+One way to use these types is to apply them directly after the database query:
+
+\begin{code}
+do (rawSessionId, rawUserId) <- query conn "select s.id, u.id
+     from sessions as s, users as u inner join on s.user_id = u.id"
+   let sessionId = SessionId rawSessionId
+       userId = UserId rawUserId
+
+-- OR:
+
+do (sessionId, userId) <- (SessionId *** UserId) <$> query conn "select
+     s.id, u.id from sessions as s, users as u inner join on s.user_id = u.id"
+\end{code}%$
+
+A better solution is available if you know what the \lstinline|query| function does.  It has a selection of type-classes like \lstinline|Result| which support conversion from the database wire protocol into recognisable Haskell types (\lstinline|Int32|, \lstinline|String|, etc).  We don't actually need to know what exactly they do or how they work -- using the GHC GeneralizedNewtypeDeriving language feature we can just tell the compiler to port them from \lstinline|Int64| to our newtype wrapper of \lstinline|Int64|:
+
+\begin{code}
+newtype UserId = UserId Int64 deriving (..., Result, ...)
+newtype SessionId = SessionId Int64 deriving (..., Result, ...)
+\end{code}
+
+This allows us to extract these types directly from the database query without wrapping them ourselves:
+
+\begin{code}
+do (sessionId :: SessionId, userId :: UserId) <- query conn "select
+     s.id, u.id from sessions as s, users as u inner join on s.user_id = u.id"
+\end{code}
+
+(You can omit those type declarations if type inference can infer them from future statements.)
+
+\section{Increasing Type Safety}
+
+We have already prevented some mistakes by not letting \lstinline|SessionId|s be mixed up with \lstinline|UserId|s.  However, there is still potential for mistakes in our program: the MySQL queries.  A MySQL query is one of those instances where you are dealing with external data, and just as when you read from a file or a socket, there is the possibility to make a mismatch with the schema or protocol.  The error cannot be picked up by the compiler (unless you go to greater lengths by converting the schema/protocol into a type or structure that the compiler understands).  For example, here's a possible error:
+
+\begin{code}
+do (sessionId :: SessionId, userId :: UserId) <- query conn "select
+     u.id, s.id from sessions as s, users as u inner join on s.user_id = u.id"
+\end{code}
+
+Do you notice the problem?  The query is asking for the user id and session id (in that order), but the code is expecting a session id and then a user id.  We are back to the previous problem: a mixup in parameters that cannot be detected by the compiler.  In general, I find that several problems in Haskell can be solved by involving the type system further.  The trick is to involve the type system in ways that provide a big benefit for the cost, but not going so far that the type system gets in the way of code that you know (but can't easily prove to the compiler) is safe.  So here is my solution to the problem, that tries to add a decent amount of type safety for low effort and complexity.
+
+So: what I really want to do is add a type annotation to the MySQL queries.  (All that follows, I have packaged into a library on Hackage (\url{http://hackage.haskell.org/package/mysql-simple-quasi}), so you don't have to worry how it is implemented, but I wanted to illustrate an example of taking the type system that little bit further with quasi-quoters.)
+
+\subsection{Interlude: quasi-quoters}
+
+A quasi-quoter is a pre-compile step that is a bit like a pre-processor; it takes a String input and, \textit{at compile-time}, parses it and spits out source code which is then fed into the full compilation.  To illustrate this, consider the case when you want to print out some text, some of which comes from a string, some from an integer, and some from the program itself.  In C I would probably use printf for this purpose:
+
+\begin{lstlisting}[language=C]
+char name[256];
+int yearOfBirth;
+// ... ask user for name and year of birth
+printf("Hi %s, you will reach %d years old this year",
+          name, currentYear - yearOfBirth);
+\end{lstlisting}
+
+In Haskell, you might write it like this:
+
+\begin{code}
+do name <- ...
+   yearOfBirth <- ...
+   putStrLn ("Hi " ++ name ++ ", you will reach " ++
+     show (currentYear - yearOfBirth) ++ " years old this year")
+\end{code}
+
+Haskell code that is uglier than its C equivalent?  Dang.  A simple quasi-quoter allows you to write a string with embedded code (a la Perl, Ruby and many others).  The substitution is done at compile-time (not at run-time using eval or similar), so errors in the code in the string cause compile-time errors.  Using the \texttt{here} package from Hackage, you can write:
+
+\begin{code}
+do name <- ...
+   yearOfBirth <- ...
+   putStrLn [i|Hi ${name}, you will reach ${currentYear - yearOfBirth}
+     years old this year|]
+\end{code}
+
+The syntax being a square bracket, the name of the quasi-quoter function, a pipe, and then the string to be fed to the quasi-quoting function at compile-time, and terminated by a pipe and square bracket.  I'm surprised there aren't more quasi-quoters around (e.g. one for processing regexes at compile-time).
+
+\subsection{Back to our code}
+
+My quasi-quoter, \lstinline|qquery|, takes a query String like this, with type annotations inside it:
+
+\begin{code}
+[qquery|select s.id{SessionId}, u.id{UserId} from sessions as s, users as u
+   inner join on s.user_id = u.id|]
+\end{code}
+
+It then turns it into the same String with the annotations removed and placed into the type of the query, something like this:
+
+\begin{code}
+(mkQuery "select s.id, u.id from sessions as s, users as u inner join
+  on s.user_id = u.id" :: Query (SessionId, UserId))
+\end{code}
+
+Thus if we now re-write our existing code:
+
+\begin{code}
+do (userId, sessionId) <- query conn [qquery|select s.id{SessionId},
+     u.id{UserId} from sessions as s, users as u
+     inner join on s.user_id = u.id|]
+\end{code}
+
+The types are now annotated \textit{exactly where they are used}, inside the query string.  The above code will now give a compile-time error because of the mismatch in the ordering between user id and session id.  These benefits do not come completely for free (it took extra time to add the code in), but once you have the extra capability to add more type information, I believe it pays off time and time again in program clarity and avoiding mistakes as early as possible (compile-time).  Since I have a growing ecosystem of a core central library and lots of quickly hacked together analysis programs to explore data, the benefits of extra safety in the core libraries keep paying off as I use them in my small other programs.
+
+\section{Types as Light-Weight Contracts}
+
+After all that database talk, here's a simpler example of using types to your advantage to end with.  Often you have situations where you know a property or pre-requisite of a value, e.g. that a particular integer is (or should be) non-negative.  In my program I pull out sorted lists from the database (or sort them myself).  Later, I want to merge these lists into a single sorted list.  If I am playing safe, I have to write the merge functions like so:
+
+\begin{code}
+mergeLists :: [a] -> [a] -> [a]
+mergeLists xs ys = mergeSorted (sort xs) (sort ys)
+\end{code}
+
+If the list is already sorted, as is usually the case in my program, I am unnecessarily attempting to sort the lists again.  (This is not just slow because it makes an extra pass of the list, but it also forces evaluation of the list, which may interfere with laziness.)  Instead, I can annotate that the lists are sorted by making a new type for this:
+
+\begin{code}
+newtype SortedList a = Sorted [a] deriving (Eq, Ord, ...)
+\end{code}
+
+It is exported opaquely, so that outside the module the only way to create one is via the exported \lstinline|sortList| function, or a few other generators:
+
+\begin{code}
+sortList :: [a] -> SortedList a
+sortList = Sorted . sort
+
+enumFromToSorted :: a -> a -> SortedList a
+enumFromToSorted x y = Sorted (enumFromTo x y)
+\end{code}
+
+I can then write an O(n) function to merge two sorted lists and be sure that I will never accidentally call it on an unsorted list:
+
+\begin{code}
+mergeSorted :: SortedList a -> SortedList a -> SortedList a
+\end{code}
+
+This technique can also be used in other languages (e.g. defining a new collection class for sorted lists).  But Haskell's newtype wrappers make it very easy to add a new type, with all the features of the old type (by deriving type-classes automatically), and some more features added or removed.
+
+\section{Conclusion}
+
+Often, when people talk about the advantages of a particular programming language, they talk in generalities.  Pure functions make your code better; garbage collection lets you write less code; monads are really useful.  If you know nothing or little of the language, these general benefits are often hard to understand.  I hope that in this article I have given some small, understandable, concrete examples of how some of Haskell's type features can be useful in a real programming project -- without turning into one of those infamously baffling monad tutorials.
+
+
+%Concurrency (avoids shared vars, gets parallelism, but be careful of shared resources, e.g. Connection, files)
+%Lists -> Vectors (Faster, more scalable, less memory)
+%Generic programming (to analyse source code; also mention graph databases)
+%Regexes -> Micro-parsers (Faster? Check with criterion. But certainly more sensible and easier to use)
+%Improving MySQL and Models, etc (Types help!)
+%NO: Mature libraries  (mysql, CSV, neo4j)
+
+%\bibliography{nccb}
+
+\end{document}

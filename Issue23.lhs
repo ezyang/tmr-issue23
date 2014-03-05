@@ -13,6 +13,7 @@
 
 \usepackage{mathtools}
 \usepackage{amsthm}
+\usepackage{multirow}
 
 \usepackage{tikz}
 \usetikzlibrary{calc,petri,decorations.pathmorphing}
@@ -31,6 +32,7 @@
 \author{Ilya Klyuchnikov\email{ilya.klyuchnikov@@gmail.com}}
 \author{Dimitur Krustev\email{dkrustev@@gmail.com}}
 \author{Alberto Gomez Corona\email{agocorona@@gmail.com}} 
+\author{Neil Brown\email{neil@@twistedsquare.com}}
 
 \publishers{Edward Z. Yang, editor.}
 
@@ -43,5 +45,6 @@
 \article{fizzbuzz}
 \article{supercompilation}
 \article{mflow}
+\article{nccb}
 
 \end{document}
