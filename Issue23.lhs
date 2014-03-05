@@ -27,6 +27,8 @@
 \issue{Issue 23}
 
 \author{Maciej Pir{\'o}g\email{maciej.adam.pirog@@gmail.com}}
+\author{Ilya Klyuchnikov\email{ilya.klyuchnikov@@gmail.com}}
+\author{Dimitur Krustev\email{dkrustev@@gmail.com}}
 
 \publishers{Edward Z. Yang, editor.}
 
