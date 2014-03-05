@@ -23,12 +23,14 @@
 
 \usepackage[]{subfig}
 \usepackage{epigraph}
+\usepackage{mflogo}
 
 \issue{Issue 23}
 
 \author{Maciej Pir{\'o}g\email{maciej.adam.pirog@@gmail.com}}
 \author{Ilya Klyuchnikov\email{ilya.klyuchnikov@@gmail.com}}
 \author{Dimitur Krustev\email{dkrustev@@gmail.com}}
+\author{Alberto Gomez Corona\email{agocorona@@gmail.com}} 
 
 \publishers{Edward Z. Yang, editor.}
 
@@ -40,5 +42,6 @@
 \article{Editorial}
 \article{fizzbuzz}
 \article{supercompilation}
+\article{mflow}
 
 \end{document}

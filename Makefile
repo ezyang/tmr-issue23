@@ -1,7 +1,7 @@
 issue = Issue23
 
 lhssources = fizzbuzz.lhs
-texsources = Editorial.tex fizzbuzz.tex supercompilation.tex
+texsources = Editorial.tex fizzbuzz.tex supercompilation.tex mflow.tex
 
 default: $(issue).pdf
 
@@ -22,6 +22,7 @@ clean:
 bib :
 	bibtex supercompilation
 	bibtex fizzbuzz
+	bibtex mflow
 
 final : $(issue).pdf bib
 	pdflatex $(issue).tex
