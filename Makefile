@@ -2,6 +2,7 @@ FOLDERS := supercompilation
 
 export TEXINPUTS := ${FOLDERS}:${TEXINPUTS}
 export BIBINPUTS := ${FOLDERS}:${BIBINPUTS}
+export BSTINPUTS := ${FOLDERS}:${BSTINPUTS}
 
 issue = Issue23
 
