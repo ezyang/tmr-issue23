@@ -1,8 +1,8 @@
 \section{Instead of a conclusion}
 
 The main driving force leading to this article was the following idea: 
-using Haskell, describe -- in a clear and modular way --
-the main ingredients of a minimalistic supercompiler, and to show how they fit together.
+using Haskell to describe -- in a clear and modular way --
+the main ingredients of a minimalistic supercompiler and show how they fit together.
 As a result we arrived at the following definition:
 \begin{lstlisting}
 supercompile :: Task -> Task
@@ -11,7 +11,7 @@ supercompile (e, p) =
 		buildFTree (addPropagation $ driveMachine p) e
 \end{lstlisting}
 The text of the article is, in fact, just an attempt to describe each
-of the parts of this definition, and to show what effects they can
+of the parts of this definition and to show what effects they can
 achieve together.
 
 We hope the reader will take some time to study SC~Mini's sources,
@@ -20,7 +20,7 @@ the implementation.
 
 \subsection{Where can we go from here?}
 
-If you become more deeply interested in supercompilation, here a short
+If you are interested in learning more about supercompilation, here is a short
 list of possible next steps:
 %\marginpar{DK: Some English replacement for SA videos?}
 
@@ -28,13 +28,13 @@ list of possible next steps:
 %  \item Видеозаписи лекций Сергея Абрамова по метавычислениям. (TODO: выложить на Vimeo!!).
 %% status of this todo?
 %  Обязательно посмотрите первую лекцию~--- Сергей Михайлович великолепный рассказчик!
-  \item The articles \cite{Sorensen1998Introduction,Sorensen1996Positive} are 
+  \item The articles~\cite{Sorensen1998Introduction,Sorensen1996Positive} are 
   still very good and readable introductions to the standard techniques used in supercompilation,
-  including some not covered here, such as using homeomorphic embedding as a whistle,
-  using most specific generalization as a generalization algorithm.
+  including some not covered here, such as using homeomorphic embedding as a whistle and
+  using ``most specific generalization'' as a generalization algorithm.
 %  \marginpar{DK: something else in English?}
 %  \item Блог Сергея Романенко, посвященный суперкомпиляции \url{http://metacomputation-ru.blogspot.com/}
-  \item the Google group ``Supercompilation and Related Techniques'' contains the most 
+  \item the Google group ``Supercompilation and Related Techniques'' \EZY{Link?} contains the most 
   up-to-date discussions and announcements concerning supercompilation.
   \end{enumerate}
 

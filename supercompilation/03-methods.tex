@@ -334,8 +334,6 @@ In other words, define a function \texttt{f}, such that
 \\ \texttt{f (driveMachine p) e = eval p e}
 \end{exercise}
 
-\Red{EZY editing paused here}
-
 \subsection{Trees of Configurations}
 
 The \emph{tree of configurations} for an SLL task $(e, p)$ is built in the following way.
@@ -371,7 +369,7 @@ Try to find a characterization of the class of tasks, which result in finite tre
 The notion of a tree of configurations is not strictly necessary for building a working 
 supercompiler.
 Many existing supercompilers, especially those built in recent years,
-make no explicit use of either trees of configurations, or graphs of configurations 
+make no explicit use of either trees of configurations or graphs of configurations 
 (which will be introduced shortly).
 Trees and graphs of configurations can be useful, however, 
 both from theoretical and from educational point of view,
@@ -380,7 +378,7 @@ as they open the way for defining a much more modular supercompiler.
 Let's assume for a moment, that we can build (and somehow store) infinite trees of configurations.
 Then, if for a task $(e, p)$, using a machine $\mathcal{M}_p$, we have built a tree of configurations $t$,
 we can throw away the program $p$ and the machine $\mathcal{M}_p$, and only work with the tree $t$.
-This is possible, as the tree $t$ fully describes the computation of the task $(e, p)$,
+This is possible, as the tree $t$ fully describes the computation of the task $(e, p)$
 without any reference to the text of the program $p$.
 
 \begin{exercise}
@@ -400,10 +398,10 @@ Convince yourselves that
 
 \subsection{Folding}
 \epigraph{Infinite driving graphs are useful in many ways, but to use a graph as an executable program it must be finite.}
-{V.F. Turchin \cite{Turchin1986ProgramTrans}}
+{V. F. Turchin \cite{Turchin1986ProgramTrans}}
 We can evaluate \texttt{even(sqr(S(x)))} for each \texttt{x}, by building the tree of configurations
 and then using the ``tree interpreter'' \texttt{intTree}. 
-The tree of configurations is however infinite.
+The tree of configurations is, however, infinite.
 The goal of \emph{folding} is to turn the infinite tree into a finite object,
 % а зачем это делать? (чем плохо иметь бесконечное дерево?)
 from which we could recover the original infinite tree, if needed.
@@ -415,7 +413,7 @@ $n_0 \rightarrow \ldots \rightarrow n_i \rightarrow \ldots \rightarrow n_j
 Assume further that the configuration in node $n_j$ is a renaming (differs only in the choice
 of variable names) of the configuration in another node $n_i$ ($i < j$). 
 It is clear that we can reconstruct the subtree starting from node $n_j$
-by the subtree starting from node $n_i$, if
+by the subtree starting from node $n_i$ if
 % ... что означает, что сам узел n_n можно смело выкинуть
 we systematically rename the variables in the corresponding configurations.
 
@@ -430,7 +428,7 @@ a given renaming from the subtree starting at $n_2$,
 without building explicitly this subtree.
 % если вообще понадобится. можно же оперировать непосредственно над DAG'ом, и вроде бы это
 % и происходит?
-It is important to note, that the reconstruction of the subtree
+It is important to note that the reconstruction of the subtree
 $n_4$ from the subtree $n_2$ does not require the original program (nor the machine $\mathcal{M}_p$).
 % важность этого до меня дошла не сразу. надо добавить, что дело вот в чем: благодаря
 % детерминизму (?), корень дерева полностью определяет все его поддерево, поэтому
@@ -439,7 +437,7 @@ $n_4$ from the subtree $n_2$ does not require the original program (nor the mach
 % старого поддерева.
 
 We denote such situations with a special kind of edge, leading from the lower node to the upper one.
-As a result, the tree of configurations is no longer a tree, but rather a \emph{graph of configurations}
+As a result, the tree of configurations is no longer a tree but rather a \emph{graph of configurations}
 (also sometimes called ``process graph'').
 
 We are lucky with the tree of configurations for the task \texttt{(even(sqr(x)), prog1)} -- it folds into a 
@@ -470,18 +468,18 @@ a graph of configurations \texttt{g} into a new task \texttt{(e',~p')}.
 We were lucky with the example in the previous subsection, as it was possible to fold the tree into a graph.
 % удалось ли? а как же узел "..."?
 It would be splendid if all trees of configurations were foldable! 
-Unfortunately this is not the case in general.
+Unfortunately, this is not the case in general.
 The program \texttt{prog1} contains a function \texttt{add'}, which defines
 addition using an accumulating parameter.
 The construction of the tree of configurations for \texttt{(add'(x, y), prog1)} goes as follows:\\
 \input{figures/driving5}
 
 This tree is not folding.
-Indeed, a configuration can be a renaming of another only if both have the same size.
+Indeed, a configuration can only be a renaming of another if both have the same size.
 In this example, the path through the rightmost branches of the tree
 contains ever-growing configurations.
-Should the size of configurations be bounded, however, then the tree
-would always fold to a finite graph.
+However, if the size of configurations be bounded, the tree
+will always fold to a finite graph.
 %\footnote{
 %Renaming gives rise in an obvious way to an equivalence relation,
 %which partitions the set of expressions into equivalence classes.
@@ -495,18 +493,18 @@ renaming naturally give rise?
 
 
 We can thus apply a divide-and-conquer heuristics. 
-We limit the size of configurations inside nodes by some constant \texttt{sizeBound}
+We limit the size of configurations inside nodes by some constant \texttt{sizeBound},
 % дописать в духе: тогда их будет конечное число, т.к. конфигураций размера менее sizeBound - ограниченное
 % (хоть и, возможно, экспоненциально большое - в этом одна из проблем суперкомпиляторов) количество.
 and if a configuration becomes larger than this constant,
-we split it into smaller parts, which we can process \emph{independently}.
+we split it into smaller parts which we can process \emph{independently}.
 However, we must
 % какова цена этого преобразования? почему бы не сделать sizeBound очень маленьким и в ус не дуть?
 % (какие возможности оптимизации это преобразование убивает?)
-represent configurations in such a way, that knowing the behavior of the parts
+represent configurations in such a way, that knowing \EZY{this sentence is awkward} the behavior of the parts
 is enough to know the behavior of the whole as well.
 
-Recall that evaluation of closed SLL expressions is compositional.
+Recall that the evaluation of closed SLL expressions is compositional.
 For a closed expression $e_1 / \{v := e_2\}$ we have:
 \[\mathcal{I}_p\llbracket e_1 / \{v := e_2\}\rrbracket = \mathcal{I}_p \llbracket e_1 / \{v := \mathcal{I}_p\llbracket e_2\rrbracket\} \rrbracket\]
 
@@ -530,7 +528,7 @@ For a closed expression $e_1 / \{v := e_2\}$ we have:
 % специальная конструкция let? затем, что ее суперкомпилятор не "инлайнит", в отличие
 % от вызовов безразличных функций?
 
-SC~Mini limits the size of configurations in the tree and build a foldable tree in the following way:
+SC~Mini limits the size of configurations in the tree and builds a foldable tree in the following way: \EZY{this sentence is too long, split it up}
 if while building the tree a configuration $e$ is encountered, 
 which is a function call,
 %\footnote{
@@ -589,11 +587,11 @@ and used in most descriptions of supercompilation.
 The whistle is a heuristic component, whose task is to signal the danger of
 possibly non-foldable (and thus infinite) fragments appearing in the tree of configurations.
 Of course, this task is an instance of the halting problem
-(if the object language is Turing-complete), hence without an exact solution.
+(if the object language is Turing-complete) and does not have an exact solution.
 Any whistle will necessarily give only approximative results, and even the
-best heuristics cannot guarantee the absence of blunders, like for example
+best heuristics cannot guarantee the absence of blunders, such as
 whistling just a few steps before an actually foldable configuration.
-The only strict requirement is to always err on the side of caution,
+The only strict requirement is to always err on the side of caution
 and never let infinite tree paths slip through, as it would make
 the supercompiler itself loop.
 
@@ -618,16 +616,17 @@ transform (e, p) =
 \end{lstlisting}
 
 The function \texttt{buildFTree} builds a foldable tree. 
-And the most interesting thing happens there:
+\EZY{This construction is awkward. My suggestion is take the prior
+sentence and push it before the code, and then start off here as ``A most interesting thing happens here'', to highlight it} And the most interesting thing happens there:
 the machine $\mathcal{M}_p$ is not only run -- the result of its run
 is analyzed, and possibly a decision to generalize is taken.
 
 We argue that this program transformer fulfills the requirements of the
-definition of ``supercompiler'' from the quote starting Sec. ``The Essence of Supercompilation''.
+previously stated definition of ``supercompiler''. \EZY{I dropped the cite}
 Although this transformer performs no interesting optimizations, it
-can well serve as a foundation for a full-blown supercompiler.
+can serve as a foundation for a full-blown supercompiler.
 We shall use it as a baseline to which we shall compare the
-transformers that follow (deforestation, supercompilation).
+transformers that follow (deforestation and supercompilation).
 
 \begin{exercise}
 Try to show that for each task \texttt{(e, p)} and each substitution
@@ -638,7 +637,7 @@ That means that the transformer \texttt{transform} does not degrade performance,
 but it does not improve it either.
 \end{exercise}
 
-But does this transformer modify the input program at all? Yes, here is an example:
+Does this transformer modify the input program at all? Yes, and here is an example:
 %\footnote{
 %The residual program is listed here exactly as produced by \texttt{transform}.
 %There are fresh function names based on an increasing counter.
@@ -683,7 +682,7 @@ f19() = True();
 \end{lstlisting}
 
 We can easily detect at least one property of the transformer -- the resulting program
-contains no nested function calls, it is ``flat''.
+contains no nested function calls: it is ``flat''.
 %\footnote{
 %This program is clearly more machine-oriented -- easier to execute or analyze 
 %by computer, but harder to understand by humans (could you guess
@@ -691,12 +690,12 @@ contains no nested function calls, it is ``flat''.
 
 \subsection{KMP Test}
 
-In the next couple of sections we shall augment \texttt{transform} using 2 ``tricks'',
-which are key ingredients of ``real'' supercompilers, and which enable obtaining
+In the next couple of sections, we shall augment \texttt{transform} using two ``tricks'',
+which are key ingredients of ``real'' supercompilers. They will enable
 non-trivial optimizations in the residual task.
 We could explain each of these tricks in isolation on small examples,
 but their combination typically results in a synergistic effect.
-And this effect is hard to demonstrate on toy examples.
+Furthermore, this effect is hard to demonstrate on toy examples.
 % у Сергея Зефирова в ЖЖ (thesz) где-то было про то, как отличается сила оптимизатора,
 % использующего несколько оптимизаций по отдельности (пошагово, пусть даже итеративно)
 % и оптимизатора, использующего их "одновременно".
@@ -705,9 +704,9 @@ And this effect is hard to demonstrate on toy examples.
 We instead use the so-called KMP-test, which is
 a classical example in the context of supercompilation, as it demonstrates its greater
 power compared to similar program transformations like deforestation and partial 
-evaluation\cite{Sorensen1994TurchinSupercompiler,Sorensen1998Introduction}.
+evaluation\cite{Sorensen1994TurchinSupercompiler,Sorensen1998Introduction}. \EZY{My suggestion here is to define the KMP test immediately, and then describe some of its properties. So jivvy the text around here a bit.}
 
-This test is not only a good demonstration of the combined effect of the 2 tricks mentioned above,
+This test is not only a good demonstration of the combined effect of the two tricks mentioned above,
 but it also gives some measure of the extent of program transformations performed by supercompilation.
 A simple way to estimate the power of an optimizing transformation is to see if it
 can produce -- fully automatically -- a well-known efficient algorithm
@@ -728,8 +727,8 @@ analogous in action to the well-known Knuth-Morris-Pratt algorithm \cite{Knuth19
 \end{figure}
 
 Consider the program in Fig.~\ref{fig:prog2}
-(where function names are deliberately short, to keep smaller the drawings of configuration
-graphs):
+(where function names are deliberately short, to keep the drawings of configuration
+graphs small):
 the function \texttt{match(p, s)} checks if a string \texttt{p}
 is contained inside the string \texttt{s}.
 For simplicity we use a 2-letter alphabet -- \texttt{`A'} and \texttt{`B'}. 
@@ -827,7 +826,7 @@ If we remove them, the cleaned-up graph of configurations will look like this:\\
 \input{figures/driving7}
 
 The SC~Mini sources contain a transformer \texttt{deforest} -- a modification
-of \texttt{transform}, which removes transient edges and the corresponding nodes
+of \texttt{transform} -- which removes transient edges and the corresponding nodes
 from the graph of configurations.
 
 If we pass the test program through \texttt{deforest}, we get:
@@ -860,7 +859,7 @@ g10(v3:v4) = f1(v4);
 \end{lstlisting}
 
 The deforested program contains less than half the number of functions (23 vs. 10)
--- compared to the result of \texttt{transform} --
+compared to the result of \texttt{transform},
 as some intermediate functions were removed (roughly speaking, inlined).
 Although the residual program is smaller, it still contains the same inefficiency 
 we discussed above.
@@ -868,7 +867,7 @@ we discussed above.
 The removal of transient edges is a form of simplification of graphs of configurations.
 This simplification is \emph{one of the two} main mechanisms for optimization,
 which are employed by supercompilation. 
-It is most effective, when used in conjunction with the second mechanism
+It is most effective when used in conjunction with the second mechanism
 -- information propagation -- which we shall discuss next.
 
 \begin{exercise}
@@ -880,12 +879,12 @@ What pitfalls might such an approach have?
 %\subsubsection{Interlude: deforestation}
 
 There is a separate program transformation technique 
-called \emph{deforestation} \cite{Wadler1988deforestation,Ferguson1988When}.
+called \emph{deforestation}~\cite{Wadler1988deforestation,Ferguson1988When}.
 Its main goal is to reduce the creation of intermediate data structures
 -- lists, trees (hence the name), etc. -- which arise as a result of
 composing different functions in a program.
-Ferguson et al. \cite{Ferguson1988When} describe deforestation for a language
-very similar to SLL.
+Ferguson et al.~\cite{Ferguson1988When} describe deforestation for a language
+very similar to SLL\@.
 Classical deforestation does not require generalization, as it considers
 only programs conforming to certain syntactic restrictions
 (which guarantee that the resulting tree is always foldable).
@@ -900,8 +899,8 @@ A form of shortcut deforestation is implemented inside GHC, for example.
 Here is the graph of configurations for the KMP test produced by \texttt{deforest}:\\
 \input{figures/driving7a}
 
-It contains a step, which checks if the string \texttt{s} is empty or not (underlined),
-and below there is another step, which makes the same check (double-underlined),
+It contains a step which checks if the string \texttt{s} is empty or not (underlined).
+Below it, there is another step, which makes the same check (double-underlined),
 although we have assumed already that \texttt{s} is not empty 
 (in the corresponding subtree after the first check). 
 Such repeated checks are clearly redundant.
@@ -918,7 +917,7 @@ As a result we obtain:\\
 \input{figures/driving8}
 
 The transformer \texttt{supercompile} (inside SC~Mini's sources) implements such information propagation.
-In contrast to \texttt{deforest}, here each time driving performs case analysis,
+In contrast to \texttt{deforest}, each time driving performs case analysis,
 its results are propagated in the corresponding new configurations.
 Recall that SLL contains just a single kind of test -- matching the first argument of 
 a curious function against a list of simple patterns.
@@ -980,8 +979,8 @@ In the example above, the graph built by \texttt{deforest} contains the followin
 \begin{lstlisting}[language=sll,escapechar=!]
 {s = v1:v2}  !$\rightarrow$! ... !$\rightarrow$! {s = ""} !$\rightarrow$!
 \end{lstlisting}
-It is clear, that no actual computation can take this path. 
-Deforestation however leaves it in the residual program;
+It is clear that no actual computation can take this path. 
+Deforestation, however, leaves it in the residual program;
 as a result the deforested program \texttt{prog2d} above contains a function
 \texttt{g10} whose first argument can never be an empty string:
 \begin{lstlisting}[language=sll]
@@ -989,7 +988,7 @@ g10("") = False();
 g10(v3:v4) = f1(v4);
 \end{lstlisting}
 
-As a result of supercompiling the KMP test we obtained a program, which contains no dead code.
+As a result of supercompiling the KMP test, we obtained a program which contains no dead code.
 Of course, this is not always possible, as dead-code removal is undecidable in general.
 In the case of supercompilation, dead code may still appear in the residual program
 if we have applied generalization.
@@ -1011,14 +1010,14 @@ This section turned out rather long, so let's take a brief look -- from
 a slightly different angle -- at what it covered.
 
 The SC~Mini supercompiler is an attempt to build a minimalistic supercompiler in Haskell.
-Its main goal is to delineate the main ingredients, which are present in most supercompilers,
+Its main goal is to delineate the main ingredients which are present in most supercompilers
 and show how they can be combined to work well together.
 
 Let's review the gradual transition from the basic transformer \texttt{transform}
 (which neither improves, nor degrades performance), passing through \texttt{deforest},
 and finally arriving at the ultimate transformer \texttt{supercompile}.
 
-\noindent Starting from the baseline transformer \texttt{transform} ...
+\noindent Starting from the baseline transformer \texttt{transform}\ldots
 \begin{lstlisting}[escapechar=!]
 transform :: Task -> Task
 transform (e, p) =
@@ -1029,14 +1028,14 @@ transform (e, p) =
 % (пояснить, что buildFTree прогоняет с помощью произвольной стратегии прогонки - либо с
 % распространением, либо без; и что любую стратегию прогонки можно дополнить распространением
 % информации - поэтому propagate это HOF)
-... we add simplification of the graph of configurations by removing transient steps ...
+\ldots we add simplification of the graph of configurations by removing transient steps\ldots
 \begin{lstlisting}[escapechar=!]
 deforest :: Task -> Task
 deforest (e, p) =
 	residuate $ !\underline{simplify}! $ foldTree $
     	buildFTree (driveMachine p) e
 \end{lstlisting}
-... and we finish by adding information propagation:
+\ldots and we finish by adding information propagation:
 \begin{lstlisting}[escapechar=!]
 supercompile :: Task -> Task
 supercompile (e, p) =
@@ -1045,7 +1044,7 @@ supercompile (e, p) =
 \end{lstlisting}
 
 Thanks to propagating test outcomes in the corresponding consequent configurations
-and further simplifications of the graph our minimalistic supercompiler
+and further simplifications of the graph, our minimalistic supercompiler
 managed to convert a na\"{\i}ve substring search algorithm into the well-known
 efficient KMP algorithm.
 
@@ -1074,7 +1073,7 @@ efficient KMP algorithm.
 % \end{lstlisting}
 
 SC Mini can also be used to check different program properties.
-Let's show, that the operation \texttt{add} -- defined in \texttt{prog1} --
+Let's show that the operation \texttt{add} -- defined in \texttt{prog1} --
 is associative, that is, for all arguments \texttt{args}:
 \begin{lstlisting}
 sll_run (add(add(x,y),z), p1) == sll_run (add(x,add(y,z), p1)

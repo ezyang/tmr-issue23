@@ -1,7 +1,7 @@
 \section{A little history}
 
-Valentin Fyodorovich Turchin (1931 - 2010) -- the creator of supercompiltion --
-can be briefly characterized as a Programmer-Philosopher.
+Valentin Fyodorovich Turchin (1931--2010) -- the creator of supercompilation --
+could be called a Programmer-Philosopher.
 
 ``Valentin Fedorovich Turchin, born in 1931, holds a doctor's degree in the physical and mathematical sciences. 
 He worked in the Soviet science center in Obninsk, near Moscow, 
@@ -15,7 +15,7 @@ Central Scientific-Research Institute for the Design of Automated Construction S
 During his years of professional employment Dr. Turchin published over 65 works in his field. 
 In sum, in the 1960s and early 1970s, Valentin Turchin was considered one of 
 the leading computer specialists in the Soviet Union.'' 
-(from L. R. Graham's foreword to ``The phenomenon of science'' by Turchin \cite{Turchin1977Phenomenon}.)
+(from L. R. Graham's foreword to ``The phenomenon of science'' by Turchin~\cite{Turchin1977Phenomenon}.)
 
 ``The intellectual pivot of the book is the concept of the metasystem transition
 -- the transition from a cybernetic system to a metasystem, which includes a set 
@@ -23,31 +23,31 @@ of systems of the initial type organized and controlled in a definite manner.
 I first made this concept the basis of an analysis of the development of sign systems used by science. 
 Then, however, it turned out that investigating the entire process of life's evolution on earth 
 from this point of view permits the construction of a coherent picture governed by uniform laws.\ldots''
-(from the introduction to ``The phenomenon of science'' by Turchin \cite{Turchin1977Phenomenon}.)
+(from the introduction to ``The phenomenon of science'' by Turchin~\cite{Turchin1977Phenomenon}.)
 
-In 1966 Turchin invented Refal (REcursive Functions Algorithmic Language) --
-a programming language that was quite different from most other existing ones,
-and mostly oriented to describing and processing other languages.
+In 1966, Turchin invented Refal (REcursive Functions Algorithmic Language) --
+a programming language that was quite different from most other existing ones.
+Refal was oriented towards describing and processing other languages.
 Even a brief description of Refal is beyond the scope of this article, 
-let's just mentioned that it quickly gathered a small group of active supporters,
+let's just simply mention that it quickly gathered a small group of active supporters
 which met regularly in Moscow. 
-The next 5-6 years were devoted to creating an efficient implementation of Refal
+The next 5--6 years were devoted to creating an efficient implementation of Refal
 -- first an interpreter, and later a compiler as well.
-The compiler was itself written in Refal, it took Refal programs as input,
+The compiler was itself written in Refal: it took Refal programs as input
 and generated assembly programs as output.
-But nothing prevented generating Refal as output as well.
+But nothing prevented the generation of Refal as output as well.
 This was how the idea of driving was born, which Turchin
 originally described as ``equivalent transformations of Refal functions''.
-In 1974 driving was described already in the context of the
+In 1974, driving was described already in the context of the
 theory of metasystem transitions.
 
-In 1977 Turchin was forced to leave the Soviet Union;
+In 1977, Turchin was forced to leave the Soviet Union;
 in the same year an English translation of Turchin's ``opus magnum'' 
 -- the book ``The phenomenon of science'' --
-was published in the USA. This book was written already in 1970,
+was published in the USA\@. This book was already finished in 1970
 and ready for printing in 1973, but its publication in the Soviet Union
 was blocked for political reasons.
-Since then Turchin lived and worked in New York, first in the Courant Institute,
+Since then, Turchin lived and worked in New York, first in the Courant Institute,
 later in the City College.
 Starting from 1989, Turchin was again able to visit Russia, which
 he did regularly till his death in 2010.
@@ -61,13 +61,13 @@ of supercompilation.
 
 \begin{longitem}
 
-\item \emph{1970s - 1980s. Refal supercompilers.} Starting from 1979 Turchin
+\item \emph{1970s--1980s. Refal supercompilers.} Starting from 1979, Turchin
 published (with coauthors) several tens of articles on supercompilation 
 and metacomputation. 
 It is now obvious that a huge number of interesting ideas lies scattered 
 inside these articles.
 The problem was that many concepts were given in only a semi-formal, fragmentary way,
-and only in terms of Refal, as for Turchin Refal and supercompilation were inseparable.
+and only in terms of Refal: for Turchin, Refal and supercompilation were inseparable.
 Unfortunately, for most people at the time even the description of
 driving seemed too complicated and incomprehensible.
 And no article contained a full and self-contained description
@@ -75,17 +75,17 @@ of the complete process of supercompilation.
 For these reasons, in spite of the large number of publications on the subject,
 till the early 1990s supercompilation remained understood and appreciated
 only by a small number of ``initiates''.
-Turchin's articles \cite{Turchin1974EqTrans,Turchin1980Refal,Turchin1986Supercompiler,Turchin1988Generalization,Turchin1993Transformation,Turchin1996Supercompilation,Turchin1996Metacomputation}
+Turchin's articles~\cite{Turchin1974EqTrans,Turchin1980Refal,Turchin1986Supercompiler,Turchin1988Generalization,Turchin1993Transformation,Turchin1996Supercompilation,Turchin1996Metacomputation}
 are some of the milestones of this period.
 
 \item \emph{1990s. Supercompilation of first-order functional languages.} Andrei
 Klimov's and Robert Gl\"{u}ck's article
 ``Occam's Razor in Metacompuation: the Notion
-of a Perfect Process Tree'' \cite{Gluck1993Occam} about the essence of driving
+of a Perfect Process Tree''~\cite{Gluck1993Occam} about the essence of driving
 was the first work aimed at understanding supercompilation as a general technique,
 independent of Refal.
-In 1994 Morten H. S{\o}rensen made an important further step -- in his MSc thesis
-``Turchin's Supercompiler Revisited: an Operational Theory of Positive Information Propagation''
+In 1994 Morten H. S{\o}rensen made an important further step -- in his MSc thesis,
+``Turchin's Supercompiler Revisited: an Operational Theory of Positive Information Propagation,''
 \cite{Sorensen1994TurchinSupercompiler}
 he reformulated the key ideas of supercompilation in the context of a simple
 first-order functional language (essentially the same as SLL).
@@ -100,8 +100,8 @@ Many new milestones were passed (supercompilers for call-by-need, call-by-value,
 but the single most important shift so far has been from first-order to higher-order functional
 languages.
 Regular international workshops on supercompilation are being held --
-META-2008 \cite{Meta2008}, META-2010 \cite{Meta2010}, META-2012 \cite{Meta2012},
-META-2014 \cite{Meta2014}.
+META-2008~\cite{Meta2008}, META-2010~\cite{Meta2010}, META-2012~\cite{Meta2012},
+META-2014~\cite{Meta2014}.
 
 \end{longitem}
 
@@ -112,11 +112,11 @@ a detailed survey of the current state of the field is
 beyond its scope.
 Instead, we list some existing supercompilers in the next section.
 Very briefly, one of the main goals in current research is to build a
-supercompiler, which can transcend the experimental status
+supercompiler which can transcend the experimental status
 and become practically useful for a larger audience.
-Another important trend is the application of ideas
+Another important trend is the application of the ideas of supercompilation
 %\marginpar{DK: cite counter-systems analysis? what else?}
-coming from supercompilation in new contexts.
+in new contexts.
 
 If you are curious to see a more detailed picture of the current
 state of super-compilation research, many recent PhD theses and other articles

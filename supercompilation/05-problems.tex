@@ -8,12 +8,12 @@
 
 The aim of this section is to outline what are the practical problems 
 our simple supercompiler faces.
-These problems are typical -- by a varying degree -- for most existing supercompilers.
+These problems are typical -- in varying degrees -- for most existing supercompilers.
 
 \subsection{Result unpredictability}
 
 The KMP test we saw indeed shows supercompilation at its best.
-We were lucky, that the whistle did not blow, and we managed to fold the tree of configurations
+We were lucky that the whistle did not blow, allowing us to fold the tree of configurations
 to a graph without resorting to generalization.
 In many other cases, however, the size of configurations in the tree will
 continue to grow, and, sooner or later, we shall be forced to 
@@ -26,11 +26,11 @@ Recall a task we have already seen:
 \end{lstlisting}
 
 Deforestation manages to build a finite graph of configurations  without applying generalization.
-This is not the case when we move to supercompilation -- generalization becomes necessary.
+This is not the case when we use supercompilation instead -- generalization becomes necessary.
 This is one drawback of information propagation, as it typically
 increases the size of the new configuration.
-The appendix accompanying this article lists the results of deforesting and of supercompiling this task,
-and also a comparison of the speed of the corresponding residual programs.
+The appendix accompanying this article lists the results of deforesting and of supercompiling this task.
+It also gives a comparison of the speed of the corresponding residual programs.
 Based on these observations, we can draw the following conclusions:
 \begin{enumerate}
   \item The supercompiled program is much larger than the deforested one.
@@ -38,7 +38,7 @@ Based on these observations, we can draw the following conclusions:
   Exactly the opposite is true for big numbers \texttt{x} however.
 \end{enumerate}
 
-In a way this example is an antithesis of the KMP test, as it displays the
+In a way, this example is an antithesis of the KMP test, as it displays the
 main weaknesses of the SC~Mini supercompiler.
 (We shall call it anti-KMP-test for brevity. Such an example can be found for 
 each of the other existing supercompilers.)
@@ -82,7 +82,7 @@ than the original ones.
 The supercompiler imitates the behavior of the input program by taking into
 account the dynamic interactions of all its parts.
 This can result, unfortunately, in the size of the model (the graph of configurations),
-growing very super-linearly as a function of the size of the input program.
+growing very superlinearly as a function of the size of the input program.
 For example, a new input program, larger by just 30\%, can make the
 supercompiler work 10 times longer.
 
@@ -91,19 +91,19 @@ Try to find such examples for SC~Mini.
 \end{exercise}
 
 What is worse, the running time of the supercompiler usually 
-depends super-linearly on the size of the graph of configurations.
+depends superlinearly on the size of the graph of configurations.
 
 \begin{exercise}
 Show that this statement is true for SC~Mini as well.
 \end{exercise}
 
-All this means that supercompiling big programs can be a very unpredictable process:
+Supercompiling big programs can be a very unpredictable process:
 in the worst case, the supercompiler may take a lot of time, and it may
 produce a huge program, which works only slightly faster than the original.
 It would be interesting to consider supercompiling
 programs piecewise, for example on module basis.
 Unfortunately no one has studied yet this possibility,
-and it remains a topic for future research.
+and it remains a topic for future research. \EZY{This seems like a very strong claim.}
 
 \subsection{What about debugging?}
 
@@ -132,7 +132,7 @@ we will quickly stumble upon a number of details, which must be taken care of.
 % А как насчет функций высшего порядка? Не там ли самое интересное?
 
 \emph{Global state, side effects:} SC~Mini uses the compositionality of SLL semantics
-in an essential way, in order to perform generalization:
+in an essential way in order to perform generalization:
 \[\mathcal{I}_p\llbracket e_1 / \{v := e_2\}\rrbracket = \mathcal{I}_p \llbracket e_1 / \{v := \mathcal{I}_p\llbracket e_2\rrbracket\} \rrbracket\]
 The expression $e_2$ may be evaluated outside of the context, where it appears in
 the input program.
@@ -143,11 +143,11 @@ then the notion of compositionality becomes more complicated, if it can be formu
 In order to take this into account, an additional analysis phase appears necessary.
 Things can get even more complicated in the presence of concurrency.
 What makes the situation less bleak is that many modern programming languages
-follow the lead of Haskell, and provide means to isolate pure functional code
+follow the lead of Haskell and provide means to isolate pure functional code
 from side-effecting code. In such cases a simple solution is to supercompile only the 
 purely functional parts of the program, leaving the side-effecting parts unmodified.
 
-\emph{Taking strictness and laziness into account:} SC~Mini owns its simplicity,
+\emph{Taking strictness and laziness into account:} SC~Mini owes its simplicity,
 to a large extent, to the fact that we assumed a call-by-name semantics for SLL.
 Driving is simplest in the case of call-by-name evaluation.
 Call-by-name typically leads to bad performance, however, and
@@ -173,22 +173,21 @@ What differences in driving would you expect in the case of call-by-need?
 \subsection{Why is it worth it then?}
 
 The list of open problems for supercompilation contains many important items, 
-the results obtained are (thus far) difficult to rely upon.
-Why is it then, that interest in supercompilation has repeatedly 
+the results obtained are (thus far) difficult to rely upon. \EZY{I think you can make this construction parallel: e.g., the open problems of supercompilation are vast, the results of supercompilation difficult to rely on}
+Why is it, then, that interest in supercompilation has repeatedly 
 resurfaced and grown in the several decades since its invention,
-with the latest wave of renewed interest starting 6-7 years ago, and
-still going strong?
+with the latest wave of renewed interest starting 6-7 years ago? \EZY{Would be nice if you could briefly cite some evidence here}
 % тут уместно упомянуть работу над суперкомпиляцией в ghc
 
 First of all, it turns out that many program optimization methods can be
 seen as special cases of supercompilation.
-This includes deforestation, partial evaluation, the different kinds of fusion,
+This includes deforestation, partial evaluation, different kinds of fusion,
 inlining, defunctionalization, etc. 
 (While this statement will be intuitively obvious to most researchers in the 
 area of supercompilation, not all of these cases have been formally
 described in research papers.)
 It is most impressing when a (relatively) simple supercompiler
-can optimize some programs equally well, or better than some 
+can optimize some programs equally well (or better!) than some 
 other complicated specialized tool.
 
 A second important reason is the conceptual simplicity of supercompilation.
@@ -196,13 +195,13 @@ Supercompilation is not tied to a single specific language, nor even to a family
 of languages, although most of the existing research has been done
 in the context of functional languages.
 
-Another valuable feature of supercompilation is that it can be used
-not only for optimization. 
+Another valuable feature of supercompilation is that it has applications
+beyond optimization. 
 There are very successful attempts to apply it to program analysis, for example. 
 It is tempting to image a 2-in-1, or even 3-in-1 tool,
 which can cover program optimization, analysis, synthesis, etc.
 
 Last but not least, supercompilation is itself just a specialized application
-of a very general philosophical principle, invented also by V.F. Turchin --
+of a very general philosophical principle, invented also by V. F. Turchin --
 the theory of ``metasystem transitions''. We shall speak a bit more
 about that in the next section.
