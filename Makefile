@@ -1,7 +1,12 @@
+FOLDERS := supercompilation
+
+export TEXINPUTS := ${FOLDERS}:${TEXINPUTS}
+export BIBINPUTS := ${FOLDERS}:${BIBINPUTS}
+
 issue = Issue23
 
 lhssources = fizzbuzz.lhs
-texsources = Editorial.tex fizzbuzz.tex supercompilation.tex mflow.tex nccb.tex
+texsources = Editorial.tex fizzbuzz.tex supercompilation/supercompilation.tex mflow.tex nccb.tex
 
 default: $(issue).pdf
 
@@ -9,7 +14,7 @@ $(issue).tex : $(issue).lhs $(texsources) $(lhssources)
 	lhs2TeX $(issue).lhs > $(issue).tex
 
 %.pdf: %.tex force
-	env pdflatex $<
+	pdflatex $<
 
 %.tex: %.lhs
 	lhs2TeX $< -o $@
