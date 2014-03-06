@@ -15,7 +15,7 @@
 \newcommand{\buzz}{\textit{buzz}}
 \newcommand{\default}{\textit{base}}
 
-\title{FizzBuzz in Haskell by Embedding a~Domain-Specific Language: A~Tutorial}
+\title{FizzBuzz in Haskell by Embedding a~Domain-Specific Language}
 \author{Maciej Pir{\'o}g\email{maciej.adam.pirog@@gmail.com}}
 
 \begin{document}
@@ -25,19 +25,19 @@
   popular puzzle during job interviews for software developers. The
   conundrum lies in a peculiar but not unusual control-flow scenario:
   the default action is executed only if some previous actions were
-  not executed. In this tutorial we ask if we can accomplish this
+  not executed. In this tutorial, we ask if we can accomplish this
   without having to check the conditions for the previous actions
   twice; in other words, if we can make the control flow follow the
-  information flow without loosing modularity. And the contest is for
-  beauty of the code.
+  information flow without loosing modularity. The goal is to
+  have the most beautiful code!
 
   We deliver a rather non-standard, and a bit tongue-in-cheek
   solution. First, we design a drastically simple domain-specific
   language (DSL), which we call, after the three commands of the
   language, Skip-Halt-Print. For each natural number $n$, we devise a
   Skip-Halt-Print program that solves FizzBuzz for $n$.  Then, we
-  implement this in Haskell, and through a couple of simple
-  transformations we obtain the final program.  The corollary is a
+  implement this in Haskell, and, through a couple of simple
+  transformations, we obtain the final program.  The corollary is a
   reminder of the importance of higher-order functions in every
   functional programmer's toolbox.
 \end{introduction}
@@ -79,7 +79,7 @@ fizzbuzz n =
 Exhibit B:
 %
 \begin{code}
-fizzbuzz n :: Int -> String
+fizzbuzz :: Int -> String
 fizzbuzz n =
   if n `mod` 3 == 0
     then "fizz" ++  if n `mod` 5 == 0
@@ -87,7 +87,7 @@ fizzbuzz n =
                       else ""
     else  if n `mod` 5 == 0
             then "buzz"
-            else show n 
+            else show n
 \end{code}
 %
 Though both programs are correct with respect to the specification,
@@ -120,8 +120,8 @@ fizzbuzz n  =    ((  if n `mod` 3 == 0 then "fizz" else "")
                +<+   show n 
 \end{code}
 %
-The problem with this solution is far more subtle; some might even say
-that it is simple and elegant. Be that as it may, we do not like the
+The problem with this solution is far more subtle: many might say
+this solution is simple and elegant. Be that as it may, we do not like the
 fact that the |+<+| operator has to check if its first argument is
 empty. After all, we have already checked the conditions |`mod` 3| and
 |`mod` 5|, so the third test (|+<+|'s pattern matching) seems
@@ -190,7 +190,7 @@ the $\ahole$ symbol. For example:
 \cont{\Print\ \texttt{"keep"} \scolon \ahole \scolon \Print\ \texttt{"calm"}}
 \end{align*}
 %
-A hole is a place in which we can stick another program, and get a new
+A hole is a place in which we can stick another program and get a new
 program as a result. We denote this operation by juxtaposition:
 %
 \begin{align*}
@@ -209,7 +209,7 @@ symbol:
 \cont{ \Skip \scolon \Halt \scolon \ahole \scolon \Print\ 0}
 \end{align*}
 
-What does the FizzBuzz program do? Basically, it prints out $n$,
+What does the FizzBuzz program do? Essentially, it prints out $n$,
 unless something else (like \textit{fizzing} or \textit{buzzing})
 happens. This behaviour is captured by the following context:
 %
@@ -258,8 +258,8 @@ Examples:
 
 \begin{exercise}
   What is the formal definition of the operations on contexts
-  described above?  Show that contexts with composition form a monoid,
-  that is $\circ$ is associative, $(f \circ g) \circ h = f \circ (g
+  described above?  Show that contexts with composition form a monoid;
+  that is, $\circ$ is associative, $(f \circ g) \circ h = f \circ (g
   \circ h)$, and $\cont{ \ahole }$ is its left and right unit, $\cont{
     \ahole } \circ f = f$ and $f \circ \cont{ \ahole } = f$
   respectively.
@@ -271,13 +271,13 @@ Examples:
 Now, to solve FizzBuzz in Haskell, we implement Skip-Halt-Print, both
 syntax and semantics, together with the language of contexts. For each
 $n$, we construct the right composition of contexts as described
-above, and then execute the resulting program.
+above and then execute the resulting program.
 
 Then, we apply a series of algebraic transformations that simplify the
-code into our proposed solution. By ``algebraic'' we mean
+code into our proposed solution. By ``algebraic'', we mean
 transformations that depend only on local properties of the
 components, without the actual understanding of the implemented
-algorithm. Something that can be deduced solely from the shape of the
+algorithm. In other words, something that can be deduced solely from the shape of the
 code, like the |fold| pattern, and applied by simple equational
 calculation.
 
@@ -303,7 +303,7 @@ operations, we encode them as functions from programs to programs
 (this technique is sometimes called \textit{higher-order abstract
   syntax}). In this case, sticking the program in a context becomes
 Haskell's function application, and the composition of contexts
-becomes simply Haskell's $\circ$. Note, though, that not every Haskell
+becomes simply Haskell's $\circ$. However, note that not every Haskell
 function of the type |Program -> Program| is a valid context in the sense
 specified in the previous section.
 %
@@ -326,9 +326,9 @@ fizzbuzz n = interp (fb n)
 
 \subsection{Interpretation is a fold}
 
-So, to solve FizzBuzz for |n|, we first build a program (a
-datastructure), and then interpret it (by traversing the
-datastructure). This calls for some deforestation, that is removal of
+To solve FizzBuzz for |n|, we first build a program (a
+datastructure) and then interpret it (by traversing the
+datastructure). This calls for some deforestation -- the removal of
 the intermediate structures! First, we notice a known pattern here:
 |interp| is a fold. We can rewrite it as follows:
 %
@@ -368,7 +368,7 @@ definition of |step|:
 =  [id, const "", ("c"++)]
 \end{code}
 
-Why building and then interpreting? We can manually deforest the
+Why build and then interpret? We can manually deforest the
 situation by fusing the two: instead of
 
 > foldr (.) id [id, const, ("c"++)]
@@ -474,7 +474,7 @@ function (originally set by the function |fizzbuzz| to the string
 representation of |n|), while |x :: String -> String| represents a
 continuation -- the rest of the computation parametrised by a new
 default value. If the modulo test fails, we change neither the
-continuation, nor the default value. If the test succeeds, we print
+continuation nor the default value. If the test succeeds, we print
 out the string |s|, but also change the default value to the empty
 string, so that the string representation of |n| is not printed out.
 
@@ -488,7 +488,7 @@ string, so that the string representation of |n| is not printed out.
 \end{exercise}
 
 \begin{exercise}
- In the ``Inlining'' step we silently performed some cleaning-up. In
+ In the ``Inlining'' step, we silently performed some cleaning-up. In
  reality, a bald inlining of |base| and |skip| in |fizzbuzz| yields
 %
 \begin{code}
@@ -513,13 +513,13 @@ programming in the form of reasoning about folds. One might also argue
 that the obtained solution is not too intuitive. Do we really need
 such heavy artillery to solve FizzBuzz?
 
-Though this tutorial is not meant to be dead serious, and is mostly a
+Though this tutorial is not meant to be dead serious and is mostly a
 pretext for some fun with the functional programming technologies
 listed above -- also, going through this derivation might be a risky
 move during a job interview -- there is a small point it wants to
 convey: \emph{Functional programmers! Remember higher-order
   functions!} They are your tool to express programs with non-trivial
-structure, to closer follow the information-flow, to dynamically build
+structure, to follow the information-flow more closely, to dynamically build
 your programs in runtime. A harsh, cantankerous functional programming
 pedagogue might say that they are such a basic tool that the final
 FizzBuzz program shouldn't appear complicated at all (and could be
