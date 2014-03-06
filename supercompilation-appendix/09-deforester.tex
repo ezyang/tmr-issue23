@@ -1,0 +1,20 @@
+\section{\texttt{Deforester.hs}}
+If we just add \texttt{simplify} (transient edge removal) to the text of \texttt{transform},
+we obtain deforestation:
+\begin{lstlisting}[name=deforester]
+deforest :: Task -> Task
+deforest (e, p) =
+	residuate $ simplify $ foldTree $ 
+		buildFTree (driveMachine p) e
+
+simplify :: Graph Conf -> Graph Conf
+simplify (Node e (Decompose ts)) =
+	Node e (Decompose $ map simplify ts)
+simplify (Node e (Variants cs)) =
+	Node e (Variants [(c, simplify t) | (c, t) <- cs])
+simplify (Node e (Transient t)) | isBase e t =
+	Node e $ Transient $ simplify t
+simplify (Node e (Transient t)) =
+	simplify t
+simplify t = t
+\end{lstlisting}

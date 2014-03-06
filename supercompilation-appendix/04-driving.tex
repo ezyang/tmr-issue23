@@ -1,0 +1,134 @@
+\section{\texttt{Driving.hs}}
+
+\texttt{buildTree} creates an infinite configuration tree from a given start configuration.
+The main work happens inside \texttt{bt}, which proceeds recursively,
+maintaining not only a current configuration, but also a list of fresh names \texttt{nameSupply}.
+This name supply is used, when the machine \texttt{m} returns as next step
+\texttt{Variants~[(c1,~e1),~(c2, e2),~\ldots]};
+in this case we recursively build the subtrees for \texttt{e1}, \texttt{e2}, \ldots
+The subtlety is that we should not use names appearing in the condition \texttt{c1}
+during the construction of the subtree for \texttt{e1},
+as it might result in name clashes.
+Therefore, \texttt{(unused c ns)} is the name supply used in the corresponding recursive call.
+\begin{lstlisting}[name=driving]
+buildTree :: Machine Conf -> Conf -> Tree Conf
+buildTree m e = bt m nameSupply e
+
+bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
+bt m ns c = case m ns c of
+	Decompose ds -> Node c $ Decompose (map (bt m ns) ds)
+	Transient e -> Node c $ Transient (bt m ns e)
+	Stop -> Node c Stop
+	Variants cs -> Node c $ 
+		Variants [(c, bt m (unused c ns) e) | (c, e) <- cs]
+\end{lstlisting}
+A machine based on driving imitates a step of the execution of \texttt{eval}. 
+\texttt{driveMachine~p} creates such a machine for a given program \texttt{p}.
+If the configuration is a variable or a value, then the machine stops.
+If the configuration is a constructor with arguments, then \texttt{eval}
+would proceed to evaluate those arguments.
+As \texttt{driveMachine~p} models a step of \texttt{eval},
+it returns \texttt{Decompose~args},
+indicating that the next step should continue with evaluation of the arguments
+\texttt{Let}-expression subexpressions are processed independently, as 
+this is important for generalization: \texttt{Decompose~[e1,~e2]}.
+Driving an indifferent-function call is simple -- we return the function body
+with substituted parameters (this is called ``unfolding'').
+Driving a curious-function call, where the first argument is a constructor,
+proceeds in a similar way -- the corresponding clause of the
+function definition is taken, and parameters are substituted.
+The most interesting cases follow:
+If we have a curious-function call with a first argument -- a variable --
+then we consider all possible clauses in the definition of the function
+as potential continuations. This is where we use the name supply to 
+build a new instance of the pattern with fresh names.
+Study the remaining last case as an exercise.
+
+\begin{lstlisting}[name=driving]
+driveMachine :: Program -> Machine Conf
+driveMachine p = drive where
+	drive :: Machine Conf
+	drive ns (Var _) = Stop
+	drive ns (Ctr _ []) = Stop
+	drive ns (Ctr _ args) = Decompose args
+	drive ns (Let (x, t1) t2) = Decompose [t1, t2]
+	drive ns (FCall name args) = 
+		Transient $ e // (zip vs args) where
+			FDef _ vs e = fDef p name
+	drive ns (GCall gn (Ctr cn cargs : args)) = 
+		Transient $ e // sub where
+			(GDef _ (Pat _ cvs) vs e) = gDef p gn cn
+			sub = zip (cvs ++ vs) (cargs ++ args)
+	drive ns (GCall gn args@((Var _):_)) = 
+		Variants $ variants gn args where
+			variants gn args = 
+				map (scrutinize ns args) (gDefs p gn)
+	drive ns (GCall gn (inner:args)) = 
+		inject (drive ns inner) where
+			inject (Transient t) = 
+				Transient (GCall gn (t:args))
+			inject (Variants cs) = Variants $ map f cs
+			f (c, t) = (c, GCall gn (t:args))
+
+scrutinize :: NameSupply -> [Expr] -> GDef 
+	-> (Contract, Expr)
+scrutinize ns (Var v : args) 
+	(GDef _ (Pat cn cvs) vs body) =
+	(Contract v (Pat cn fresh), body // sub) where
+		fresh = take (length cvs) ns
+		sub = zip (cvs ++ vs) (map Var fresh ++ args)
+\end{lstlisting}
+
+
+%\newpage
+
+Some examples follow -- a driving step with case analysis:
+\begin{lstlisting}[style=demo]
+-- demo10
+ghci> driveMachine prog1 nameSupply 
+	{{odd(add(x, mult(x, S(x))))}}
+x == Z() => odd(mult(x, S(x)))
+x == S(v1) => odd(S(add(v1, mult(x, S(x)))))
+\end{lstlisting}
+
+A transient step:
+\begin{lstlisting}[style=demo]
+-- demo11
+ghci> driveMachine prog1 nameSupply 
+	{{odd(S(add(v1, mult(x, S(x)))))}}
+=> even(add(v1, mult(x, S(x))))
+\end{lstlisting}
+
+An infinite configuration tree:
+% Покажется конечная, но довольно большая часть дерева.
+\begin{lstlisting}[style=demo]
+-- demo12
+ghci> buildTree (driveMachine prog1) {{even(sqr(x))}}
+|__even(sqr(x))
+ |
+ |__even(mult(x, x))
+  ?x == Z()
+  |__even(Z())
+   |
+   |__True()
+  ?x == S(v1)
+  |__even(add(x, mult(v1, x)))
+   ?x == Z()
+   |__even(mult(v1, x))
+    ?v1 == Z()
+    |__even(Z())
+     |
+     |__True()
+    ?v1 == S(v2)
+    |__even(add(x, mult(v2, x)))
+     ?x == Z()
+     |__even(mult(v2, x))
+      ?v2 == Z()
+      |__even(Z())
+       |
+       |__True()
+      ?v2 == S(v3)
+      |__even(add(x, mult(v3, x)))
+  ...
+
+\end{lstlisting}

@@ -1,0 +1,50 @@
+\begin{tikzpicture}[scale=1.3,
+level distance=11mm,
+level/.style={sibling distance=60mm},
+conf/.style={
+	rectangle,minimum width=10mm,minimum height=4mm,rounded corners=2mm,
+	draw=black,
+	font=\ttfamily\scriptsize},
+label/.style={font=\ttfamily\scriptsize}
+]
+% \tikzstyle{level 2}=[sibling distance=45mm]
+% \tikzstyle{level 3}=[sibling distance=45mm]
+% \tikzstyle{level 4}=[sibling distance=22mm]
+% \tikzstyle{level 5}=[sibling distance=70mm]
+% \tikzstyle{level 6}=[sibling distance=30mm]
+% \tikzstyle{level 7}=[sibling distance=30mm]
+% \tikzstyle{level 8}=[sibling distance=30mm]
+% \tikzstyle{level 9}=[sibling distance=30mm]
+% \tikzstyle{level 10}=[sibling distance=30mm]
+\node[conf]{m("AAB", s, "AAB", s)}
+child[->]{node[conf]{x(s, 'A', "AB", "AAB", s)}
+child[->]{node[conf]{False()}
+edge from parent node[left,label,xshift=-5mm]{s == ""}}
+child[->]{node[conf]{if(eqA(v1), m("AB", v2, "AAB", v1:v2), n(v1:v2, "AAB"))}
+child[->]{node[conf]{x(v2, 'A', "B", "AAB", 'A':v2)}
+child[->]{node[conf]{False()}
+edge from parent node[left,label,xshift=-5mm]{v2 == ""}}
+child[->]{node[conf]{if(eqA(v3), m("B", v4, "AAB", 'A':v3:v4), n('A':v3:v4, "AAB"))}
+child[->]{node[conf]{if(True(), m("B", v4, "AAB", 'A':'A':v4), n('A':'A':v4, "AAB"))}
+child[->]{node[conf]{x(v4, 'B', "", "AAB", 'A':'A':v4)}
+child[->]{node[conf]{False()}
+edge from parent node[left,label,xshift=-5mm]{v4 == ""}}
+child[->]{node[conf]{if(eqB(v5), m("", v6, "AAB", 'A':'A':v5:v6), n('A':'A':v5:v6, "AAB"))}
+child[->]{node[conf]{if(True(), m("B", v6, "AAB", 'A':'A':v6), n('A':'A':v6, "AAB"))}
+edge from parent node[left,label,xshift=-5mm]{v5 == 'A'}}
+child[->]{node[conf]{True()}
+edge from parent node[right,label,xshift=5mm]{v5 == 'B'}}
+edge from parent node[right,label,xshift=5mm]{v4 == v5:v6}}}
+edge from parent node[left,label,xshift=-5mm]{v3 == 'A'}}
+child[->]{node[conf]{m("AAB", v4, "AAB", v4)}
+edge from parent node[right,label,xshift=5mm]{v3 == 'B'}}
+edge from parent node[right,label,xshift=5mm]{v2 == v3:v4}}
+edge from parent node[left,label,xshift=-5mm]{v1 == 'A'}}
+child[->]{node[conf]{m("AAB", v2, "AAB", v2)}
+edge from parent node[right,label,xshift=5mm]{v1 == 'B'}}
+edge from parent node[right,label,xshift=5mm]{s == v1:v2}}}
+
+
+;
+
+\end{tikzpicture}

@@ -1,0 +1,53 @@
+\section*{Introduction}
+
+The SC Mini sources can -- somewhat subjectively -- be divided into the following parts:
+\begin{enumerate}
+  \item Data type definitions with some basic operations: SLL abstract syntax;
+  basic operations on SLL expressions; definition of a SLL ``task''
+  and ``configuration graph''.
+  	\begin{itemize}
+  	\item \texttt{Data.hs}
+  	\end{itemize}
+  \item Auxiliary functions for working with the main data structures: parser, substitutions, expression comparison, etc.
+  	\begin{itemize}
+  	\item \texttt{DataUtil.hs}
+  	\end{itemize}
+  \item Main part -- interpreter, driving, folding, transformers \texttt{transform},
+  \texttt{deforest} and \texttt{supercompile}, residual task generator.
+  	\begin{itemize}
+  	 \item \texttt{Interpreter.hs}
+  	 \item \texttt{Driving.hs}
+  	 \item \texttt{TreeInterpreter.hs}
+  	 \item \texttt{Folding.hs}
+  	 \item \texttt{Generator.hs}
+  	 \item \texttt{Prototype.hs}
+  	 \item \texttt{Deforester.hs}
+  	 \item \texttt{Supercompiler.hs}
+  	\end{itemize}
+  \item A set of examples together with their results.
+  	\begin{itemize}
+  	\item \texttt{Demonstration.hs}
+  	\end{itemize}
+\end{enumerate}
+
+The full SC Mini sources are listed, only the parsers/pretty-printers are omitted.
+New definitions are illustrated with actual output from running them.
+All interesting examples are collected in the module \texttt{Demonstration.hs}. 
+The reader can also download and directly play with the actual sources.
+%Читатель может самостоятельно запустить пример и
+%убедиться в его работоспособности -- везде указывается функция (\texttt{demo01}, \texttt{demo02},
+%\ldots), вызвав которую из интерпретатора ghci, читатель получит тот же результат, что здесь.
+
+For convenience, we recall here the definition of SLL operational semantics.
+
+\begin{figure}[h!]
+\input{figures/sll_decomposition}
+\caption{SLL: expression decomposition}
+\label{fig:sll_decomposition}
+\end{figure}
+
+\begin{figure}[h!]
+\input{figures/sll_semantics.tex}
+\caption{Reduction step rules}
+\label{fig:sll_semantics}
+\end{figure}

@@ -1,0 +1,151 @@
+\section{\texttt{Interpreter.hs}}
+The module \texttt{Interpreter} defines an evaluator for SLL expressions.
+
+The interpreter \texttt{int} works in ``small-step'' fashion, or in other words,
+reduction steps are repeated until the expression becomes a value.
+(\texttt{intStep}) implements a single reduction step; note that it is not recursive.
+\begin{lstlisting}[name=interpreter]
+int :: Program -> Expr -> Expr
+int p e = until isValue (intStep p) e
+
+intStep :: Program -> Expr -> Expr
+intStep p (Ctr name args) =
+	Ctr name (values ++ (intStep p x : xs)) where
+		(values, x : xs) = span isValue args
+
+intStep p (FCall name args) =
+	body // zip vs args where
+		(FDef _ vs body) = fDef p name
+
+intStep p (GCall gname (Ctr cname cargs : args)) =
+	body // zip (cvs ++ vs) (cargs ++ args) where
+		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
+
+intStep p (GCall gname (e:es)) =
+	(GCall gname (intStep p e : es))
+
+intStep p (Let (x, e1) e2) =
+	e2 // [(x, e1)]
+\end{lstlisting}
+
+The interpreter \texttt{eval}, on the other hand, is a ``big-step'' evaluator,
+and hence -- recursive.
+\begin{lstlisting}[name=interpreter]
+eval :: Program -> Expr -> Expr
+eval p (Ctr name args) =
+	Ctr name [eval p arg | arg <- args]
+
+eval p (FCall name args) =
+	eval p (body // zip vs args) where
+		(FDef _ vs body) = fDef p name
+
+eval p (GCall gname (Ctr cname cargs : args)) =
+	eval p (body // zip (cvs ++ vs) (cargs ++ args)) where
+		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
+
+eval p (GCall gname (arg:args)) =
+	eval p (GCall gname (eval p arg:args))
+
+eval p (Let (x, e1) e2) =
+	eval p (e2 // [(x, e1)])
+\end{lstlisting}
+
+For the small-step interpreter it is easy to count the number of performed reduction steps
+-- it is enough to introduce a counter in the outer loop.
+\texttt{intC} returns a pair \texttt{(value,~n)}, where \texttt{value} is a (surprise!) value,
+and \texttt{n} -- the number of reduction steps performed.
+This number is used to measure optimization ``speed-up''.
+\begin{lstlisting}[name=interpreter]
+sll_run :: Task -> Env -> Value
+sll_run (e, program) env = int program (e // env)
+
+sll_trace :: Task -> Subst -> (Value, Integer)
+sll_trace (e, prog) s = intC prog (e // s)
+
+intC :: Program -> Expr -> (Expr, Integer)
+intC p e = until t f (e, 0) where
+	t (e, n) = isValue e
+	f (e, n) = (intStep p e, n + 1)
+\end{lstlisting}
+
+% \begin{lstlisting}[escapechar=!,style=demo]
+% prog1 = !\fbox{\parbox{18em}{
+% add(Z(), y) = y;\\
+% add(S(x), y) = S(add(x), y);\\
+% mult(Z(), y) = Z();\\
+% mult(S(x), y) = add(y, mult(x, y));\\
+% sqr(x) = mult(x, x);\\
+% gEven(Z()) = True();\\
+% gEven(S(x)) = gOdd(x);\\
+% gOdd(Z()) = False();\\
+% gOdd(S(x)) = gEven(x);}}!
+% \end{lstlisting}
+
+%\newpage
+
+From now on we start illustrating the definitions discussed with example runs.
+Each such example is actually a separate function definition in the module \texttt{Demonstration}.
+It is useful to distinguish SLL code from Haskell code.
+To this end, SLL code is presented in color.
+(Actually in \texttt{Demonstration.hs} SLL code appears as strings, which are parsed:
+\texttt{{\color{brown}{even(x)}}} $\Rightarrow$ \texttt{read "even(x)"} )
+
+The first example evaluates an expression, and also returns the number of reduction steps:
+\begin{lstlisting}[style=demo]
+-- demo01
+ghci> intC prog1 {{even(sqr(S(S(Z()))))}}
+(True(), 15)
+\end{lstlisting}
+
+The next examples show that the small-step and the big-step interpreter give the same result:
+\begin{lstlisting}[style=demo]
+-- demo02
+ghci> int  prog1 {{even(sqr(S(S(Z()))))}}
+True()
+
+-- demo03
+ghci> eval prog1 {{even(sqr(S(S(Z()))))}}
+True()
+
+-- demo04
+ghci> int  prog1 {{sqr(S(S(Z())))}}
+S(S(S(S(Z()))))
+
+-- demo05
+ghci> eval prog1 {{sqr(S(S(Z())))}}
+S(S(S(S(Z()))))
+\end{lstlisting}
+
+A difference between the 2 interpreters appears, if we try to evaluate an expression
+with free variables (a configuration).
+\texttt{int} only signals an exception. 
+\texttt{eval}, on the other hand, returns some information before signaling failure:
+\begin{lstlisting}[style=demo]
+-- demo06
+ghci> int  prog1 {{sqr(S(S(x)))}}
+Exception: Interpreter.hs: Non-exhaustive patterns in 
+function intStep
+
+-- demo07
+ghci> eval  prog1 {{sqr(S(S(x)))}}
+S(S( Exception: Interpreter.hs: Non-exhaustive patterns 
+in function eval
+\end{lstlisting}
+
+The difference is even more dramatic, if we try to evaluate an expression, which has an infinite value.
+\texttt{int} directly loops, while \texttt{eval} starts to produce the outermost constructors
+of the result.)
+\begin{lstlisting}[style=demo]
+ghci> prog3 = {{inf() = S(inf());}}
+inf() = S(inf());
+
+-- demo08
+ghci> int prog3 {{inf()}}
+^CInterrupted.
+
+-- demo09
+ghci> eval prog3 {{inf()}}
+S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S
+(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(
+S(S(S(S(S^CInterrupted.
+\end{lstlisting}

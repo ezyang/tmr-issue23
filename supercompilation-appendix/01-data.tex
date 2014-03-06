@@ -1,0 +1,63 @@
+\section{\texttt{Data.hs}}
+
+First a definition of SLL abstract syntax. To make generalization easier, it
+already includes \texttt{let}-expressions.
+\begin{lstlisting}[name=data]
+type Name = String
+data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] 
+	| GCall Name [Expr] | Let (Name, Expr) Expr 
+	deriving (Eq)
+data Pat = Pat Name [Name] deriving (Eq)
+data GDef = GDef Name Pat [Name] Expr deriving (Eq)
+data FDef = FDef Name [Name] Expr deriving (Eq)
+data Program = Program [FDef] [GDef] deriving (Eq)
+\end{lstlisting}
+
+Type synonyms for operations on expressions: renaming, substitution, fresh-name supply.
+\begin{lstlisting}[name=data]
+type Renaming = [(Name, Name)]
+type Subst = [(Name, Expr)]
+type NameSupply = [Name]
+\end{lstlisting}
+
+Technically we work with SLL-expressions almost everywhere. 
+But to distinguish in which sense we use them --
+expression, configuration, value --
+we introduce some more type synonyms:
+\begin{lstlisting}[name=data]
+type Conf = Expr
+type Value = Expr
+type Task = (Conf, Program)
+type Env = [(Name, Value)]
+\end{lstlisting}
+
+Probably the most interesting data types:
+\begin{lstlisting}[name=data]
+data Contract = Contract Name Pat
+data Step a = Transient a | Variants [(Contract, a)] | Stop 
+	| Decompose [a] | Fold a Renaming
+data Graph a = Node a (Step (Graph a))
+type Tree a = Graph a
+type Node a = Tree a
+
+type Machine a = NameSupply -> a -> Step a
+\end{lstlisting}
+
+In the following we shall consider the processed program as a kind of machine.
+\texttt{Machine~a} operates with some generalized states of type \texttt{a}.
+We assume further, that states can contain named subparts (using identifiers), and that
+the machine may need to produce some new named subparts.
+If the machine is given some infinite list of names and some current state,
+then it computes in one step a next generalized state.
+The data type \texttt{Step~a} describes the kinds of steps we use
+-- transient, final, decomposition, etc. 
+The most interesting kind of step -- \texttt{Variants~[(c1,~a1),~(c2,~a2),\ldots]}
+~-- describes case analysis. 
+Its meaning is: if the condition \texttt{c1} holds, then the next state will be \texttt{a1},
+if \texttt{c2} holds -- \texttt{a2}, etc.
+We consider only simple conditions of type \texttt{Contract} --
+namely that some variable matches a certain pattern.
+\texttt{Graph~a}~-- is the graph of state transitions.
+
+We shall use further only configurations as states, but the type of state
+is deliberately abstracted here for full generality.

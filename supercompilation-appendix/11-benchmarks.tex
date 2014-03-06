@@ -1,0 +1,174 @@
+\section{Anti-KMP test}
+
+This section lists in detail the results of the anti-KMP-test mentioned in the main text.
+To improve readability, we set specifically for these examples \texttt{sizeBound=10}.
+
+The baseline transformer produces 19 functions.
+\begin{lstlisting}[style=demo,escapechar=!]
+-- demo18
+ghci> transform ({{even(sqr(x))}}, prog1)
+f1(x)
+f1(x) = g2(x, x);
+f3() = True();
+f6() = True();
+f7(v2, v1, x) = g8(v2, v1, x);
+f10() = False();
+f12(v4, v3, x) = g13(v4, v3, x);
+f15() = True();
+f16(v3, v1, x) = g17(v3, v1, x);
+f19() = True();
+g2(Z(), x) = f3();
+g2(S(v1), x) = g4(x, x, v1);
+g4(Z(), x, v1) = g5(v1, x);
+g4(S(v2), x, v1) = f7(v2, v1, x);
+g5(Z(), x) = f6();
+g5(S(v2), x) = g4(x, x, v2);
+g8(Z(), v1, x) = g9(v1, x);
+g8(S(v3), v1, x) = f16(v3, v1, x);
+g9(Z(), x) = f10();
+g9(S(v3), x) = g11(x, x, v3);
+g11(Z(), x, v3) = g9(v3, x);
+g11(S(v4), x, v3) = f12(v4, v3, x);
+g13(Z(), v3, x) = g14(v3, x);
+g13(S(v5), v3, x) = f7(v5, v3, x);
+g14(Z(), x) = f15();
+g14(S(v5), x) = g4(x, x, v5);
+g17(Z(), v1, x) = g18(v1, x);
+g17(S(v4), v1, x) = f7(v4, v1, x);
+g18(Z(), x) = f19();
+g18(S(v4), x) = g4(x, x, v4);
+\end{lstlisting}
+
+Deforestation -- 11 functions:
+\begin{lstlisting}[style=demo,escapechar=!]
+-- demo19
+ghci> deforest ({{even(sqr(x))}}, prog1)
+g1(x, x)
+f4(v2, v1, x) = g5(v2, v1, x);
+g1(Z(), x) = True();
+g1(S(v1), x) = g2(x, x, v1);
+g2(Z(), x, v1) = g3(v1, x);
+g2(S(v2), x, v1) = f4(v2, v1, x);
+g3(Z(), x) = True();
+g3(S(v2), x) = g2(x, x, v2);
+g5(Z(), v1, x) = g6(v1, x);
+g5(S(v3), v1, x) = g10(v3, v1, x);
+g6(Z(), x) = False();
+g6(S(v3), x) = g7(x, x, v3);
+g7(Z(), x, v3) = g6(v3, x);
+g7(S(v4), x, v3) = g8(v4, v3, x);
+g8(Z(), v3, x) = g9(v3, x);
+g8(S(v5), v3, x) = f4(v5, v3, x);
+g9(Z(), x) = True();
+g9(S(v5), x) = g2(x, x, v5);
+g10(Z(), v1, x) = g11(v1, x);
+g10(S(v4), v1, x) = f4(v4, v1, x);
+g11(Z(), x) = True();
+g11(S(v4), x) = g2(x, x, v4);
+\end{lstlisting}
+
+%\newpage
+Supercompilation -- 34 functions.
+\begin{lstlisting}[style=demo,escapechar=!]
+-- demo20
+ghci> supercompile ({{even(sqr(x))}}, prog1)
+g1(x)
+g1(Z()) = True();
+g1(S(v1)) = g2(v1);
+g2(Z()) = False();
+g2(S(v2)) = g3(v2);
+g3(Z()) = True();
+g3(S(v3)) = g33(S(g4(v3)));
+g4(Z()) = S(S(S(S(S(S(Z()))))));
+g4(S(v5)) = S(g32(v5, S(S(S(S(g31(v5, S(S(S(S(g30(v5, 
+	S(S(S(S(g29(v5, g5(v5))))))))))))))))));
+g5(Z()) = Z();
+g5(S(v10)) = S(S(S(S(S(g28(v10, g6(v10)))))));
+g6(Z()) = Z();
+g6(S(v12)) = S(S(S(S(S(S(g27(v12, g7(v12))))))));
+g7(Z()) = Z();
+g7(S(v14)) = S(S(S(S(S(S(S(g26(v14, g8(v14)))))))));
+g8(Z()) = Z();
+g8(S(v16)) = g25(S(S(S(S(S(S(S(S(v16)))))))), 
+	g9(v16, S(S(S(S(S(S(S(S(v16))))))))));
+g9(Z(), v18) = Z();
+g9(S(v19), v18) = g10(v18, v19);
+g10(Z(), v19) = g11(v19);
+g10(S(v20), v19) = S(g12(v20, v19));
+g11(Z()) = Z();
+g11(S(v20)) = g11(v20);
+g12(Z(), v19) = g13(v19);
+g12(S(v21), v19) = S(g14(v21, v19));
+g13(Z()) = Z();
+g13(S(v21)) = S(g13(v21));
+g14(Z(), v19) = g15(v19);
+g14(S(v22), v19) = S(g16(v22, v19));
+g15(Z()) = Z();
+g15(S(v22)) = S(S(g15(v22)));
+g16(Z(), v19) = g17(v19);
+g16(S(v23), v19) = S(g18(v23, v19));
+g17(Z()) = Z();
+g17(S(v23)) = S(S(S(g17(v23))));
+g18(Z(), v19) = g19(v19);
+g18(S(v24), v19) = S(g20(v24, v19));
+g19(Z()) = Z();
+g19(S(v24)) = S(S(S(S(g19(v24)))));
+g20(Z(), v19) = g21(v19);
+g20(S(v25), v19) = S(g24(v25, g22(v19, v25)));
+g21(Z()) = Z();
+g21(S(v25)) = S(S(S(S(S(g21(v25))))));
+g22(Z(), v25) = Z();
+g22(S(v27), v25) = S(S(S(S(S(S(g23(v25, g22(v27, 
+	v25))))))));
+g23(Z(), v28) = v28;
+g23(S(v29), v28) = S(g23(v29, v28));
+g24(Z(), v26) = v26;
+g24(S(v27), v26) = S(g24(v27, v26));
+g25(Z(), v17) = v17;
+g25(S(v19), v17) = S(g25(v19, v17));
+g26(Z(), v15) = v15;
+g26(S(v16), v15) = S(g26(v16, v15));
+g27(Z(), v13) = v13;
+g27(S(v14), v13) = S(g27(v14, v13));
+g28(Z(), v11) = v11;
+g28(S(v12), v11) = S(g28(v12, v11));
+g29(Z(), v9) = v9;
+g29(S(v10), v9) = S(g29(v10, v9));
+g30(Z(), v8) = v8;
+g30(S(v9), v8) = S(g30(v9, v8));
+g31(Z(), v7) = v7;
+g31(S(v8), v7) = S(g31(v8, v7));
+g32(Z(), v6) = v6;
+g32(S(v7), v6) = S(g32(v7, v6));
+g33(Z()) = True();
+g33(S(v5)) = g34(v5);
+g34(Z()) = False();
+g34(S(v6)) = g33(v6);
+\end{lstlisting}
+
+We compare below the speed-ups of the task \texttt{{\color{brown}even(sqr(x))}, prog1}
+obtained by using \texttt{transform}, \texttt{deforest}, and \texttt{supercompile}.
+The speed-up of task $t_2$ with respect to task $t_1$ is calculated
+as follows (where \texttt{x} is a natural number, and \texttt{{\color{brown}x}} -- the corresponding Peano number):
+
+\begin{lstlisting}[style=demo]
+acc t1 t2 x = steps1 / steps2 where
+	(_, steps1) = sll_trace t1 [("x"), {{x}}]
+	(_, steps2) = sll_trace t2 [("x"), {{x}}]
+\end{lstlisting}
+
+\input{figures/benchmarks}
+
+These results demonstrate, that the speed-up from supercompilation is most impressive
+for small $x$;
+for such small numbers we do not reach the cases of generalization present in the graph.
+When $х$ grows, however, the drawbacks of performing generalization start to show,
+and the deforested task turns out faster.
+
+%\begin{exercise}
+%То, что суперкомпиляция может выдавать программы, работающие медленнее, чем дефорестированные,
+%даже при ``идеальной'' модели стоимости вычисления (у нас скорость вычислений измерялась в шагах
+%интерпретатора), было для меня поначалу большим сюрпризом. Задание объяснить, как такое возможно,
+%достается в качестве награды самому любопытному и дотошному читателю, добравшемуся до конца этого
+%опуса.
+%\end{exercise}

@@ -1,0 +1,49 @@
+\section{\texttt{TreeInterpreter.hs}}
+
+The tree interpreter contains few surprises.
+The only interesting cases are:
+\begin{itemize}
+\item a node with variants (\texttt{Node e (Variants cs)}): we chose that
+subbranch, whose condition matches the current environment (\texttt{env});
+\item a folding node (\texttt{Node \_ (Fold t ren)}): 
+here we continue with the subtree (which would correspond to a loop in the graph),
+first performing the corresponding renaming of the current environment.
+\end{itemize}
+
+\begin{lstlisting}[name=treeinterpreter]
+intTree :: Tree Conf -> Env -> Value
+intTree (Node e Stop) env =
+	e // env
+intTree (Node (Ctr cname _) (Decompose ts)) env =
+	Ctr cname $ map (\t -> intTree t env) ts
+intTree (Node _ (Transient t)) env =
+	intTree t env
+intTree (Node e (Variants cs)) env =
+	head $ catMaybes $ map (try env) cs
+intTree (Node (Let (v, e1) e2) (Decompose [t1, t2])) env =
+	intTree t2 ((v, intTree t1 env) : env)
+intTree (Node _ (Fold t ren)) env =
+	intTree t $ map (\(k, v) -> (renKey k, v)) env where
+		renKey k = maybe k fst (find ((k ==) . snd)  ren)
+
+try :: Env -> (Contract, Tree Conf) -> (Maybe Expr)
+try env (Contract v (Pat pn vs), t) =
+	if cn == pn then (Just $ intTree t extEnv) 
+	else Nothing where
+		c@(Ctr cn cargs) = (Var v) // env
+		extEnv = zip vs cargs ++ env
+\end{lstlisting}
+
+
+An example of using infinite trees for evaluation:
+\begin{lstlisting}[style=demo]
+-- demo13
+ghci> intTree (buildTree (driveMachine prog1) 
+	{{even(fSqr(x))}} ) [("x", {{S(S(Z()))}})]
+True()
+
+-- demo14
+ghci> intTree (buildTree (driveMachine prog1) 
+	{{even(fSqr(x))}} ) [("x", {{S(S(S(Z())))}})]
+False()
+\end{lstlisting}

@@ -1,0 +1,122 @@
+\section{\texttt{DataUtil.hs}}
+
+The module \texttt{DataUtil} defines some (mostly boring) auxiliary functions. 
+Its text is included for completeness anyway.
+
+Working with abstract syntax:
+\begin{lstlisting}[name=datautil]
+isValue :: Expr -> Bool
+isValue (Ctr _ args) = and $ map isValue args
+isValue _ = False
+
+isCall :: Expr -> Bool
+isCall (FCall _ _) = True
+isCall (GCall _ _) = True
+isCall _ = False
+
+isVar :: Expr -> Bool
+isVar (Var _) = True
+isVar _ = False
+
+fDef :: Program -> Name -> FDef
+fDef (Program fs _) fname = 
+	head [f | f@(FDef x _ _) <- fs, x == fname]
+
+gDefs :: Program -> Name -> [GDef]
+gDefs (Program _ gs) gname = 
+	[g | g@(GDef x _ _ _) <- gs, x == gname]
+
+gDef :: Program -> Name -> Name -> GDef
+gDef p gname cname = 
+	head [g | g@(GDef _ (Pat c _) _ _) <- 
+		gDefs p gname, c == cname]
+\end{lstlisting}
+
+Applying substitutions:
+\begin{lstlisting}[name=datautil]
+(//) :: Expr -> Subst -> Expr
+(Var x) // sub = maybe (Var x) id (lookup x sub)
+(Ctr name args) // sub = Ctr name (map (// sub) args)
+(FCall name args) // sub = FCall name (map (// sub) args)
+(GCall name args) // sub = GCall name (map (// sub) args)
+(Let (x, e1) e2) // sub  = Let (x, (e1 // sub)) (e2 // sub)
+\end{lstlisting}
+
+Working with names.
+\texttt{nameSupply} produces an infinite list of names. 
+\texttt{unused} removes from the list of names those used inside a condition.
+\texttt{vnames'} -- all the names inside an expression, \texttt{vnames} -- the same without repetitions. 
+\texttt{isRepeated} checks if a name occurs more than once in an expression.
+\begin{lstlisting}[name=datautil]
+nameSupply :: NameSupply
+nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
+
+unused :: Contract -> NameSupply -> NameSupply
+unused (Contract _ (Pat _ vs)) = (\\ vs)
+
+vnames :: Expr -> [Name]
+vnames = nub . vnames'
+
+vnames' :: Expr -> [Name]
+vnames' (Var v) = [v]
+vnames' (Ctr _ args)   = concat $ map vnames' args
+vnames' (FCall _ args) = concat $ map vnames' args
+vnames' (GCall _ args) = concat $ map vnames' args
+vnames' (Let (_, e1) e2) = vnames' e1 ++ vnames' e2
+
+isRepeated :: Name -> Expr -> Bool
+isRepeated vn e = (length $ filter (== vn) (vnames' e)) > 1
+\end{lstlisting}
+
+%\newpage
+\texttt{renaming e1 e2} finds a renaming (if possible) from an expression \texttt{e1} 
+into an expression \texttt{e2}
+(probably a more elegant definition is possible):
+\begin{lstlisting}[name=datautil]
+renaming :: Expr -> Expr -> Maybe Renaming
+renaming e1 e2 = 
+	f $ partition isNothing $ renaming' (e1, e2) where
+	f (x:_, _) = Nothing
+	f (_, ps) = g gs1 gs2
+		where
+			gs1 = groupBy (\(a, b) (c, d) -> a == c) 
+				$ sortBy h $ nub $ catMaybes ps
+			gs2 = groupBy (\(a, b) (c, d) -> b == d) 
+				$ sortBy h $ nub $ catMaybes ps
+			h (a, b) (c, d) = compare a c
+	g xs ys = 
+		if all ((== 1) . length) xs 
+			&& all ((== 1) . length) ys
+		then Just (concat xs) else Nothing
+
+renaming' :: (Expr, Expr) -> [Maybe (Name, Name)]
+renaming' ((Var x), (Var y)) =
+	[Just (x, y)]
+renaming' ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 =
+	concat $ map renaming' $ zip args1 args2
+renaming' ((FCall n1 args1), (FCall n2 args2)) | n1 == n2 =
+	concat $ map renaming' $ zip args1 args2
+renaming' ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 =
+	concat $ map renaming' $ zip args1 args2
+renaming' (Let (v, e1) e2, Let (v', e1') e2') =
+	renaming' (e1, e1') ++ 
+		renaming' (e2, e2' // [(v, Var v')])
+renaming' _  = [Nothing]
+\end{lstlisting}
+Expression size (used inside the whistle):
+\begin{lstlisting}[name=datautil]
+size :: Expr -> Integer
+size (Var _)          = 1
+size (Ctr _ args)     = 1 + sum (map size args)
+size (FCall _ args)   = 1 + sum (map size args)
+size (GCall _ args)   = 1 + sum (map size args)
+size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
+\end{lstlisting}
+Other utility functions:
+\begin{lstlisting}[name=datautil]
+nodeLabel :: Node a -> a
+nodeLabel (Node l _) = l
+
+step :: Node a -> Step (Graph a)
+step (Node _ s) = s
+\end{lstlisting}

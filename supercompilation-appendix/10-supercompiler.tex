@@ -1,0 +1,53 @@
+\section{\texttt{Supercompiler.hs}}
+
+As a next step, we extend deforestation with information propagation,
+to obtain our final supercompiler:
+\begin{lstlisting}[name=supercompiler]
+supercompile :: Task -> Task
+supercompile (e, p) =
+	residuate $ simplify $ foldTree $ 
+		buildFTree (addPropagation $ driveMachine p) e
+
+addPropagation :: Machine Conf -> Machine Conf
+addPropagation m ns e = propagateContract (m ns e)
+
+propagateContract :: Step Conf -> Step Conf
+propagateContract (Variants vs) =
+  Variants [(c, e // [(v, Ctr cn $ map Var vs)]) | 
+            (c@(Contract v (Pat cn vs)), e) <- vs]
+propagateContract step = step
+\end{lstlisting}
+
+The reader is encouraged to compare the trees produced by different transformers:
+
+\begin{lstlisting}[style=demo,escapechar=!]
+-- demo21
+ghci> foldTree $ buildFTree (driveMachine prog2) 
+	{{match("AAB", s)}}
+...
+
+-- demo22
+ghci> simplify $ foldTree $ buildFTree (driveMachine prog2) 
+	{{match("AAB", s)}}
+...
+
+-- demo23
+ghci> simplify $ foldTree $ buildFTree (addPropagation 
+(driveMachine prog2)) conf2
+...
+\end{lstlisting}
+
+\ldots and also the resulting residual tasks (listed also in the main article):
+\begin{lstlisting}[style=demo,escapechar=!]
+-- demo24
+ghci> transform ({{match("AAB", s)}}, prog2)
+...
+
+-- demo25
+ghci> deforest ({{match("AAB", s)}}, prog2)
+...
+
+-- demo26
+ghci> supercompile ({{match("AAB", s)}}, prog2)
+...
+\end{lstlisting}
