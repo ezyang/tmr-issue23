@@ -4,7 +4,7 @@ by its ease of use by humans, but also by the amenability of its texts to
 formal transformations.}{V.F. Turchin \cite{Turchin1974EqTrans}}
 
 It would be nice if all computer-science articles were accompanied by some formal 
-executable description (in the form of a program or a formal specification),
+executable description (in the form of a program or a formal specification)
 in order to ensure reproducibility of results.
 
 The SC~Mini supercompiler is such an executable description of the fundamental 
@@ -14,7 +14,7 @@ MSc thesis of Morten H. S{\o}rensen
 \cite{Sorensen1994TurchinSupercompiler} 
 (which remained only on paper).
 
-No supercompilation description can do without relying on subtle fundamental notions
+No supercompilation description is complete without describing subtle fundamental notions
 such as program semantics, evaluation results, computation state. 
 All these notions are formally represented in the sources of SC~Mini, which helps
 avoid ambiguities.
@@ -25,12 +25,12 @@ S{\o}rensen's $M_0$).
 Paraphrasing Turchin's quote from the beginning of the section, we argue
 that SLL's main advantages are:
 \begin{enumerate}
-  \item Simple language definition.
-  \item Simple definition of a supercompiler for SLL programs.
+  \item A simple language definition, and
+  \item A simple definition of a supercompiler for SLL programs.
 \end{enumerate}
 
-Despite the fact, that SC~Mini is a supercompiler for a specific language, the methods used 
-in its construction are fairly general, and appear with only small variations in most supercompilers.
+Despite the fact that SC~Mini is a supercompiler for a specific language, the methods used 
+in its construction are fairly general and appear with only small variations in most supercompilers.
 
 We shall see further through several examples that SC~Mini can optimize programs 
 (giving first a formal definition of a program optimizer),
@@ -60,7 +60,7 @@ and it can also be used to automatically prove different program properties.
 \input{figures/prog1.tex}
 \end{figure}
 
-Defining a language means defining its syntax and semantics. 
+Defining a language entails defining its syntax and semantics. 
 Syntax is typically defined using a context-free grammar.
 One possible way to define semantics is to implement an interpreter for the language.
 The following natural-language description is more succinctly and simply 
@@ -71,21 +71,21 @@ Fig.~\ref{fig-sll-syntax} gives the abstract syntax of SLL.
 An SLL expression can be one of the following:
 \begin{itemize}
   \item variable,
-  \item constructor, having SLL expressions as arguments,
+  \item constructor, having SLL expressions as arguments, or a
   \item function call, having SLL expressions as arguments.
 \end{itemize}
 
 We assume further the same convention as in Haskell: constructor names start
-with an uppercase letter, and variable names -- with a lowercase letter.
+with an uppercase letter; variable names start with a lowercase letter.
 
 An SLL expression consisting only of constructors is called a \emph{value}.
 An SLL expression without any variables inside is called a \emph{closed expression}.
 We define \emph{configuration} as an alias of an SLL expression with free variables.
 
 An SLL program consists of function definitions.
-We distinguish 2 kinds of functions -- ``indifferent'' and ``curious''
+We distinguish two kinds of functions -- ``indifferent'' and ``curious''
 (originally called by S{\o}rensen f- and g-functions respectively).
-The latter replace case expressions (always lifted to the top level).
+Curious functions replace case expressions (which are always lifted to the top level).
 %and remove the need to deal with nested bound variables.
 Indifferent functions just transfer their arguments to other functions or constructors;
 their definition is just a single expression.
@@ -97,7 +97,7 @@ SLL can be straightforwardly extended with Haskell-like data-type
 declarations and Hindley–Milner type inference, but we ignore
 issues of typing from now on, silently assuming that all
 programs under consideration would be well-typed
-in such a type system.
+under such a type system.
 We assume the following convention:
 \begin{itemize}
   \item the constructors \texttt{True()} and \texttt{False()} represent Boolean values,
@@ -143,17 +143,17 @@ The notation $e_1 \stackrel{\textrm{\tiny p}}{=} e_2$ means that the program $p$
 The semantics is defined through a rewriting SLL interpreter with normal-order reduction.
 The SLL interpreter $\mathcal{I}_p$ processing a program $p$ evaluates, step by step,
 each closed SLL expression to an SLL value (or falls into an infinite loop,
-or terminates with an error message, but we shall oftne ignore the last case for simplicity).
-As far as reduction is concerned, we distinguish 2 kinds of closed expressions:
+or terminates with an error message, but we shall often ignore the last case for simplicity).
+As far as reduction is concerned, we distinguish two kinds of closed expressions:
 \begin{enumerate}
-  \item $e = C(e_1, \ldots, c_n)$ - a constructor is ``pushed'' outside, and we 
+  \item $e = C(e_1, \ldots, c_n)$ -- a constructor is ``pushed'' outside, and we 
   proceed to reduce its arguments.
-  \item $e \not = C(e_1, \ldots, c_n)$ - then we locate the leftmost reducible function call
+  \item $e \not = C(e_1, \ldots, c_n)$ -- then we locate the leftmost reducible function call
   (\emph{redex}, see Fig.~\ref{fig-sll-context}) and unfold it according to
   the corresponding definition from the program.
-  A function call is reducible if 
-  1) it is a call of an indifferent function, or
-  2) a call to a curious function, where the first argument starts with a constructor.
+  A function call is reducible if it is a call to
+  1) an indifferent function or
+  2) a curious function, where the first argument starts with a constructor.
 \end{enumerate}
 
 
@@ -167,7 +167,7 @@ As far as reduction is concerned, we distinguish 2 kinds of closed expressions:
 % Системы редукций как средство описания операционной семантики разбираются, например, в
 % \cite{Mitchell1996Foundations}.}.
 
-The rules for evaluation SLL expressions are (as typical for functional languages) \emph{compositional},
+The rules for evaluating SLL expressions are (as typical for functional languages) \emph{compositional},
 meaning that, if the expression $e_1 / \{v := e_2\}$ is closed, then
 (taking laziness into account):
 \[\mathcal{I}_p\llbracket e_1 / \{v := e_2\}\rrbracket = \mathcal{I}_p \llbracket e_1 / \{v := \mathcal{I}_p\llbracket e_2\rrbracket\} \rrbracket\]
@@ -209,14 +209,15 @@ The root node represents the task with its arguments.
 \end{figure}
 
 %\subsubsection{Optimizer} 
-Next we formally define what is an \emph{optimizer} of SLL tasks.
-An SLL optimizer takes a task $(e, p)$ as input and outputs another task $(e', p')$, such that
-for all arguments $args$ the results of both tasks are the same:
+Next, we formally define what is an \emph{optimizer} of SLL tasks.
+An SLL optimizer takes a task $(e, p)$ as input and outputs another task $(e', p')$.
+Our first requirement is correctness:
+for all arguments $args$, the results of both tasks must be the same:
 %\footnote{
 %Meaning that the SLL interpreter either gives equal results for both tasks, or
 %it goes into an infinite loop in both cases.}
-\[\mathcal{R}_{(e, p)}\llbracket args\rrbracket = \mathcal{R}_{(e', p')}\llbracket args\rrbracket\]
-and, besides, the evaluation of the second task requires no more reduction steps than
+\[\mathcal{R}_{(e, p)}\llbracket args\rrbracket = \mathcal{R}_{(e', p')}\llbracket args\rrbracket\].
+Our second requirement is optimization: the evaluation of the second task must require no more reduction steps than
 the evaluation of the first one. 
 (The number of steps of a reduction sequence can be computed by
 the function \texttt{sll\_trace} in SC~Mini's sources.)
@@ -246,12 +247,11 @@ the function \texttt{sll\_trace} in SC~Mini's sources.)
 SC~Mini transforms a task $(e, p)$ into another task $(e', p')$, proceeding as follows:
 \begin{enumerate}
   \item It constructs a ``machine'' $\mathcal{M}_p$, which encodes the behavior of the 
-  interpreter $\mathcal{I}_p$ of a program $p$ over a generalized input 
-  -- configurations (instead of values).
+  interpreter $\mathcal{I}_p$ of a program $p$ over a generalized input-configurations (instead of values);
   \item It performs a finite (but large enough) number of executions of the machine
-  $\mathcal{M}_p$, and it analyzes their results.
+  $\mathcal{M}_p$, analyzing their results;
   \item It builds a finite ``graph of configurations'', which fully describes the behavior of
-  $\mathcal{M}_p$ during those executions.
+  $\mathcal{M}_p$ during those executions; and
   \item It simplifies the graph of configurations and builds a new task $(e', p')$ from it.
 \end{enumerate}
 
@@ -292,7 +292,7 @@ Let us ``extend'' the interpretation process $\mathcal{I}$:
 %Languages, 1977). 
 %Abstract interpretation, however, typically involves a narrowing of the program domain.
 %There is no such narrowing in driving.}
-instead of stopping with an error, let us consider the different ways, in which
+instead of stopping with an error, let us consider the different ways in which
 evaluation might proceed.
 The definition of \texttt{add} in \texttt{prog1} provides 2 possibilities:
 either \texttt{x = Z()}, or \texttt{x = S(x1)}:
@@ -312,16 +312,16 @@ We distinguish the following kinds of machine steps:
 \begin{enumerate}
   \item Transient step -- the corresponding interpretation step does not depend on
   the value of any free variable in the configuration.
-  Example -- the move from state \texttt{s0} to state \texttt{s1}.
-  \item Stop. Further modeling is not possible. 
-  This happens, when the expression to be reduced is a variable, or a value.
-  \item Decomposition. Some part of the result is already known.
-  For example, in the expression \texttt{S(sqr(x))}
+  Example: the move from state \texttt{s0} to state \texttt{s1}.
+  \item Stop -- further modeling is not possible. 
+  This occurs when the expression to be reduced is a variable or a value.
+  \item Decomposition -- some part of the result is already known.
+  Example: in the expression \texttt{S(sqr(x))},
   the outer constructor is clearly a part of the result. 
   We can continue processing its subexpressions.
-  \item Case analysis. Modeling cannot proceed unambiguously.
+  \item Case analysis -- modeling cannot proceed unambiguously.
   We can, however, consider \emph{all possible further steps of the interpreter, as defined in the program}.
-  Example -- the transitions from state \texttt{s4} to states \texttt{s5a} and \texttt{s5b}.
+  Example: the transitions from state \texttt{s4} to states \texttt{s5a} and \texttt{s5b}.
 \end{enumerate}
 
 Such modeling -- which is a key part of supercompilation -- is called \emph{driving}. 
@@ -333,6 +333,8 @@ Show that \texttt{driveMachine~p} is powerful enough to evaluate closed expressi
 In other words, define a function \texttt{f}, such that
 \\ \texttt{f (driveMachine p) e = eval p e}
 \end{exercise}
+
+\Red{EZY editing paused here}
 
 \subsection{Trees of Configurations}
 

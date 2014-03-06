@@ -383,4 +383,5 @@
       {Package #1 is required by an article, but has not been loaded in the
        preamble.}}}
 
-
+\newcommand{\Red}[1]{{\color{red} #1}}
+\newcommand{\EZY}[1]{\Red{EZY: #1}}
