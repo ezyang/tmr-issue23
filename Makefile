@@ -1,4 +1,4 @@
-FOLDERS := supercompilation
+FOLDERS := supercompilation:celestria
 
 export TEXINPUTS := ${FOLDERS}:${TEXINPUTS}
 export BIBINPUTS := ${FOLDERS}:${BIBINPUTS}
@@ -29,6 +29,7 @@ bib :
 	bibtex supercompilation
 	bibtex fizzbuzz
 	bibtex mflow
+	bibtex celestria
 
 final : $(issue).pdf bib
 	pdflatex $(issue).tex

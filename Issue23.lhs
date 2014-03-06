@@ -31,6 +31,9 @@
 \author{Maciej Pir{\'o}g\email{maciej.adam.pirog@@gmail.com}}
 \author{Ilya Klyuchnikov\email{ilya.klyuchnikov@@gmail.com}}
 \author{Dimitur Krustev\email{dkrustev@@gmail.com}}
+\author{Henrik Bäärnhielm\email{redstar@@kth.se}}
+\author{Daniel Sundström\email{daniel@@monkeydancers.com}}
+\author{Mikael Vejdemo-Johansson\email{mikael@@johanssons.org}}
 \author{Alberto Gomez Corona\email{agocorona@@gmail.com}} 
 \author{Neil Brown\email{neil@@twistedsquare.com}}
 
@@ -42,6 +45,7 @@
 \tableofcontents
 
 \article{Editorial}
+\article{celestria_main}
 \article{fizzbuzz}
 \article{supercompilation}
 \article{mflow}

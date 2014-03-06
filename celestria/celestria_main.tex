@@ -1,0 +1,56 @@
+\documentclass{tmr}
+\usepackage[utf8x]{inputenc}
+%\usepackage[T1]{fontenc}
+
+\usepackage{url}
+
+\newcommand\degree{º}
+\newcommand\Cpp{C\kern-.05em\raise.45ex\hbox{\tiny{++}}}
+\title{A Haskell sound specification DSL: Ludic support and deep immersion in Nordic technology-supported LARP}
+\author{Henrik Bäärnhielm\email{redstar@kth.se}}
+\author{Daniel Sundström\email{daniel@monkeydancers.com}}
+\author{Mikael Vejdemo-Johansson\email{mikael@johanssons.org}}
+
+\begin{document}
+
+\begin{introduction}
+  In March 2013, the battleship Småland in the Gothenburg harbor was
+  transformed into a spaceship, the Monitor Celestra, in the
+  Battlestar Galactica fleet for a 3 day Live Action Roleplaying
+  Game. To support the feeling of total immersion into the game world,
+  we built extensive technological support for the game experience,
+  including a sound system with a programmable control layer written
+  in Haskell. 
+
+  In this article we will describe this control layer, and our
+  experiences building and using it for this game project.
+\end{introduction}
+
+
+\input{celestra}
+
+\input{sound_system}
+
+\input{sound_spec}
+
+\input{haskell_design}
+
+\input{examples}
+
+\input{experiences}
+
+
+%\nocite{stenros2012}
+
+%\bibliographystyle{amsalpha}
+%\bibliographystyle{alpha}
+\bibliography{celestra}
+
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-engine: default
+%%% TeX-master: t
+%%% End: 

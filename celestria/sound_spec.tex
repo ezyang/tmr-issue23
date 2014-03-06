@@ -1,0 +1,50 @@
+\section{Requirements on the sound scene DSL}
+\label{sec:requ-sound-spec}
+
+The work on building a dedicated domain specific language
+(DSL) for describing sound scenes
+started at a relatively late stage of the project, when most other
+platform decisions had already been made. The need for an intermediate
+layer emerged from the simultaneous need for low-level simple sound
+execution protocols that could run on a Raspberry Pi platform and for
+abstract sound descriptions with a low technical usage barrier to
+enable the game fiction design and sound design crews to interact with
+the system.
+
+This setting produced a number of requirements that we tried to adapt
+to during the project:
+\begin{description}
+\item[Simple output] Output from the DSL to the lower level systems
+  needed to have a simple structure. Preferably consist of discrete
+  orders to \textsc{Play}, \textsc{Loop}, \textsc{Stop} or
+  \textsc{Adjust} sounds addressed by integers at sound nodes
+  addressed by integers.
+\item[Accessible input] The DSL needed an easy to read and easy to
+  write format that the artistic side of the project could use to
+  specify sound scenes.
+\item[Fast development] The DSL needed to be developed during 4 months
+  of volunteered free time, during a time span that included several
+  major conference deadlines. This limited the amount of programmer
+  manpower available.
+\item[System compatibility] The DSL needed to react to \texttt{AMQP} messages,
+  store state in \texttt{Redis}, and format its output in a way easy to parse
+  by the receiving low-level or high-level interfaces.
+\end{description}
+
+Due to earlier experiences with Haskell, we chose GHC and the Haskell
+Platform as a host system for the DSL development. We decided early on
+to use the automatic parser generation in the standardized Haskell
+\texttt{Read} and \texttt{Show} classes, and later on used the
+\texttt{Generics} extension to automatically generate JSON parsers and
+formatters in order to plug into the existing \texttt{AMQP} message
+passing architecture. This reduced large amounts of DSL design to
+designing appropriate Haskell types: writing native Haskell code with
+custom-built data types that represent the domain allows for large
+freedom in defining our own semantics while retaining the full power
+of Haskell packages and programming styles.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-engine: default
+%%% TeX-master: "tmr"
+%%% End: 

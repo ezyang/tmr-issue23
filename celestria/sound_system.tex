@@ -1,0 +1,133 @@
+
+\section{Game control system design}
+\label{sec:game-control-system}
+
+The technology team for \emph{The Monitor Celestra} settled at a
+relatively early stage on an overall design for the game support
+technology; the choices made included
+\begin{itemize}
+\item Wired ethernet communication for everything; split into three
+  different parallel networks: sound, game system, and player hackable. Due to the nature of the 
+  play area, parallel network backbones were installed for maximum durability and error management.
+\item Communication between game components over \texttt{AMQP} from a RabbitMQ running on a local
+game server on the main network. Game logic, world engine and game rules written in Ruby.
+\item Game consoles and GUIs written in HTML5 Canvas rendered on Chromium running in fullscreen.
+\item All game consoles must be able to used interchangeably with custom hardware components being plug-and-play.
+\item No authentication required within the game network. All published messages can be trusted on a system level. 
+\item A single game component responsible for game world, time progression and synchronization, in this case - a rack server running latest stable Ubuntu LTS. 
+\item Connection to external network and internet through a single point-of-entry, the main game server. 
+\end{itemize}
+
+The choices were made based on experiences from earlier projects staged
+in similar contexts; not-for-profit with volunteers, widest match against available skillsets, relatively uncontrolled environments
+and subjected to the wear-and-tear of playing adults.
+
+
+\section{Sound system design}
+\label{sec:sound-system-design}
+
+The original specifications for the Celestra sound system were as follows:
+\begin{itemize}
+\item Each section/room of the ship should have an independent sound producer so that each could play different sounds simultaneously. Each sound producer should be able to mix several sounds.
+\item It should be possible to trigger sound effects at specific
+  locations, both automatically via the game control system and
+  manually by game masters. Examples include a torpedo sound in the
+  torpedo room when a torpedo is launched (triggered by a player) and
+  a warning sound played in every room when the hull is compromised.
+\item The sound effects must have low latency in order to not break the immersion.
+\item It should be possible to trigger sounds at certain future times. For instance, it should be possible to specify that a torpedo hatch closing sound is played exactly one second after the torpedo launch sound.
+\end{itemize}
+
+The rest of the game control system were designed to run on a
+relatively small number of servers in a control room. Similarly, one
+option for the sound system would be to have a sound server with one
+sound card for each section, connected to pairs of speakers located
+in each section. However, it was decided that a better solution would
+be to have actual computers at each section, with their own sound
+cards, connected to a central computer via wired Ethernet, which would
+anyway exist in most rooms. This setup would be easier to build in
+terms of hardware, and would be easier to program for. The computers
+located next to the speakers in each room then had to be inconspicuous
+and inexpensive, since quite a large number would be needed. This led us to go
+for the Raspberry Pi (RP) setup.
+
+The choice of RP added constraints. It has limited RAM and CPU power,
+hence we decided to avoid adding dependencies to the game back-ends on
+every RP. While most of the game control systems were written in Ruby
+and based on communication over \texttt{AMQP}, we decided to implement a
+special purpose sound daemon in \Cpp, which would run on each RP and
+communicate with the central sound server directly via sockets. This
+would enable us to achieve lower latency and not drain resources from
+the RP.
+
+\subsection{Sound daemon}
+
+All required sounds were stored as sound files on every RP,
+effectively creating a global sound list $\mathcal{S}$. The sound
+daemon should then accept a few simple commands on the socket:
+\begin{itemize}
+\item Play sound $k$ from $\mathcal{S}$ at absolute time $t$, as sound with ID $n$.
+\item Stop sound with ID $n$, at absolute time $t$.
+\item Change volume to $v$ on sound with ID $n$, at absolute time $t$.
+\end{itemize}
+
+The idea here was that by combining these commands, it would be
+possible to realise all the required sound system features. Each RP was time
+synced to the rest of the network using NTP \cite{ntp}, hence the
+sound commands could have absolute timestamps with high accuracy. To
+achieve the possibility of playing multiple sounds at a single RP, the
+sound daemon communicated with PulseAudio \cite{pulseaudio}, creating
+one stream per sound being played. To achieve low latency and to
+simplify the implementation, the daemon read in $\mathcal{S}$ to RAM
+upon start-up, rather than reading a file upon each play command. This
+added the constraint that the total uncompressed size of the sounds
+had to fit into RAM of the RP.
+
+\subsection{Ambient and story sounds}
+
+It turned out that apart from the sound effect type of sounds that
+the sound daemon was created for, the game required two other types of sounds.
+\begin{itemize}
+\item Ambient sounds, which should be looped in the background in a section. For instance, in the reactor room there should be a constant sound from the reactor.
+\item Story sounds, which were played at specific events in the game. These were typically very long compared to the sounds effects, and triggered explicitly by the game masters.
+\end{itemize}
+
+These types of sounds did not quite fit into the sound daemon. The
+ambient sounds required looping, and should also be cross faded into
+themselves to avoid clicks, and the story sounds were too large to fit
+into RAM. Moreover, the low latency requirement for these
+sounds were much less strict.
+
+We therefore decided to use MPD \cite{mpd} for these sounds. MPD reads
+files from disk, hence the sound size would not matter. It also has built-in
+cross fade and loop support, and can output to PulseAudio, so it was compatible with the sound daemon. Each RP were then running an MPD daemon,
+and the sound server communicated with it using a standard MPD client library.
+
+\subsection{Sound daemon controller}
+
+On the sound server, a small controller software was running, which listened
+to AMQP sound commands, transformed them into sound packets for the
+daemon or to commands to MPD, and send them off to an RP. It was also responsible for transforming node numbers to IP addresses of RPs.
+
+Like most other game control software, this controller was written in
+Ruby. The original idea was that this would be the entry point of the
+sound system. However, it turned out that its simple interface, while
+in principle sufficient for all sound purposes, was too low-level for
+creating the sound scenes that the sound designers wanted to build for
+the game. 
+
+Thus we were led to introduce the intermediate layer in Haskell,
+described in the following sections. From now on, we will be referring
+to the sound server described here as the \textbf{low-level system},
+and to the Haskell layer as the \textbf{high-level system}. The
+Haskell layer works with two separate interface layers; a
+\textbf{low-level interface} facing the low-level system, and a
+\textbf{high-level interface} facing the game master and sound
+designer teams.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-engine: default
+%%% TeX-master: "tmr"
+%%% End: 
