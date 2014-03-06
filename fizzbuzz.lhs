@@ -473,7 +473,7 @@ The argument |v :: String| represents the default value of the
 function (originally set by the function |fizzbuzz| to the string
 representation of |n|), while |x :: String -> String| represents a
 continuation -- the rest of the computation parametrised by a new
-default value. If the modulo test fails, we change neither the
+default value. If the modulus test fails, we change neither the
 continuation nor the default value. If the test succeeds, we print
 out the string |s|, but also change the default value to the empty
 string, so that the string representation of |n| is not printed out.
