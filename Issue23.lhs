@@ -45,9 +45,9 @@
 \tableofcontents
 
 \article{Editorial}
-\article{celestria_main}
 \article{fizzbuzz}
 \article{supercompilation}
+\article{celestria_main}
 \article{mflow}
 \article{nccb}
 

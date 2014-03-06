@@ -29,7 +29,7 @@ bib :
 	bibtex supercompilation
 	bibtex fizzbuzz
 	bibtex mflow
-	bibtex celestria
+	bibtex celestria_main
 
 final : $(issue).pdf bib
 	pdflatex $(issue).tex
