@@ -492,22 +492,18 @@ renaming naturally give rise?
 \end{exercise}
 
 
-We can thus apply a divide-and-conquer heuristics. 
+We can thus apply a divide-and-conquer heuristics.
 We limit the size of configurations inside nodes by some constant \texttt{sizeBound},
 % дописать в духе: тогда их будет конечное число, т.к. конфигураций размера менее sizeBound - ограниченное
 % (хоть и, возможно, экспоненциально большое - в этом одна из проблем суперкомпиляторов) количество.
-and if a configuration becomes larger than this constant,
+and if the size of a configuration becomes larger than this constant,
 we split it into smaller parts which we can process \emph{independently}.
-However, we must
-% какова цена этого преобразования? почему бы не сделать sizeBound очень маленьким и в ус не дуть?
-% (какие возможности оптимизации это преобразование убивает?)
-represent configurations in such a way, that knowing \EZY{this sentence is awkward} the behavior of the parts
-is enough to know the behavior of the whole as well.
 
 Recall that the evaluation of closed SLL expressions is compositional.
 For a closed expression $e_1 / \{v := e_2\}$ we have:
 \[\mathcal{I}_p\llbracket e_1 / \{v := e_2\}\rrbracket = \mathcal{I}_p \llbracket e_1 / \{v := \mathcal{I}_p\llbracket e_2\rrbracket\} \rrbracket\]
-
+The same property of compositionality holds for evaluation of tree of configurations.
+(Look into SC~Mini source code to see how \texttt{intTree} handles splitted configurations.)
 
 
 % немного запутанно; мне кажется, можно это более понятно нарисовать.
@@ -528,15 +524,17 @@ For a closed expression $e_1 / \{v := e_2\}$ we have:
 % специальная конструкция let? затем, что ее суперкомпилятор не "инлайнит", в отличие
 % от вызовов безразличных функций?
 
-SC~Mini limits the size of configurations in the tree and builds a foldable tree in the following way: \EZY{this sentence is too long, split it up}
-if while building the tree a configuration $e$ is encountered, 
-which is a function call,
-%\footnote{
-%Configurations starting with a constructor are always decomposed, 
-%giving rise to smaller configurations.},
-and whose size is greater than \texttt{sizeBound},
-then this configuration is represented as $e = e_1 / (v := e_2)$, 
-where $e_2$ is the largest subexpression of $e$, and $e_1$ -- 
+SC~Mini limits the size of configurations in the tree and builds a foldable tree in the following way:
+%\EZY{this sentence is too long, split it up}
+\begin{itemize}
+\item if while building the tree a configuration $e$ is encountered,
+which is a function call, and whose size is greater than \texttt{sizeBound}, then
+this configuration is splitted,
+\item otherwise, the construction of the tree is done in the standard way.
+\end{itemize}
+
+Splitting represents the configuration $e$ as $e = e_1 / (v := e_2)$,
+where $e_2$ is the largest subexpression of $e$, and $e_1$~--
 the original expression $e$, in which $e_2$ is replaced by a (fresh) variable $v$.
 Such configurations are encoded as \texttt{let}-expressions $let\;v = e_2 \;in \;e_1$.
 %\footnote{
@@ -544,7 +542,7 @@ Such configurations are encoded as \texttt{let}-expressions $let\;v = e_2 \;in \
 %a marker indicating that substitution must be postponed during reduction,
 %and the machine $\mathcal{M}_p$ must produce as next steps 
 %\texttt{e1} and \texttt{e2}, instead of \texttt{e1 / (v := e2)}.}. 
-We can then process the configurations $e_1$ and $e_2$ independently.
+Then we process the configurations $e_1$ and $e_2$ independently.
 
 \begin{exercise}
 We do not need to check the size of constructor nodes. Why?
@@ -597,17 +595,13 @@ the supercompiler itself loop.
 
 \subsection{Supercompiler prototype}
 
-So far, we have seen how to build a finite graph of configurations  \texttt{g} for any task \texttt{(e, p)}.
-The graph \texttt{g} contains all the information necessary to evaluate the task over arbitrary arguments.
-%One of the requirements for an optimizer was to produce
-%a new task \texttt{(e', p')}, such that for any arguments
-%\texttt{s}:
-%\begin{lstlisting}[language=haskell]
-%sll_run (e, p) s = sll_run (e', p') s
-%\end{lstlisting}
-%%\marginpar{DK: Different notation?}
-%
-%To fulfill this requirement, we create the following program transformer:
+In the SC~Mini sources generalization and folding are implemented via following functions:
+\begin{itemize}
+\item \texttt{buildFTree} -- it builds a foldable tree of configurations by limiting size of configurations
+(by means of splitting)
+\item \texttt{foldTree} -- it takes a (possibly infinite) tree of configurations and folds it into a finite graph.
+\end{itemize}
+
 Let's create the following program transformer:
 \begin{lstlisting}[language=haskell]
 transform :: Task -> Task
@@ -615,14 +609,12 @@ transform (e, p) =
 	residuate $ foldTree $ buildFTree (driveMachine p) e
 \end{lstlisting}
 
-The function \texttt{buildFTree} builds a foldable tree. 
-\EZY{This construction is awkward. My suggestion is take the prior
-sentence and push it before the code, and then start off here as ``A most interesting thing happens here'', to highlight it} And the most interesting thing happens there:
+A most interesting thing in this transformer happens there:
 the machine $\mathcal{M}_p$ is not only run -- the result of its run
 is analyzed, and possibly a decision to generalize is taken.
 
 We argue that this program transformer fulfills the requirements of the
-previously stated definition of ``supercompiler''. \EZY{I dropped the cite}
+previously stated definition of ``supercompiler''.
 Although this transformer performs no interesting optimizations, it
 can serve as a foundation for a full-blown supercompiler.
 We shall use it as a baseline to which we shall compare the
@@ -690,36 +682,6 @@ contains no nested function calls: it is ``flat''.
 
 \subsection{KMP Test}
 
-In the next couple of sections, we shall augment \texttt{transform} using two ``tricks'',
-which are key ingredients of ``real'' supercompilers. They will enable
-non-trivial optimizations in the residual task.
-We could explain each of these tricks in isolation on small examples,
-but their combination typically results in a synergistic effect.
-Furthermore, this effect is hard to demonstrate on toy examples.
-% у Сергея Зефирова в ЖЖ (thesz) где-то было про то, как отличается сила оптимизатора,
-% использующего несколько оптимизаций по отдельности (пошагово, пусть даже итеративно)
-% и оптимизатора, использующего их "одновременно".
-% нашел: http://thesz.livejournal.com/744058.html , см.тж. статью "combining analyses, combining optimizations"
-% http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.17.8510 от самого Cliff Click может, сослаться?
-We instead use the so-called KMP-test, which is
-a classical example in the context of supercompilation, as it demonstrates its greater
-power compared to similar program transformations like deforestation and partial 
-evaluation\cite{Sorensen1994TurchinSupercompiler,Sorensen1998Introduction}. \EZY{My suggestion here is to define the KMP test immediately, and then describe some of its properties. So jivvy the text around here a bit.}
-
-This test is not only a good demonstration of the combined effect of the two tricks mentioned above,
-but it also gives some measure of the extent of program transformations performed by supercompilation.
-A simple way to estimate the power of an optimizing transformation is to see if it
-can produce -- fully automatically -- a well-known efficient algorithm
-from a ``na\"{\i}ve'', less-efficient one.
-In the case of supercompilation, it turns out that
--- starting from a na\"{\i}ve string-matching algorithm, 
-and fixing the value of the substring we try to match --
-we can automatically obtain an efficient specialized matching program,
-analogous in action to the well-known Knuth-Morris-Pratt algorithm \cite{Knuth1977Fast}
-(hence the name of the test).
-% подчеркнуть, что КМП в общем виде - не выводится, выводится лишь его экземпляр для конкретного
-% паттерна (кстати интересно, есть ли суперкомпиляторы, которые могут вывести КМП в общем виде?).
-
 \begin{figure}[t!]
 \caption{\texttt{prog2}: find a substring inside a string}
 \label{fig:prog2}
@@ -731,12 +693,13 @@ Consider the program in Fig.~\ref{fig:prog2}
 graphs small):
 the function \texttt{match(p, s)} checks if a string \texttt{p}
 is contained inside the string \texttt{s}.
-For simplicity we use a 2-letter alphabet -- \texttt{`A'} and \texttt{`B'}. 
+For simplicity we use a 2-letter alphabet -- \texttt{`A'} and \texttt{`B'}.
 Strings are represented -- as in Haskell -- by lists of characters.
 We also use some list/string syntactic sugar from
 Haskell for readability, even if it is not actually implemented in SLL.
 
-Consider the call \texttt{match("AAB", s)}, 
+The function match is \texttt{general}, but inefficient.
+Consider the call \texttt{match("AAB", s)},
 which checks if the substring (pattern) \texttt{"AAB"} appears inside the string \texttt{s}.
 Our program will perform this check in the following way: compare \texttt{`A'}
 with the first character of \texttt{s}, \texttt{`A'} -- with the second one,
@@ -749,11 +712,34 @@ The first 2 comparisons will succeed, the 3rd one will fail.
 It is inefficient to repeat the same sequence of comparisons
 on the tail \texttt{"AA\ldots"},
 as we already have enough information to know, that the first 2 comparisons of \texttt{"AAB"}
-with \texttt{"AA\ldots"} will succeed. 
-The deterministic finite automaton (DFA), built by the Knuth-Morris-Pratt algorithm,
+with \texttt{"AA\ldots"} will succeed.
+The deterministic finite automaton (DFA), built by the Knuth-Morris-Pratt algorithm \cite{Knuth1977Fast},
 will consider each character of \texttt{s} at most once.
-We will see shortly that the transformer \texttt{supercompile} produces
+
+A simple way to estimate the power of an optimizing transformation is to see if it
+can produce -- fully automatically -- a well-known efficient algorithm
+from a ``na\"{\i}ve'', less-efficient one.
+In the case of supercompilation, it turns out that
+-- starting from a na\"{\i}ve string-matching algorithm,
+and fixing the value of the substring we try to match --
+we can automatically obtain an efficient specialized matching program,
+analogous in action to the well-known Knuth-Morris-Pratt algorithm
+(hence the name of the test).
+
+Our original simple transformer \texttt{transform} is unable to obtain an efficient matching program.
+But in the next couple of sections, we will augment \texttt{transform} using two ``tricks'',
+which are key ingredients of ``real'' supercompilers, and the transformer \texttt{supercompile} produces
 a residual task exactly corresponding to this DFA.
+
+This program is the so-called KMP-test, which is
+a classical example in the context of supercompilation, as it demonstrates its greater
+power compared to similar program transformations like deforestation and partial
+evaluation\cite{Sorensen1994TurchinSupercompiler,Sorensen1998Introduction}.
+This test is not only a good demonstration of the combined effect of the two tricks mentioned above,
+but it also gives some measure of the extent of program transformations performed by supercompilation.
+
+% подчеркнуть, что КМП в общем виде - не выводится, выводится лишь его экземпляр для конкретного
+% паттерна (кстати интересно, есть ли суперкомпиляторы, которые могут вывести КМП в общем виде?).
 
 Our original simple transformer \texttt{transform} gives the following result:
 \begin{lstlisting}[language=sll,escapechar=!]

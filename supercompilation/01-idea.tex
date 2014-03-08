@@ -1,18 +1,18 @@
 \section{The Essence of Supercompilation}
 \label{sec:idea}
 
-Supercompilation was invented by V. F. Turchin in the Soviet Union during the 1970s. 
+Supercompilation was invented by V. F. Turchin in the Soviet Union during the 1970s.
 In his own words~\cite{Turchin1986Supercompiler}:
 \begin{quote}
-    \EZY{This quote does not match the text from the TOPLAS paper I pulled up. Please double-check it.}
+%\EZY{This quote does not match the text from the TOPLAS paper I pulled up. Please double-check it.}
 A program is seen as a machine.
 To make sense of it, one must observe its operation. So a supercompiler does not transform the
 program by steps; it controls and observes (SUPERvises) the machine, let us call it $M_1$, which is
 represented by the program. In observing the operation of $M_1$, the supercompiler COMPILES a
 program which describes the activities of $M_1$, but it makes shortcuts and whatever clever tricks
 it knows, in order to produce the same effect as $M_1$, but faster. The goal of the supercompiler is
-to make the definition of this program (machine) $M_2$, self-sufficient. When this is achieved, it
-outputs $M_2$, and simply throws away the (unchanged) machine $M_1$.
+to make the definition of this program (machine) $M_2$ self-sufficient. When this is achieved, it
+outputs $M_2$ in some intermediate language $L^{sup}$ and simply throws away the (unchanged) machine $M_1$\ldots
 
 % The supercompiler concept comes closest to the way humans think and make science.
 % We do not think in terms of rules of formal logic. We create mental and linguistic \emph{models} of
