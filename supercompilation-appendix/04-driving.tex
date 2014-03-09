@@ -1,6 +1,6 @@
 \section{\texttt{Driving.hs}}
 
-\texttt{buildTree} creates an infinite configuration tree from a given start configuration.
+\texttt{buildTree} creates a (possibly infinite) tree of configurations from a given start configuration.
 The main work happens inside \texttt{bt}, which proceeds recursively,
 maintaining not only a current configuration, but also a list of fresh names \texttt{nameSupply}.
 This name supply is used, when the machine \texttt{m} returns as next step
@@ -29,9 +29,9 @@ If the configuration is a constructor with arguments, then \texttt{eval}
 would proceed to evaluate those arguments.
 As \texttt{driveMachine~p} models a step of \texttt{eval},
 it returns \texttt{Decompose~args},
-indicating that the next step should continue with evaluation of the arguments
-\texttt{Let}-expression subexpressions are processed independently, as 
-this is important for generalization: \texttt{Decompose~[e1,~e2]}.
+indicating that the next step should continue with evaluation of the arguments.
+Subexpressions |t1| and |t2| of \texttt{Let}-expression |let x=t1 in t2| are processed independently, as 
+this is important for generalization: so, again we use \texttt{Decompose~[t1,~t2]}.
 Driving an indifferent-function call is simple -- we return the function body
 with substituted parameters (this is called ``unfolding'').
 Driving a curious-function call, where the first argument is a constructor,
@@ -86,7 +86,7 @@ Some examples follow -- a driving step with case analysis:
 \begin{lstlisting}[style=demo]
 -- demo10
 ghci> driveMachine prog1 nameSupply 
-	{{odd(add(x, mult(x, S(x))))}}
+        {{odd(add(x, mult(x, S(x))))}}
 x == Z() => odd(mult(x, S(x)))
 x == S(v1) => odd(S(add(v1, mult(x, S(x)))))
 \end{lstlisting}
@@ -95,12 +95,11 @@ A transient step:
 \begin{lstlisting}[style=demo]
 -- demo11
 ghci> driveMachine prog1 nameSupply 
-	{{odd(S(add(v1, mult(x, S(x)))))}}
+	    {{odd(S(add(v1, mult(x, S(x)))))}}
 => even(add(v1, mult(x, S(x))))
 \end{lstlisting}
 
-An infinite configuration tree:
-% Покажется конечная, но довольно большая часть дерева.
+An infinite tree of configurations:
 \begin{lstlisting}[style=demo]
 -- demo12
 ghci> buildTree (driveMachine prog1) {{even(sqr(x))}}

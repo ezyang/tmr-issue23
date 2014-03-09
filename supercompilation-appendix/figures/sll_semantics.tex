@@ -10,10 +10,10 @@ $C(\mathcal{I} \llbracket e_1 \rrbracket, \ldots, \mathcal{I} \llbracket e_n \rr
 $\mathcal{I} \llbracket con \langle f(e_1, \ldots, e_n) \rangle \rrbracket$ &
 $\Rightarrow$ &
 $\mathcal{I} \llbracket con \langle e \{v_1 := e_1, \ldots, v_n := e_n\} \rangle \rrbracket$ \\
-& & when $f(x_1, \ldots, x_n) \stackrel{\textrm{\tiny p}}{=} e$\\
+& & if $f(x_1, \ldots, x_n) \stackrel{\textrm{\tiny p}}{=} e$\\
 
 $\mathcal{I} \llbracket con \langle g(C(e_1, \ldots, e_m), e_{m+1},\ldots, e_n)\rangle \rrbracket$ &
 $\Rightarrow$ &
 $\mathcal{I} \llbracket con \langle e \{v_1 := e_1, \ldots, v_n := e_n\} \rangle \rrbracket$ \\
-& & when $g(C(v_1, \ldots, v_m), v_{m+1},\ldots, v_n) \stackrel{\textrm{\tiny p}}{=} e$ 
+& & if $g(C(v_1, \ldots, v_m), v_{m+1},\ldots, v_n) \stackrel{\textrm{\tiny p}}{=} e$ 
 \end{tabular}

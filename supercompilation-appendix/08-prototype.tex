@@ -1,7 +1,7 @@
 \section{\texttt{Propotype.hs}}
 
 This is the simplest ``prototype'' supercompiler.
-No simplification (transient step removal) of the graph is performed, nor information propagation.
+No simplification (transient step removal) of the graph is performed, no information propagation is done.
 \begin{lstlisting}[name=prototype]
 transform :: Task -> Task
 transform (e, p) =
@@ -36,7 +36,7 @@ whistle e@(GCall _ args) =
 whistle _ = False
 \end{lstlisting}
 
-Generalization is also extremely simple, compared to most other supercompilers --
+Generalization is also extremely simple, compared to most other supercompilers~--
 the biggest subexpression is lifted into a \texttt{let} for separate processing:
 \begin{lstlisting}[name=prototype]
 generalize :: Name -> Expr -> Expr

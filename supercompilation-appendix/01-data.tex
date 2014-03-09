@@ -23,7 +23,7 @@ type NameSupply = [Name]
 Technically we work with SLL-expressions almost everywhere. 
 But to distinguish in which sense we use them --
 expression, configuration, value --
-we introduce some more type synonyms:
+we introduce extra type synonyms:
 \begin{lstlisting}[name=data]
 type Conf = Expr
 type Value = Expr
@@ -43,7 +43,7 @@ type Node a = Tree a
 type Machine a = NameSupply -> a -> Step a
 \end{lstlisting}
 
-In the following we shall consider the processed program as a kind of machine.
+In the following we shall consider a program as a kind of machine.
 \texttt{Machine~a} operates with some generalized states of type \texttt{a}.
 We assume further, that states can contain named subparts (using identifiers), and that
 the machine may need to produce some new named subparts.

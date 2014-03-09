@@ -3,7 +3,7 @@ The module \texttt{Interpreter} defines an evaluator for SLL expressions.
 
 The interpreter \texttt{int} works in ``small-step'' fashion, or in other words,
 reduction steps are repeated until the expression becomes a value.
-(\texttt{intStep}) implements a single reduction step; note that it is not recursive.
+\texttt{intStep} implements a single reduction step; note that it is not recursive.
 \begin{lstlisting}[name=interpreter]
 int :: Program -> Expr -> Expr
 int p e = until isValue (intStep p) e
@@ -86,7 +86,7 @@ intC p e = until t f (e, 0) where
 From now on we start illustrating the definitions discussed with example runs.
 Each such example is actually a separate function definition in the module \texttt{Demonstration}.
 It is useful to distinguish SLL code from Haskell code.
-To this end, SLL code is presented in color.
+We well present SLL code in color.
 (Actually in \texttt{Demonstration.hs} SLL code appears as strings, which are parsed:
 \texttt{{\color{brown}{even(x)}}} $\Rightarrow$ \texttt{read "even(x)"} )
 
@@ -97,7 +97,7 @@ ghci> intC prog1 {{even(sqr(S(S(Z()))))}}
 (True(), 15)
 \end{lstlisting}
 
-The next examples show that the small-step and the big-step interpreter give the same result:
+The next examples show that the small-step interpreter and the big-step interpreter give the same result:
 \begin{lstlisting}[style=demo]
 -- demo02
 ghci> int  prog1 {{even(sqr(S(S(Z()))))}}
@@ -134,7 +134,7 @@ in function eval
 
 The difference is even more dramatic, if we try to evaluate an expression, which has an infinite value.
 \texttt{int} directly loops, while \texttt{eval} starts to produce the outermost constructors
-of the result.)
+of the result.
 \begin{lstlisting}[style=demo]
 ghci> prog3 = {{inf() = S(inf());}}
 inf() = S(inf());

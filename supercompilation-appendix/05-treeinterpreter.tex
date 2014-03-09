@@ -1,9 +1,9 @@
 \section{\texttt{TreeInterpreter.hs}}
 
-The tree interpreter contains few surprises.
+The tree interpreter contains not so many surprises.
 The only interesting cases are:
 \begin{itemize}
-\item a node with variants (\texttt{Node e (Variants cs)}): we chose that
+\item a node with variants (\texttt{Node e (Variants cs)}): we choose that
 subbranch, whose condition matches the current environment (\texttt{env});
 \item a folding node (\texttt{Node \_ (Fold t ren)}): 
 here we continue with the subtree (which would correspond to a loop in the graph),
@@ -38,12 +38,12 @@ try env (Contract v (Pat pn vs), t) =
 An example of using infinite trees for evaluation:
 \begin{lstlisting}[style=demo]
 -- demo13
-ghci> intTree (buildTree (driveMachine prog1) 
-	{{even(fSqr(x))}} ) [("x", {{S(S(Z()))}})]
+ghci> intTree (buildTree (driveMachine prog1) {{even(fSqr(x))}}) 
+        [("x", {{S(S(Z()))}})]
 True()
 
 -- demo14
-ghci> intTree (buildTree (driveMachine prog1) 
-	{{even(fSqr(x))}} ) [("x", {{S(S(S(Z())))}})]
+ghci> intTree (buildTree (driveMachine prog1) {{even(fSqr(x))}}) 
+        [("x", {{S(S(S(Z())))}})]
 False()
 \end{lstlisting}
