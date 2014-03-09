@@ -1,41 +1,23 @@
-%\documentclass[electronic]{pfp-journal}
 \documentclass[tikz]{tmr}
-%\usepackage[utf8]{inputenc}
-%\usepackage{cmap}
 \usepackage{mathtools}
 \usepackage{amsthm}
 \usepackage{tikz}
 \usepackage{lscape}
 \usepgflibrary{shapes.multipart}
-%\usepackage{semantic}
 \usepackage{listings} % package `semantic` does not work with class `tmr`
 \usepackage{stmaryrd} % for \{ll,rr}bracket	
 
-%\usepackage{float}
-%\floatstyle{ruled}
-%\restylefloat{figure}
-%
-%\newtheoremstyle{exercisestyle}% name of the style to be used
-%  {3pt}% measure of space to leave above the theorem. E.g.: 3pt
-%  {3pt}% measure of space to leave below the theorem. E.g.: 3pt
-%  {\footnotesize}% name of font to use in the body of the theorem
-%  {0pt}% measure of space to indent
-%  {\bfseries}% name of head font
-%  {}% punctuation between head and body
-%  {2mm}% space after theorem head
-%  {}% Manually specify head
-%\theoremstyle{exercisestyle}
-%\newtheorem{theorem}{Теорема}
-%\newcounter{exercise}
-%\newtheorem{exercise}[theorem]{Замечание}
-
-%\inlineCode{haskell}
-
 \lstdefinestyle{demo}{numbers=none,frame=,moredelim=[is][\color{brown}]{\{\{}{\}\}}}
 %\lstset{style=literateHaskell,numbers=left,numberstyle=\tiny,frame=lines}
-\lstset{language=haskell,numbers=left,numberstyle=\tiny,frame=lines
-  ,tabsize=4}
-
+\lstset{
+language=haskell,
+numbers=left,
+numberstyle=\tiny,
+frame=lines,
+tabsize=4,
+basicstyle=\ttfamily\small,
+literate=*{|}{$\vert$}{1}
+}
 
 \title{The SC~Mini Supercompiler}
 \subtitle{Appendix to the article ``Supercompilation: Ideas and Methods''}
