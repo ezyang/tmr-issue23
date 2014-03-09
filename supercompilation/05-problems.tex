@@ -100,10 +100,10 @@ Show that this statement is true for SC~Mini as well.
 Supercompiling big programs can be a very unpredictable process:
 in the worst case, the supercompiler may take a lot of time, and it may
 produce a huge program, which works only slightly faster than the original.
-It would be interesting to consider supercompiling
-programs piecewise, for example on module basis.
-Unfortunately no one has studied yet this possibility,
-and it remains a topic for future research. \EZY{This seems like a very strong claim.}
+
+Supercompilation performs a global optimization for a given entry point.
+It is an open question how to apply supercompilation methods to optimize
+code without explicit main point -- libraries.
 
 \subsection{What about debugging?}
 
@@ -172,11 +172,11 @@ What differences in driving would you expect in the case of call-by-need?
 
 \subsection{Why is it worth it then?}
 
-The list of open problems for supercompilation contains many important items, 
-the results obtained are (thus far) difficult to rely upon. \EZY{I think you can make this construction parallel: e.g., the open problems of supercompilation are vast, the results of supercompilation difficult to rely on}
+The open problems of supercompilation are vast, the results of supercompilation difficult to rely on.
 Why is it, then, that interest in supercompilation has repeatedly 
 resurfaced and grown in the several decades since its invention,
-with the latest wave of renewed interest starting 6-7 years ago? \EZY{Would be nice if you could briefly cite some evidence here}
+with the latest wave of renewed interest starting 6-7 years ago 
+\cite{Lisitsa2005Towards,Mitchell2007HaskellSCP,Bolingbroke2010Eval,Jonsson2011Phd,Klyuchnikov2009Proving,Reich2010Reduceron,Bolingbroke2011Scp2}?
 % тут уместно упомянуть работу над суперкомпиляцией в ghc
 
 First of all, it turns out that many program optimization methods can be

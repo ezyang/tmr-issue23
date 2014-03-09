@@ -698,7 +698,7 @@ Strings are represented -- as in Haskell -- by lists of characters.
 We also use some list/string syntactic sugar from
 Haskell for readability, even if it is not actually implemented in SLL.
 
-The function match is \texttt{general}, but inefficient.
+The function \texttt{match} is general, but inefficient.
 Consider the call \texttt{match("AAB", s)},
 which checks if the substring (pattern) \texttt{"AAB"} appears inside the string \texttt{s}.
 Our program will perform this check in the following way: compare \texttt{`A'}
