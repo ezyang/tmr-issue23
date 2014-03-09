@@ -1,5 +1,5 @@
 \begin{tikzpicture}[
-level distance=10mm,
+level distance=14mm,
 level/.style={sibling distance=45mm},
 conf/.style={
 	rectangle,minimum width=20mm,minimum height=6mm,rounded corners=3mm,
@@ -10,9 +10,9 @@ label/.style={font=\ttfamily\small}
 \tikzstyle{level 1}=[sibling distance=70mm]
 \node[conf](s4) {odd(\underline{add}(x, mult(x, S(x))))} 
 	child[->] {node[conf](s5a) {odd(mult(x, S(x)))}
-		edge from parent node[left] {\texttt{x = Z()}}}
+		edge from parent node[left,xshift=-6mm] {\texttt{x = Z()}}}
 	child[->] {node[conf](s5b) {odd(S(add(v1, mult(x, S(x)))))}
-		edge from parent node[right] {\texttt{x = S(v1)}}};
+		edge from parent node[right,xshift=6mm] {\texttt{x = S(v1)}}};
 \node[label,right] at ($ (s4.east) + (2mm,0mm) $) {s4};
 \node[label,right] at ($ (s5a.east) + (1mm,0mm) $) {s5a};
 \node[label,right] at ($ (s5b.east) + (1mm,0mm) $) {s5b};

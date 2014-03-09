@@ -12,19 +12,19 @@ label/.style={font=\ttfamily\small}
 	child[->] {node[conf](n1) {even(mult(x, x))} 
 		child[->] {node[conf] {even(Z())}
 			child[->] {node[conf] {True()}}
-			edge from parent node[left] {\texttt{x = Z()}}}
+			edge from parent node[left,xshift=-4mm] {\texttt{x = Z()}}}
 		child[->] {node[conf](n2) {even(add(x, mult(v1, x)))}
 			child[->] {node[conf](n3) {even(mult(v1, x))}
 				child[->] {node[conf,xshift=-15mm] {even(Z())}
 					child[->] {node[conf] {True()}}
-					edge from parent node[left] {\texttt{v1 = Z()}}}
+					edge from parent node[left,xshift=-4mm] {\texttt{v1 = Z()}}}
 				child[->] {node[conf](n4) {even(add(x, mult(v2, x)))}
-					edge from parent node[right] {\texttt{v1 = S(v2)}}}
-			edge from parent node[left] {\texttt{x = Z()}}}
+					edge from parent node[right,xshift=4mm] {\texttt{v1 = S(v2)}}}
+			edge from parent node[left,xshift=-4mm] {\texttt{x = Z()}}}
 			child[->] {node[conf] {\ldots}
-				edge from parent node[right] {\texttt{x = S(v2)}}
+				edge from parent node[right,xshift=4mm] {\texttt{x = S(v2)}}
 			}
-			edge from parent node[right] {\texttt{x = S(v1)}}}};
+			edge from parent node[right,xshift=4mm] {\texttt{x = S(v1)}}}};
 \draw [->,dashed,rounded corners = 10pt] 
 (n4.east) -- ($ (n4.east) + (10mm,0) $) -- ($ (n2.east) + (20mm,0) $) -- (n2.east);
 \node[label,right] at ($ (n4.east) + (10mm,0) $) {(v1 := v2)};

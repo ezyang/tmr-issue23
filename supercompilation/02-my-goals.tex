@@ -8,8 +8,7 @@
 %
 
 %\EZY{Awkward sentence construction. Can you make it shorter/more punchy?}
-Real-world functional programmers, who have heard something about supercompilation,
-express very varying attitudes.
+Functional programming practitioners, who are aware of supercompilation, have various opinions.
 The most common reaction is one of mistrust or even full rejection, 
 mostly because of the fact that there is no industrial-strength supercompiler yet. 
 All existing supercompilers have an experimental status
@@ -40,12 +39,10 @@ leaving aside the underlying key ideas of supercompilation.
 In most cases, the parts of a given supercompiler interact in intricate ways, which
 may give the impression of a complicated monolithic 
 construction.
-Or, as Simon Peyton-Jones put it: 
+Or, as Simon Peyton-Jones put it in the interview \cite{Jones2010Interview}:
 ``\ldots To build a supercompiler, if you look at how it works, there are a number of things all wound together in one rather complicated ball of mud. 
 I found it extremely difficult when I really wanted to understand it. 
-I found it very difficult to understand the papers. \ldots''
-(in an interview for ``Practice of Functional Programming'', \cite{Jones2010Interview}).
-%\EZY{Can we get a proper cite here?}
+I found it very difficult to understand the papers. \ldots''.
 
 The main goal of this article is to give a clear and concise illustration of the
 aforementioned Turchin's quote, describing the essence of supercompilation
@@ -56,7 +53,7 @@ in a clear and simple fashion.
 
 \textbf{Organization of the article:}
 A important companion to this article is the full source code of the toy supercompiler
-SC~Mini, with detailed comments \cite{SCMiniUrl}
+SC~Mini, with detailed comments \cite{ScMiniAppendix}
 (250 lines of main code + 200 lines of auxiliary utilities in Haskell).
 The text of the article itself can be seen as an introduction to studying
 these supercompiler sources.

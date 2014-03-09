@@ -84,7 +84,7 @@ We define \emph{configuration} as an alias of an SLL expression with free variab
 
 An SLL program consists of function definitions.
 We distinguish two kinds of functions -- ``indifferent'' and ``curious''
-(originally called by S{\o}rensen f- and g-functions respectively).
+(originally called by S{\o}rensen in \cite{Sorensen1994TurchinSupercompiler} f- and g-functions respectively).
 Curious functions replace case expressions (which are always lifted to the top level).
 %and remove the need to deal with nested bound variables.
 Indifferent functions just transfer their arguments to other functions or constructors;
@@ -94,7 +94,7 @@ their definitions consist of many expressions -- one per case.
 
 SLL has no built-in data types (Booleans, numbers, etc.). 
 SLL can be straightforwardly extended with Haskell-like data-type
-declarations and Hindley–Milner type inference, but we ignore
+declarations and Hindley-Milner type inference, but we ignore
 issues of typing from now on, silently assuming that all
 programs under consideration would be well-typed
 under such a type system.
@@ -112,7 +112,7 @@ It contains a single indifferent function -- squaring (\texttt{sqr}).
 All the other functions are curious, as they do a pattern match on their first argument.
 
 A \emph{substitution} binds variables $v_1, v_2, \ldots, v_n$ to expressions $e_1, e_2, \ldots, e_n$ 
-and is written as a list of pairs $\{v_1:=e_, \ldots, v_n := e_n\}$.
+and is written as a list of pairs $\{v_1:=e_1, \ldots, v_n := e_n\}$.
 Application of a substitution to an expression $e$ is defined in the usual way, and 
 is denoted $e / \{v_1:=e_, \ldots, v_n := e_n\}$.
 
@@ -247,7 +247,7 @@ the function \texttt{sll\_trace} in SC~Mini's sources.)
 SC~Mini transforms a task $(e, p)$ into another task $(e', p')$, proceeding as follows:
 \begin{enumerate}
   \item It constructs a ``machine'' $\mathcal{M}_p$, which encodes the behavior of the 
-  interpreter $\mathcal{I}_p$ of a program $p$ over a generalized input-configurations (instead of values);
+  interpreter $\mathcal{I}_p$ of a program $p$ over a generalized input~--~configurations (instead of values);
   \item It performs a finite (but large enough) number of executions of the machine
   $\mathcal{M}_p$, analyzing their results;
   \item It builds a finite ``graph of configurations'', which fully describes the behavior of
@@ -382,7 +382,7 @@ This is possible, as the tree $t$ fully describes the computation of the task $(
 without any reference to the text of the program $p$.
 
 \begin{exercise}
-SC~Mini sources contain an executable evidence for the last statement --
+SC~Mini sources contain an executable evidence for the last statement~--
 a ``tree interpreter'' \texttt{intTree}, which can perform tasks using only the 
 corresponding tree of configurations, and not the original program.
 If \texttt{t} is the tree of configurations for the task \texttt{(e, p)}, 
@@ -689,8 +689,8 @@ contains no nested function calls: it is ``flat''.
 \end{figure}
 
 Consider the program in Fig.~\ref{fig:prog2}
-(where function names are deliberately short, to keep the drawings of configuration
-graphs small):
+(where function names are deliberately short, to keep the drawings of graphs of configurations
+small):
 the function \texttt{match(p, s)} checks if a string \texttt{p}
 is contained inside the string \texttt{s}.
 For simplicity we use a 2-letter alphabet -- \texttt{`A'} and \texttt{`B'}.
@@ -857,7 +857,7 @@ It is most effective when used in conjunction with the second mechanism
 -- information propagation -- which we shall discuss next.
 
 \begin{exercise}
-It is also to possible to remove transient steps from the tree of configurations (before folding it to a graph).
+It is also possible to remove transient steps from the tree of configurations (before folding it to a graph).
 What pitfalls might such an approach have?
 \end{exercise}
 % Ответ: возможно зацикливание. Например f(x) = f(f(x)) - одни транзитные шаги.
@@ -876,8 +876,8 @@ only programs conforming to certain syntactic restrictions
 (which guarantee that the resulting tree is always foldable).
 A practical advantage of deforestation is that for
 many special cases it can be formulated as a simple set of
-rewrite rules (\emph{shortcut deforestation}, or \emph{shortcut fusion}),
-which are easy to implement. 
+rewrite rules (\emph{shortcut deforestation}, or \emph{shortcut fusion}~-- 
+see for example \cite{gill1993scd}), which are easy to implement. 
 A form of shortcut deforestation is implemented inside GHC, for example.
 
 \subsection{Information propagation}
@@ -902,7 +902,7 @@ a transient step, which can be further removed.
 As a result we obtain:\\
 \input{figures/driving8}
 
-The transformer \texttt{supercompile} (inside SC~Mini's sources) implements such information propagation.
+The transformer \texttt{supercompile} (inside SC~Mini sources) implements such information propagation.
 In contrast to \texttt{deforest}, each time driving performs case analysis,
 its results are propagated in the corresponding new configurations.
 Recall that SLL contains just a single kind of test -- matching the first argument of 
@@ -918,7 +918,7 @@ If, for example, SLL permitted also default clauses
 also negative information -- in the default clause -- that
 the variable is not equal to any of the patterns in the list.
 A supercompiler, which propagates both positive and negative information,
-is called \emph{perfect}. It is also possible to have intermediate 
+is called \emph{perfect} \cite{Secher2000Perfect}. It is also possible to have intermediate 
 situations, where only some forms of negative information are propagated.
 % хорошо бы пример, когда это могло бы что-то дать. мне сходу не удалось его мысленно построить.
 
@@ -1007,8 +1007,8 @@ and finally arriving at the ultimate transformer \texttt{supercompile}.
 \begin{lstlisting}[escapechar=!]
 transform :: Task -> Task
 transform (e, p) =
-	residuate $ foldTree $
-		buildFTree (driveMachine p) e
+    residuate $ foldTree $
+        buildFTree (driveMachine p) e
 \end{lstlisting}
 % пояснить бы, что buildFTree делает, а также drive и propagate drive, хотя бы концептуально.
 % (пояснить, что buildFTree прогоняет с помощью произвольной стратегии прогонки - либо с
@@ -1018,15 +1018,15 @@ transform (e, p) =
 \begin{lstlisting}[escapechar=!]
 deforest :: Task -> Task
 deforest (e, p) =
-	residuate $ !\underline{simplify}! $ foldTree $
-    	buildFTree (driveMachine p) e
+    residuate $ !\underline{simplify}! $ foldTree $
+        buildFTree (driveMachine p) e
 \end{lstlisting}
 \ldots and we finish by adding information propagation:
 \begin{lstlisting}[escapechar=!]
 supercompile :: Task -> Task
 supercompile (e, p) =
-	residuate $ !\underline{simplify}! $ foldTree $
-		buildFTree (!\underline{addPropagation}!  $ driveMachine p) e
+    residuate $ !\underline{simplify}! $ foldTree $
+        buildFTree (!\underline{addPropagation}!  $ driveMachine p) e
 \end{lstlisting}
 
 Thanks to propagating test outcomes in the corresponding consequent configurations
