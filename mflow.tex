@@ -5,55 +5,55 @@
  
 %include polycode.fmt 
  
-\title{MFlow, a continuation-based Web Framework without continuations} 
+\title{MFlow, a continuation-based web framework without continuations} 
 \author{Alberto Gomez Corona\email{agocorona@gmail.com}} 
  
 \begin{document} 
 \begin{introduction} 
-Most of the problems that complicates the coding and debugging of web applications comes from what makes them scalable and flexible: HTTP is stateless. HTML is untyped. Statelessness gives freedom to the user, but that implies an inversion of control, where the HTTP requests invoke different request handlers that manage a global state and generate individual web pages. 
+Most of the problems which complicate the coding and debugging of web applications come from the same properties which make web applications scalable and flexible: HTTP is stateless and HTML is untyped. Statelessness gives freedom to the user, but it implies an inversion of control, where the HTTP requests invoke different request handlers that manage a global state and generate individual web pages.
 
-Almost every consideration about the goto statement applies to the request handling mechanisms that manage state transitions. The  handlers do not share variable scopes, so, like in the case of the goto, the code relies on global variables, or in global session variables, when they are created dynamically. There is no top-level structure in the code to make the main sequence evident. For the maintainer, it is very difficult to know what it is trying to achieve. It is even worse, since there is no inherent fixed sequence and the execution may be broken by out-of-order requests that do not match with the state of the application, so the code becomes polluted with checking conditions and error messages. 
+Dijkstra's famous admonitions about goto statements apply to request handling mechanisms that manage these state transitions. Handlers do not share variable scopes, so, like in the case of the goto, code relies on global variables or on global session variables. There is no top-level structure in the code to make the main sequence evident. For the maintainer, it is very difficult to know what any piece of code is trying to achieve. Even worse, there is no inherent fixed sequence and the execution may be broken by out-of-order requests that do not match with the state of the application,  forcing developers to pollute code with checking conditions and error messages. 
  
-Continuation-based frameworks solve these problems since they maintain execution state snapshoots that match with each possible request. But continuations are memory hungry, and they cannot be easily serialized and shared. This precludes horizontal scalability and failover. As a result, these web frameworks have been out of the mainstream despite their advantages. 
+Continuation-based frameworks solve these problems since they maintain execution state snapshots that match with each possible request. But continuations are memory hungry, and they cannot be easily serialized and shared. This precludes horizontal scalability and failover. As a result, these web frameworks have not been accepted by the mainstream, despite their advantages. 
  
-I will show here how some alternative monadic computations for thread state serialization and backtracking can solve these problems. MFlow\cite{auth:mflow} is a Haskell web framework that automatically handles back button and other out-of-order requests. Unlike continuation-based frameworks, each GET page is addressable by a REST URL, and the  architecture is scalable since the state is composed of serializable events. It is based on enhanced formlets that permit the creation of fully self contained, composable components called widgets with high level combinators for the creation of dynamic applications with no explicit use of JavaScript. 
+In this article, I will show how an alternative monadic structure for thread state serialization and backtracking can solve these problems. MFlow~\cite{auth:mflow} is a Haskell web framework that automatically handles the back button and other out-of-order requests. Unlike continuation-based frameworks, each GET page is addressable by a REST URL, and the  architecture is scalable since the state is composed of serializable events. It is based on enhanced formlets that permit the creation of fully self-contained, composable components called widgets with high level combinators, allowing for the creation of dynamic applications with no explicit use of JavaScript. 
  
 \end{introduction} 
  
  
 \section{ Motivation: State management} 
  
-Many web applications require the same sequence of steps to execute in different contexts. Often these sequences are merely components of a larger task that the user is trying to accomplish. Such a reusable sequence is called a flow. User registration, log in, checking in for a flight, applying for a loan, shopping cart checkout, or even adding a confirmation step to a form. They are all examples of a flow. In many of these cases, the Web site need to store state, and this state sometimes must extend across browser sessions. Storing all the state in the browser is vulnerable to hacking and the state is limited to a single Web browser. client-side state management is not an option in many application cases for functional or security reasons. To deal with this problem, the Web frameworks includes server session state that every HTTP event handler can access and modify. The program 
-becomes a state transition machine. Such state transitions are hard to code and maintain. 
+Many web applications require the same sequence of steps to execute in different contexts. Often, these sequences are merely components of a larger task that the user is trying to accomplish. Such a reusable sequence is called a flow. User registration, log in, checking in for a flight, applying for a loan, shopping cart checkout, or even adding a confirmation step to a form: these are all examples of a flow. In many of these cases, the website needs to store state, and this state sometimes must extend across browser sessions. Storing all the state in the browser can have security issues, and the state is limited to a single web browser. To deal with this problem, web frameworks include server session state that every HTTP event handler can access and modify. The program 
+becomes a state transition machine: such state transitions are hard to code and maintain. 
  
-The \textit{Spring Web Flow}, a flow oriented framework on top of the Java \textit{Spring} framework enumerates the following problems when developing web applications\cite{auth:spring}: 
+The \textit{Spring Web Flow}, a flow oriented framework on top of the Java \textit{Spring} framework enumerates the following problems when developing web applications~\cite{auth:spring}: 
  
 \begin{itemize} 
 \item Visualizing the flow is very difficult. 
 \item The application has a lot of code accessing the session state. 
 \item Enforcing controlled navigation is important but not possible. 
 \item Proper browser back button support seems unattainable. 
-\item Browser and server get out of sync with "Back" button use. 
-\item Multiple browser tabs causes concurrency issues with HTTP session data. 
+\item Browser and server get out of sync with ``Back'' button use. 
+\item Multiple browser tabs cause concurrency issues with HTTP session data. 
 \end{itemize} 
  
-The ideal solution would be to codify the application flow in the most natural and maintainable way possible. It would be necessary to preserve, in the code, the sequencing whenever the sequence exist, like a console application. but, each individual page should be addressable  by means of an URL.
+The ideal solution would be to codify the application flow in the most natural and maintainable way possible. It would be necessary to preserve, in the code, the sequencing whenever the sequence exist, in the same way as a console application. However, each individual page should be addressable  by means of an URL\@.
  
  
-There is an apparent incompatibility between the state transition machine model, enforced by the Web architecture, and a sequential description. But the request handlers triggered by each request can be considered as a continuation in the flow, with the state generated by all the previous events. It is possible to invert back the inversion of control\cite{invertingback} so that the program can express the flow directly in the form of a sequence which contains inputs and outputs from/to the Web browser. Just like a console application. This does not change the way the web server and the program interact: The server invokes request handlers, but  the handlers are sequenced inside a procedure, so that they share variable scopes, as it could be in a console application. Since the state is in the form of ordinary language variables, the maintainer can observe the sequence of state changes and a statically typed compiler can verify the consistency of the state transitions. Each request goes to the handler that has the appropriate state to handle the request. This is the basic design of continuation-based frameworks such are ocsigen(OCaml) \cite{auth:ocsigen} or Seaside (Smalltalk) \cite{auth:seaside}. 
+There is an apparent incompatibility between the state transition machine model, enforced by the web architecture, and the sequential description proposed above. However, the request handlers triggered by each request can be considered as a continuation in the flow, with the state generated by all the previous events. It is possible to invert back the inversion of control~\cite{invertingback} so that the program can express the flow directly in the form of a sequence which contains inputs and outputs from/to the Web browser, just like a console application. This does not change the way the web server and the program interact: the server invokes request handlers, but  the handlers are sequenced inside a procedure, so that they share variable scopes. Since the state is in the form of ordinary language variables, the maintainer can observe the sequence of state changes, and a statically typed compiler can verify the consistency of the state transitions. Each request goes to the handler that has the appropriate state to handle the request. This is the basic design of continuation-based frameworks such are ocsigen (OCaml)~\cite{auth:ocsigen} or Seaside (Smalltalk)~\cite{auth:seaside}. \EZY{This paragraph is kind of long and not very clear}
  
-However serialization  and sharing of continuation state across computer nodes is necessary if we want state persistence and horizontal scalability. 
+However, serialization  and sharing of continuation state across computer nodes is necessary if we want state persistence and horizontal scalability. 
 
-The input-output load involved in state sharing is the reason why REST recommends to use as little state as possible. This is hard to do, since, even if the language has serializable closures, a continuation includes program code which is linked with many libraries -that may render the serializationn huge- and also it may be linked to non serializable objects of the operating system \cite{oleg}. 
+The input-output load involved in state sharing is the reason why REST recommends to use as little state as possible. This is hard to do: even if the language has serializable closures, a continuation includes program code which is linked with many libraries which may render the serialization huge; additionally, it may be linked to non serializable objects of the operating system~\cite{oleg}. 
 
-The problem of size and portability of serialized continuations among machines is still unsolved, although it has been some advances on this area in the Scala language\cite{swarm}. Another option is to store a portable state in the client \cite{McCarthy:2009:ARW:1631687.1596594}. This solution constrains the state to a single browser session. 
+The problem of the size and portability of serialized continuations is still unsolved, although there have been some advances on this area in the Scala language~\cite{swarm}. Another option is to store the portable state in the client~\cite{McCarthy:2009:ARW:1631687.1596594}. This solution constrains the state to a single browser session. 
  
 Another way to deal with these problems is to redirect every user to an unique server. In long living flows, especially when it exceeds the mean time between failures, this can end up in loss of state. each page in a flow supposes the serialization of the closure that handles the request of the page, so that the problem of state management multiplies by the number of steps. Maintaining only the most recent states impairs the navigability with the back button. These problems have maintained the continuation-based frameworks out of  mainstream use, despite their huge advantages. 
  
  
 \section{ MFlow state management} 
  
-In the Haskell language it is not possible, to date, to serialize a continuation. But it is possible to create an execution log and recover the execution state by running the program taking as inputs the logged events when the procedure is re-started. The log will contain the intermediate results of each step in the computation, not the computation itself. The machinery for log creation and recovery can be hidden in a Monad. This is the purpose of the Workflow monad, defined in the workflow package \cite{auth:workflow}. The effect of logging and recovery are managed by the {\tt step} call. The monad is essentially a state transformer which stores intermediate values in persistent storage. 
+In the Haskell language, it is not possible, to date, to serialize a continuation. \EZY{What about Cloud Haskell?} However, it is possible to create an execution log and recover the execution state by running the program taking as inputs the logged events when the procedure is re-started. The log will contain the intermediate results of each step in the computation, though not the computation itself. The machinery for log creation and recovery can be hidden in a monad. This is the purpose of the Workflow monad, defined in the workflow package~\cite{auth:workflow}. The effect of logging and recovery are managed by the {\tt step} call. The monad is essentially a state transformer which stores intermediate values in persistent storage. 
  
 The pseudocode of the lift operation ({\tt step}) that would do 
 logging and recovery would be: 
@@ -80,7 +80,7 @@ step mx= do
  
 } 
  
-Since the  state must be written/read to/from permanent storage, results must be serializable, so {\tt step} is not defined for all values, but for the Serialize instances. The real signature is: 
+Since the  state must be written to (read from) permanent storage, results must be serializable, so {\tt step} is not defined for all types, but for types with Serialize instances. The real signature is: 
  
 {\tt 
  
@@ -91,9 +91,9 @@ step:: (MonadIO m, Serialize a, Typeable a) => m a -> Workflow m a
 } 
  
  
-To make the logging and recovery more efficient, the workflow monad caches the read and write operations.  {\tt Serialize}, from the RefSerialize \cite{auth:refserialize} package allows incremental serializations of the modifications of a data structure in the log rather than to log the entire structure in each step. This is very useful when the flow manage containers or large user-defined structures. {\tt Read} and {\tt Show} instances are instances of {\tt Serialize}. {\tt Binary} instances can be used too. 
+To make the logging and recovery more efficient, the workflow monad caches the read and write operations.  {\tt Serialize}, from the RefSerialize~\cite{auth:refserialize} package, allows incremental serializations of the modifications of a data structure in the log, rather than logging the entire structure in each step. This is very useful when the flow manages containers or large user-defined structures. {\tt Read} and {\tt Show} instances are instances of {\tt Serialize}. {\tt Binary} instances can be used too. \EZY{These two sentences seem unnecessary}
  
-A computation in the IO monad, for example: 
+\EZY{Missing transition} A computation in the IO monad, for example: 
  
 {\tt 
  
@@ -132,16 +132,16 @@ main = exec1 "wfname" $ do
  
 } 
  
-The lifted computation includes effects of logging and recovery. If we interrupt the program before answering the second question, then, when we restart it again, the computation will not ask for the first question. Instead, it will get it from the log. It will ask for the second question, since the log do not contains a second response. The variables and the execution state then will be the same than when the program was interrupted. The state has been recovered from the log. 
+The lifted computation includes effects of logging and recovery. If we interrupt the program before answering the second question, upon restart the computation will not ask the first question. Instead, it will retrieve the answer from the log and immediately ask the second question. The variables and the execution state then will be the same than when the program was interrupted: the state has been recovered from the log. 
  
-If we define {\tt ask} to handle HTTP requests and responses instead of console input/output, a procedure of this kind can express a Web flow. 
+If we define {\tt ask} to handle HTTP requests and responses instead of console input/output, a procedure of this kind can express a web flow. 
+In particular, the log can be stored in the browser by means of hidden form 
+variables. If the process is finished after each response, that would make the server applications stateless and, hence, very scalable and fullly REST compliant, since each page keeps its own log state. That is the solution adopted by Peter Thiemann in WASH~\cite{auth:wash}, an excellent Web framework mistreated by its syntax. But client stored state is not appropriate in many cases, for the functional and security reasons above mentioned. Moreover, a re-spawn of the process and a replay of the log are necessary on every request. 
  
-The log can be stored in the browser by means of hidden form 
-variables. If the process is finished after each response, that would make the server applications stateless and, hence, very scalable and full REST compliant, since each page keeps its own log state. That is the solution adopted by Peter Thiemann in WASH\cite{auth:wash}, an excellent Web framework mistreated by its syntax. But client stored state is not appropriate in many cases, for the functional and security reasons above mentioned. Moreover, a re-spawn of the process and a replay of the log are necessary on every request. 
- 
+\EZY{At some point, you want to somehow depict MFlow as a hybrid approach; i.e. one process per flow, but using logs to restart as necessary}
 MFlow stores the state in the server. Instead of being stopped after each request, the server process stay running waiting for the next request until a timeout is reached. The non-blocking nature of the Haskell threads make the context switch for each request as efficient as event handlers. 
 
-If the timeout is not reached, the thread stays waiting for requests. But the server process must synchronize in some way when the process receives out of order requests, for example when the user has pressed the back button. 
+If the timeout is not reached, the thread stays waiting for requests. Unfortunately, there is still a difficulty: the server process must synchronize in some way when the process receives out of order requests, e.g., when the user has pressed the back button. 
  
 \subsection{Synchronization problem} 
 To solve the back button problem, a form of backtracking is necessary, so that when the browser send a request from of a previous page in the navigation, the procedure can go back until a previous page handler in the flow match with the data sent. From this moment on, the flow proceed normally. This is the purpose of the fail-back monad: 
@@ -181,14 +181,14 @@ breturn = flowM . BackT . return . BackPoint
  
 } 
  
-This monad executes as an Identity monad as long as it handle {\tt 
-NoBack} results. But if {\tt GoBack} is returned by some statement, then, if the previous one returned a {\tt BackPoint}, that one will be re-executed again. 
+This monad executes as an Identity monad as long as it is handling {\tt 
+NoBack} results. But if {\tt GoBack} is returned by some statement, then, if the previous one returned a {\tt BackPoint}, it will be re-executed again. 
 
 If the previous statement was not a {\tt BackPoint}, then this  previous statement will return {\tt GoBack} as well, so the computation will proceed further back until another previous {\tt BackPoint} is found. 
  
-Each {\tt BackPoint} in the backtrack is re-evaluated. If it returns {\tt NoBack} or {\tt BackPoint} the process will resume forward. if it returns {\tt GoBack} it continues backtracking. 
+Each {\tt BackPoint} in the backtrack is re-evaluated. If it returns {\tt NoBack} or {\tt BackPoint}, the process will resume forward execution. If it returns {\tt GoBack}, it continues backtracking. 
  
-this console application is the same above program lifted to the fail-back monad: 
+This console application is the same above program lifted to the fail-back monad: 
  
 {\tt 
  
@@ -210,40 +210,41 @@ main = runBackT $ do
  
 } 
  
-Here, {\tt ask} is designed to return to the  previous line  when the string "back" is entered. In the last line, {\tt ask} either fails and initiates a backtracking to the previous ask or it returns with {\tt breturn} and becomes a back point that will be called again in case of backtracking. 
+Here, {\tt ask} is designed to return to the  previous line  when the string ``back'' is entered. In the last line, {\tt ask} either fails and initiates a backtracking to the previous ask or returns with {\tt breturn} and becomes a back point that will be called again in case of backtracking. 
  
-If {\tt ask} is redefined to accept formlets\cite{auth:formlets} descriptions instead of text, to send /receive http request and 
-responses, then the fail-back monad can handle gracefully the  back button: Only it is necessary to verify the match of the parameters with what the formlet expects. If there is no match, it triggers a backtracking until some previous ask match. This solves the problem of the back button. 
+If {\tt ask} is redefined to accept formlets~\cite{auth:formlets} descriptions instead of text, to send/receive HTTP requests and 
+responses, then the fail-back monad can handle gracefully the  back button: it is only necessary to verify the match of the parameters with what the formlet expects. If there is no match, it triggers backtracking until some previous ask match. This solves the problem of the back button. 
  
-I will show how the backtracking together with a careful design of link syntax and how the formlet consumes the input, it is possible to address any page in the flow \textit{forward} by means of a REST URL. 
+\EZY{You want some transition here.}
+I will show how backtracking together with a careful design of link syntax and formlets make it possible to address any page in the flow \textit{forward} by means of a REST URL\@. 
  
-The {\tt FlowM} monad is essentially the same failback transformer stacked above a State transformer that carries out the formlet state. That may be stacked above the ({\tt Workflow IO}) monad or the {\tt IO} monad, depending on if we want a persistent state or not: 
+The {\tt FlowM} monad is essentially the same failback transformer stacked above a State transformer that carries out the formlet state. It may be stacked on top of the ({\tt Workflow IO}) monad or the {\tt IO} monad, depending on whether or not persistent state is desired: 
  
 {\tt 
  
 \begin{verbatim} 
  
-newtype FlowM v m a= FlowM {runFlowM :: FlowMM v m a} 
-  deriving (Monad,MonadIO,MonadState(MFlowState v)) 
+newtype FlowM v m a = FlowM {runFlowM :: FlowMM v m a} 
+  deriving (Monad, MonadIO, MonadState (MFlowState v)) 
  
 type WState view m = StateT (MFlowState view) m 
-type FlowMM view m=  BackT (WState view m) 
+type FlowMM view m = BackT (WState view m) 
  
 \end{verbatim} 
  
 } 
  
 \section{User Interface} 
-The rendering and validation in MFlow are inspired on the  formlets\cite{auth:formlets} concept. The View  data carries out a rendering format v for an underlying monad m, (which is {\tt IO} always, except in the case of cached widgets) 
+The rendering and validation in MFlow are inspired by the  formlets~\cite{auth:formlets} concept. The View  data carries out a rendering format {\tt v} for an underlying monad {\tt m}, which is {\tt IO} always, except in the case of cached widgets.
  
-As in the case of the {\tt FlowM} monad, the View data carries out  formlet state information. 
+As in the case of the {\tt FlowM} monad, the View data carries the formlet state information. 
  
-The formlet information is stored in a {\tt FormElm} data structure, that has the generated rendering as well as the result of the match of the request parameters with the formlet in a Maybe value: 
+The formlet information is stored in a {\tt FormElm} data structure, which has the generated rendering as well as the result of the match of the request parameters with the formlet \EZY{that's a really clause} in a Maybe value: 
 {\tt 
  
 \begin{verbatim} 
  
-newtype View v m a = View { runView :: WState v m (FormElm v a)} 
+newtype View v m a = View { runView :: WState v m (FormElm v a) } 
  
 data FormElm v a = FormElm [v] (Maybe a) 
  
@@ -282,9 +283,9 @@ class (Monoid view,Typeable view)  => FormInput view where
  
 This class describes how to create form elements, links and error 
 messages in that particular format. Using the class methods, the 
-Widgets are not tied to a particular rendering. In most of the cases, blaze-html rendering is used, but there are also bindings for xhtml and HSP. it is possible to create widgets that can use any rendering thanks to the {\tt FormInput} abstraction. The Widgets in {\tt MFlow.Forms.Widgets} module are defined in such a way. 
+widgets are not tied to a particular rendering. In most cases, blaze-html rendering is used, but there are also bindings for xhtml and HSP\@. It is possible to create widgets that can use any rendering, thanks to the {\tt FormInput} abstraction. The widgets in {\tt MFlow.Forms.Widgets} module are defined in this way. 
  
-The pseudocode of an Int input box would be: 
+The pseudocode of an {\tt Int} input box would be: 
  
 {\tt 
  
@@ -299,7 +300,7 @@ getInt = View $ do
  
 } 
  
-{\tt ask} get a  widget, display it, get the response from the user and return it under the FlowM monad: 
+{\tt ask} gets a  widget, displays it, gets the response from the user and returns it under the FlowM monad: 
  
 {\tt 
  
@@ -313,7 +314,7 @@ page= ask
 } 
 {\tt page} is a synonym of {\tt ask} 
  
-The formlets can be combined with applicative operators to create more complex widgets. A page is a widget. For this purpose {\tt View} has an applicative instance: 
+The formlets can be combined with applicative operators to create more complex widgets. A page is a widget. For this purpose, {\tt View} has an applicative instance: 
  
 {\tt 
  
@@ -329,7 +330,7 @@ instance (Functor m, Monad m) => Applicative (View view m) where
  
 } 
  
-This is a complete program that uses the FlowM monad, and widgets 
+This is a complete program that uses the FlowM monad and widgets 
 combined with applicative operators: 
  
  
@@ -362,9 +363,9 @@ runNavigation ::  String -> FlowM Html (Workflow IO) () -> IO ()
 \end{verbatim} 
  
 } 
-It expects a persistent navigation but the example is transient, so we apply a single {\tt step} to the transient computation. The first {\tt page} rendering is an applicative combination of {\tt getInt} formlets to create a 2-tuple. 
+It expects persistent navigation, but the example is transient, so we apply a single {\tt step} to the transient computation. The first {\tt page} rendering is an applicative combination of {\tt getInt} formlets to create a 2-tuple. 
 
-There are line breaks ({\tt br}) added using blaze-html formatting. they are added with the operator: 
+There are line breaks ({\tt br}) added using blaze-html formatting. They are added with the operator: 
  
 {\tt 
  
@@ -374,7 +375,9 @@ There are line breaks ({\tt br}) added using blaze-html formatting. they are add
  
 } 
  
-That add formatting to a widget.
+\ldots that add formatting to a widget.
+
+This operator:
 
 {\tt 
  
@@ -383,10 +386,10 @@ That add formatting to a widget.
 \end{verbatim} 
  
 } 
-Encloses formatting within a tag (in this case the blaze-html tag "b").  since {\tt <<} has less precedence that {\tt ++>}, the composition does not need parentheses.
+\ldots encloses formatting within a tag (in this case the blaze-html tag ``b'').  Since {\tt <<} has less precedence that {\tt ++>}, the composition does not need parentheses.
  
-The second {\tt page} present a html paragraph with the sum of the 
-numbers. The {\tt wlink} widget renders an html link, with an url that invokes the flow again, and the page will return {\tt wlink} value.
+The second {\tt page} presents an HTML paragraph with the sum of the 
+numbers. The {\tt wlink} widget renders an HTML link, with a URL that invokes the flow again; the page will return {\tt wlink} value.
  
 {\tt 
  
@@ -396,11 +399,11 @@ wlink ::  (Typeable a, Show a, MonadIO m,  FormInput view)
 \end{verbatim} 
  
 } 
-Because {\tt wlink} it is in the last FlowM statement, {\tt 
+Because {\tt wlink} is in the last FlowM statement, {\tt 
 runNavigation} will restart the computation again. 
  
 \subsection{Routing} 
-But {\tt wlink} can also consume inmediately an element of a restful path if it is available without displaying anything. When a widget returns a match, {\tt page} does not send a page response. Instead it returns the result to the flow immediately. That is the key for addressing any page in the flow in a REST URL: 
+Note that {\tt wlink} can also consume inmediately an element of a RESTful path, if it is available, without displaying anything. When a widget returns a match, {\tt page} does not send a page response. Instead, it returns the result to the flow immediately. This is key for addressing any page in the flow in a REST URL\@: 
  
 {\tt 
  
@@ -420,20 +423,20 @@ main = runNavigation "verb" .  step  $  do
  
 } 
  
-In this example, URLs which start with {\tt http://host/verb/option1/... } will go straight to {\tt proc1}.  The menu will not be presented.  As you would expect, URLs which start with {\tt http://host/verb/option2/..} will go straight to proc2.  The URL {\tt http://host/verb} will go to the initial menu. 
+In this example, URLs which start with {\tt http://host/verb/option1/... } will go straight to {\tt proc1}:  the menu will not be presented.  As you would expect, URLs which start with {\tt http://host/verb/option2/..} will go straight to proc2.  The URL {\tt http://host/verb} will go to the initial menu. 
  
-So it is possible to express REST routes as flows using {\tt wlink}. The code above has three implicit routes. 
+Thus, it is possible to express REST routes as flows using {\tt wlink}. The code above has three implicit routes. 
  
-That is combined with the backtracking mechanism to make any GET page in the flow addressable. For example, if in the above example the flow is running the {\tt proc1} branch, when the user enters the URL of the second option, the backtracking mechanism will backtrack to {\tt /verb} after which the second wlink will match the {\tt /option2} segment of the URL, so {\tt proc2} will be executed. 
+This is combined with the backtracking mechanism to make any GET page in the flow addressable. For example, if in the above example the flow is running the {\tt proc1} branch, when the user enters the URL of the second option, the backtracking mechanism will backtrack to {\tt /verb}, after which the second wlink will match the {\tt /option2} segment of the URL, so {\tt proc2} will be executed. 
  
 \subsection{Single page applications} 
 
-As seen above, the applicative instance permits the combination of widgets using applicative operators. But also {\tt View} has an Monad instance: 
+As seen above, the applicative instance permits the combination of widgets using applicative operators. But {\tt View} also has an Monad instance: 
  
 {\tt 
  
 \begin{verbatim} 
-instance  (Monad m) => Monad (View view m) where 
+instance (Monad m) => Monad (View view m) where 
     View x >>= f = View $ do 
                   FormElm form1 mk <-  x 
                   case mk of 
@@ -448,9 +451,9 @@ instance  (Monad m) => Monad (View view m) where
  
 } 
  
-The monadic instance is something remarkable. In that monadic instance, the second widget consumes the output of the previous statement, provided that the latter validates. But if the previous widget return {\tt Nothing} then the computation is interrupted, and the rendering becomes what was produced until that moment and {\tt Nothing} is returned. 
+This monad instance is somewhat remarkable. In this monadic instance, the second widget consumes the output of the previous statement, provided that the latter validates. But if the previous widget return {\tt Nothing}, then the computation is interrupted and the rendering becomes what was produced until that moment.
  
-{\tt page} in that case will present the rendering again and again until the monadic computation finish with a valid output that will be returned to the flow. Since each iteration read the input of the previous one and each widget can modify its presentation depending on the previous widget output, sophisticated input forms and presentations are possible: 
+{\tt page} in this case will present the rendering again and again until the monadic computation finish with a valid output that will be returned to the flow. Since each iteration read the input of the previous one and each widget can modify its presentation depending on the previous widget output, sophisticated input forms and presentations are possible: 
 {\tt 
  
 \begin{verbatim} 
@@ -474,33 +477,33 @@ main= runNavigation "input" . step $ do
 \end{verbatim} 
  
 } 
-Here two options in a radio button are presented. Because it is a  monad, the second statement can use the {\tt type} to present the  appropriate applicative form. 
+Here, two options in a radio button are presented. Because it is a  monad, the second statement can use the {\tt type} to present the  appropriate applicative form. 
  
-In the first iteration, only the radio buttons are presented. When the user chooses one of the options, the appropriate formulary appears below the radio buttons. when the user completes the formulary, {\tt page} will return the {\tt Client} data to the flow. If the user changes the option in the radio button, the form will change accordingly. 
+In the first iteration, only the radio buttons are presented. When the user chooses one of the options, the appropriate formulary appears below the radio buttons. When the user completes the formulary, {\tt page} will return the {\tt Client} data to the flow. If the user changes the option in the radio button, the form will change accordingly. 
  
-To avoid sending the whole page at each iteration, there are some page modifiers that refresh only the elements that change using AJAX. Push is also possible using long polling. The implementation of these functionalities relies on javascript trickery and the use of state flags. 
+To avoid sending the whole page at each iteration, there are some page modifiers that refresh only the elements that change using AJAX\@. Push is also possible using long polling. The implementation of this functionality relies on JavaScript trickery and the use of state flags. \EZY{What are state flags?}
  
-Note that the single page example above can be transformed in a two pages sample by translating the View monad to the FlowM monad with little changes. 
+Note that the single page example above can be transformed into a two pages example by translating the View monad to the FlowM monad with only a few changes. 
  
-If in the bind operation we discard the rendering of the first term. The effect is that the rendering of the second term substitute the first when the former is validated in the next iteration. That is how MFlow implement the callback mechanism of the Seaside framework \cite{seasidecallback}
+If in the bind operation we discard the rendering of the first term. \EZY{...then?} The effect is that the rendering of the second term is substituted for the first when the former is validated in the next iteration. That is how MFlow implements the callback mechanism of the Seaside framework~\cite{seasidecallback}
 
-Using these and other combinators it is possible to create different kind of applications using basically the same above elements in a pure Haskell EDSL \cite{auth:mflowdsl}.
+Using these and other combinators it is possible to create different kind of applications using basically the same above elements in a pure Haskell EDSL~\cite{auth:mflowdsl}.
  
 \section{Scalability} 
  
-Because the logs grow by small update events, it is easy for two or more servers to synchronize state by interchanging {\tt step} events, instead of entire states. This makes MFlow state persistence theoretically ideal for highly scalable web applications, distributed in the cloud without the problems of continuation-based frameworks. 
+Because the logs grow by small update events, it is easy for two or more servers to synchronize state by interchanging {\tt step} events instead of entire states. This makes MFlow state persistence theoretically ideal for highly scalable web applications, distributed in the cloud without the problems of continuation-based frameworks. \EZY{Well, you still have to distribute the steps, right?  Your problem gets easier but you still need to synchronize.}
  
  
  
  
 \section{Execution traces} 
  
-Trace logging by means of hand-made statements, although tedious and cumbersome, is a traditional way to track errors in web applications in production environments.
+Trace logging by means of hand-made statements, although tedious and cumbersome, is a traditional way of tracking errors in web applications in production environments.
  
-MFlow produce automatic execution traces under the {\tt FlowM v IO} 
-monad. These logs are produced at failure time. The fail-back monad can be extended to generate  automatic traces in case of failure. Other exception-treatment monads like Error, Maybe or the Exception monad  fail back to the calling method. The failback monad instead returns to the previous statement, so  a trace instead of a call stack will be produced. This is a great improvement, especially for web applications since Haskell does not produce call stacks. 
+MFlow produces automatic execution traces under the {\tt FlowM v IO} 
+monad. These logs are produced at failure time. The fail-back monad can be extended to generate  automatic traces in case of failure. \EZY{Need some sort of connective text here} Other exception-treatment monads like Error, Maybe or the Exception monad  fail back to the calling method. The failback monad instead returns to the previous statement, so  a trace rather than a call stack will be produced. This is a great improvement, especially for web applications, since Haskell does not produce call stacks.  \EZY{Well, that's kind of a non-sequitur: stack traces in say Java web frameworks won't give you the trace of actions which lead someone to some state.}
 
-It uses the monadloc\cite{auth:monadloc} package. {\tt withLoc} is a method of the MonadLoc class, so it can be redefine for the particular needs of each monad. In this case, the instance insert an exception handler that add the line of error to the trace and initiates a backtracking. the backtracking proceed back to the beginning following the execution history in reverse order.  This is the pseudocode of the instance: 
+It \EZY{What?} uses the monadloc\cite{auth:monadloc} package. {\tt withLoc} is a method of the MonadLoc class, so it can be redefined for the particular needs of each monad. In this case, the instance inserts an exception handler that adds the line of error to the trace and initiates a backtracking. The backtracking proceeds back to the beginning, following the execution history in reverse order.  This is the pseudocode of the instance: 
  
 {\tt
 
@@ -520,28 +523,28 @@ instance  MonadLoc (FlowM v IO)  where
  
  }
  
-The monadloc-pp preprocessor insert a {\tt withLoc} call behind each line of code with information about the module and line number within the first parameter. 
+The monadloc-pp preprocessor inserts a {\tt withLoc} call behind each line of code with information about the module and line number within the first parameter. 
 
-When the backtracking is complete, the scheduler will detect the trace at the root of the execution and will print it in the console.
+When the backtracking is complete, the scheduler detects the trace at the root of the execution and prints it in the console.
  
-To see an example of trace log, see \cite{auth:trace}. In the case of persistent flows, the FlowM v (Workflow IO) monad generates its own log at execution time, which is readable and can be inspected in case of error. 
+To see an example of trace log, see~\cite{auth:trace}. In the case of persistent flows, the FlowM v (Workflow IO) monad generates its own log at execution time, which is readable and can be inspected in case of error. 
  
 \section{Conclusions} 
  
-The MFlow development demonstrates the power of monadic computation for creating Web flows and Web navigations in a concise, intuitive and maintainable way while reducing drastically the plumbing and the error ratio in web programming. This monadic style, together with the composability of typed elements in the page, in a strongly typed language such is Haskell, makes the navigation verifiable at compile time, and this facilitates the testing and maintenance, while the scalability and navigability is not compromised.  
+MFlow demonstrates the power of monadic computation for creating web flows and web navigation in a concise, intuitive and maintainable way, while reducing drastically the plumbing and the error ratio in web programming. This monadic style, together with the composability of typed elements in the page, in a strongly typed language such as Haskell, makes the navigation verifiable at compile time, and this facilitates the testing and maintenance, while the scalability and navigability is not compromised.  \EZY{This sentence is too long}
   
 \section{Future work}  
   
-One important task in the future is to develop a synchronization mechanism for MFlow servers to realize the theoretical scalability and failover of the architecture, using Cloud Haskel \cite{auth:cloudhaskell}.  
+One important task in the future is to develop a synchronization mechanism for MFlow servers to realize the theoretical scalability and failover of the architecture, using Cloud Haskel~\cite{auth:cloudhaskell}.  
   
-The backtracking mechanism has been demonstrated to be useful for different purposes, such is browser-server synchronization and tracing. The routing example shows how the FlowM machinery can work as an event scheduler without inversion of control.  As such it can be used in very different scenarios. 
+The backtracking mechanism has been demonstrated \EZY{how?} to be useful for different purposes, such is browser-server synchronization and tracing. The routing example shows how the FlowM machinery can work as an event scheduler without inversion of control.  As such, it can be used in very different scenarios. 
 
-The supervisor package \cite{auth:supervisor} contains a enhanced version, of the fail-back monad applicable to any context. It includes an state and can perform specific actions when the computation goes forward and backward thanks to a programmer-defined instance. It will be used by MFlow to perform backtracking, tracing and testing.
+The supervisor package~\cite{auth:supervisor} contains a enhanced version of the fail-back monad applicable to any context. It includes an state \EZY{what does this mean?} and can perform specific actions when the computation goes forward and backward thanks to a programmer-defined instance. It will \EZY{will? I.e. you plan on using it?} be used by MFlow to perform backtracking, tracing and testing.
 
 
-Event scheduling without inversion of control is ideal for process interaction in cloud environments\cite{auth:scalacloud}. Optional backtracking and persistence can make it more expressive and convenient.  
+Event scheduling without inversion of control is ideal for process interaction in cloud environments~\cite{auth:scalacloud}. Optional backtracking and persistence can make it more expressive and convenient.  
   
-Persistent flows can be used in enterprise integration scenarios  \cite{auth:integration} with long-running transactions where backtracking can be used to perform rollbacks.
+Persistent flows can be used in enterprise integration scenarios~\cite{auth:integration} with long-running transactions where backtracking can be used to perform rollbacks.
   
   
   
