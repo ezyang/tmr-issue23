@@ -2,6 +2,7 @@
 
 \usepackage{multirow}
 \usepackage{listings}
+\usepackage{hyperref}
 
 \lstdefinelanguage[improved]{Haskell}
   {classoffset=0,
@@ -42,7 +43,7 @@ One of Haskell's key selling points is its type system.  This article provides s
 
 \section{The Project}
 
-As part of a research project, we are collecting a large volume of Java source code which we want to analyse\footnote{For more details, see ``Blackbox: A Large Scale Repository of Novice Programmers' Activity'' by Brown et al., available shortly at \url{http://twistedsquare.com/publications.html}}.  At the time of writing, we have 50 gigabytes of source code snapshots from six months' worth of recording.  To perform the analysis, we have a machine with two six-core hyperthreaded Xeon processors and 32 gigabytes of RAM\@.  I might term this ``medium data'': small enough to fit on one machine, but big enough that you can make multiple cups of tea while the analysis is running.
+As part of a research project, we are collecting a large volume of Java source code which we want to analyse\footnote{For more details, see ``Blackbox: A Large Scale Repository of Novice Programmers' Activity'' by Brown et al. (2014), available via \url{http://twistedsquare.com/publications.html}}.  At the time of writing, we have 50 gigabytes of source code snapshots from six months' worth of recording.  To perform the analysis, we have a machine with two six-core hyperthreaded Xeon processors and 32 gigabytes of RAM\@.  I might term this ``medium data'': small enough to fit on one machine, but big enough that you can make multiple cups of tea while the analysis is running.
 
 I felt that for writing this analysis, Haskell was a good choice.  This was mainly because of its easy support for generic programming and parallel processing, as will be explained in the course of this article.  I thought my experiences may be of interest to others, highlighting practical uses of Haskell's powerful type system in my project.  The article assumes general familiarity with Haskell, and is aimed at someone who has learned a little but wants to see what the advantages are of learning more.
 
@@ -70,7 +71,7 @@ if (x < 5)
 }
 \end{lstlisting}
 
-This is not a compile-time or run-time error, but without an else clause, I think it can always be termed a programmer mistake\EZY{I think the parenthetical is unnecessary (even if the condition has side-effects, why would you write it like this as an if condition, and not just as a statement?)}.  The first thing to do in looking for this mistake was to parse the source into an Abstract Syntax Tree (AST) -- for this, I used (a slightly augmented version of) the \texttt{language-java} library from Hackage.  The relevant portion of the AST data type is this\footnote{To be clear: the triple dots are omitted code, not Haskell syntax!}:
+This is not a compile-time or run-time error, but without an else clause, I think it can always be termed a programmer mistake.  The first thing to do in looking for this mistake was to parse the source into an Abstract Syntax Tree (AST) -- for this, I used (a slightly augmented version of) the \texttt{language-java} library from Hackage.  The relevant portion of the AST data type is this\footnote{To be clear: the triple dots are omitted code, not Haskell syntax!}:
 
 \begin{code}
 data Stmt = Empty | IfThen Exp Stmt | IfThenElse Exp Stmt Stmt | ...
@@ -112,14 +113,15 @@ Being a pure functional language, Haskell has great support for functional paral
 \item Collate the results together.
 \end{enumerate}
 
-The middle step is amenable to being run across many processor cores, but since it requires imperative access to the database or file system, we must use imperative forms of concurrency (i.e. \lstinline|forkIO|).  The classic problem with parallel programming is synchronising and coordinating access to mutable variables.  In Haskell, this is not an issue. \EZY{Well, if you use IORefs you still have to do it. You probably want to say something like the default style of programming in Haskell avoids use of mutable state}  However, there are still problem with synchronising concurrent access to \textit{external resources}, such as the database connection or files.  It is easy, at first, to accidentally write code like this:
+The middle step is amenable to being run across many processor cores, but since it requires imperative access to the database or file system, we must use imperative forms of concurrency (i.e. \lstinline|forkIO|).  The classic problem with parallel programming is synchronising and coordinating access to mutable variables.  In the default pure functional style in Haskell, this is not an issue. However, there are still problem with synchronising concurrent access to \textit{external resources}, such as the database connection or files.  It is easy, at first, to accidentally write code like this:
 
 \begin{code}
 do conn <- newConnection
    mapM_ forkIO [doTask i conn | i <- [0..9]]
 \end{code}
 
-This will unsafely use a single connection in parallel from many tasks, but will produce no compile-time error.  It is particularly easy to do this in Haskell because you do not need to write a separate function to act as a thread main function (e.g., like in C) where you would need to explicitly pass the connection as a parameter.  In the above code, it is not obvious on first glance that the \lstinline|conn| parameter is being used incorrectly. \EZY{There is something a little wonky about this paragraph, but it is hard to articulate.  One possibility is that the text seems to assume that it is self-evident that an external resource will need its accesses to be synchronized.  Certainly if the library is just giving a raw API, this is true, but (as you yourself show below), it is very possible to write a well-designed API which eliminates this sort of error.}
+This will unsafely use a single connection in parallel from many tasks, but will produce no compile-time error.  In a language like C, where a thread is run from a different top-level function, the values shared between threads are more explicit, and so resource- sharing mistakes can sometimes be easier to pick up.  However, Haskell makes it so easy to write inline parallelism that it can actually be less obvious in Haskell that values like our connection handle are being improperly shared between threads.
+%NCCB: Rewrote paragraph to make clearer what I meant, but may still need work.
 
 I found that the best way to avoid this problem was to build the connection into a monad, using a reader monad (called \lstinline|DB|).  (A reader monad encapsulates some read-only state, which you can read or use via a monadic action.)  This both avoided passing the connection parameter around (it could just be accessed from the monad), and meant that I could build a \lstinline|parallel| function that would automatically open a new database connection for each new thread.  The parallel function had a simple API\@:
 
@@ -214,7 +216,7 @@ getSessionListForUser :: UserId -> DB [SessionId]
 getSessionInfo :: SessionId -> DB Session
 \end{code}
 
-These functions have much clearer behaviour.
+The behaviour of these functions is now more apparent from their type, and there is greater type-safety, with less possibility to mix up a \lstinline|UserId| and \lstinline|SessionId|.  We now turn to look at how these types are used in the context of database queries.
 % There is an alternate approach.  For all models, I may want to have a ``get'' function that gets the full database record given the id field.  With the above system, I'm defining a new get function for each record.  I could instead parameterise the Id type by the table it is referring to:
 %
 % \begin{code}
@@ -233,7 +235,7 @@ These functions have much clearer behaviour.
 %
 % Now, I can just say \lstinline|get uid| and if uid has type \lstinline|Id User|, the function will give \lstinline|DB User|.  You may prefer the first approach, where you more verbose about what you were getting, or you may prefer the second approach where the function names are simpler.  I will continue this article with the first approach, because I think it is a little more understandable if you know less Haskell.
 %
-\EZY{Missing transition} One way to use these types is to apply them directly after the database query:
+One way to use these types is to apply them directly after the database query:
 
 \begin{code}
 do (rawSessionId, rawUserId) <- query conn "select s.id, u.id
@@ -265,16 +267,14 @@ do (sessionId :: SessionId, userId :: UserId) <- query conn "select
 
 \section{Increasing Type Safety}
 
-We have already prevented some mistakes by preventing \lstinline|SessionId|s from being mixed up with \lstinline|UserId|s.  However, there is still potential for mistakes in our program in the MySQL queries.  A MySQL query is one of those instances where you are dealing with external data, and just as when you read from a file or a socket, there is the possibility to make a mismatch with the schema or protocol.  The error cannot be picked up by the compiler (unless you go to greater lengths by converting the schema/protocol into a type or structure that the compiler understands).  For example, here's a possible error:
+We have already prevented some mistakes by preventing \lstinline|SessionId|s from being mixed up with \lstinline|UserId|s.  However, there is still potential for mistakes in our program around the MySQL queries.  A MySQL query is one of those instances where you are dealing with external data, and just as when you read from a file or a socket, there is the possibility to make a mismatch with the schema or protocol.  The error cannot be picked up by the compiler (unless you go to greater lengths by converting the schema/protocol into a type or structure that the compiler understands).  For example, here's a possible error:
 
 \begin{code}
 do (sessionId :: SessionId, userId :: UserId) <- query conn "select
      u.id, s.id from sessions as s, users as u inner join on s.user_id = u.id"
 \end{code}
 
-Do you notice the problem?  The query is asking for the user ID and session ID (in that order), but the code is expecting a session ID and then a user ID\@.  We are back to the previous problem: a mixup in parameters that cannot be detected by the compiler.  In general, I find that several problems in Haskell can be solved by involving the type system further.  The trick is to involve the type system in ways that provide a big benefit for the cost, but not going so far that the type system gets in the way of code that you know (but can't easily prove to the compiler) is safe. \EZY{OK, this transition is muffed a bit.  Can you briefly explain what the solution is and give an outline for the subsections?  Also, too many ``So''s}  So here is my solution to the problem, that tries to add a decent amount of type safety for low effort and complexity.
-
-So: what I really want to do is add a type annotation to the MySQL queries.  (All that follows, I have packaged into a library on Hackage (\url{http://hackage.haskell.org/package/mysql-simple-quasi}), so you don't have to worry how it is implemented, but I wanted to illustrate an example of taking the type system that little bit further with quasi-quoters.)
+Do you notice the problem?  The query is asking for the user ID and then a session ID (in that specific order), but the code labels the results as being a session ID and then a user ID\@.  We are back to the previous problem: a mixup in parameters that cannot be detected by the compiler.  In general, I find that several problems in Haskell can be solved by involving the type system further\footnote{The trick is to involve the type system in ways that provide a big benefit for the cost, but not going so far that the type system gets in the way of code that you know -- but can't easily prove to the compiler -- is safe}. What I really want to do here is add a type annotation \textit{into the MySQL queries themselves}.  We can do this using quasi-quoters -- I will briefly explain what quasi-quoters are, and then go on to show how I use them with MySQL queries. 
 
 \subsection{Interlude: quasi-quoters}
 
@@ -306,11 +306,11 @@ do name <- ...
      years old this year|]
 \end{code}
 
-The quasiquoting syntax consists of a square bracket, the name of the quasi-quoter function, a pipe, and then the string to be fed to the quasi-quoting function at compile-time, which is terminated by a pipe and square bracket.  I'm surprised there aren't more quasi-quoters around (e.g., one for processing regexes at compile-time). \EZY{One reason for this is Template Haskell is actually pretty annoying to write...}
+The quasiquoting syntax consists of a square bracket, the name of the quasi-quoter function, a pipe, and then the string to be fed to the quasi-quoting function at compile-time, which is terminated by a pipe and square bracket.  I'm surprised there aren't more quasi-quoters around (e.g., one for processing regexes at compile-time).
 
 \subsection{Back to our code}
 
-My quasi-quoter, \lstinline|qquery|, takes a query String like this, with type annotations inside it:
+Let's now return to our problem of adding type annotations to MySQL queries.  My quasi-quoter, \lstinline|qquery|, takes a query String like this, with type annotations inside it:
 
 \begin{code}
 [qquery|select s.id{SessionId}, u.id{UserId} from sessions as s, users as u
@@ -332,18 +332,20 @@ do (userId, sessionId) <- query conn [qquery|select s.id{SessionId},
      inner join on s.user_id = u.id|]
 \end{code}
 
-The types are now annotated \textit{exactly where they are used} inside the query string.  The above code will now give a compile-time error because of the mismatch in the ordering between user ID and session ID\@.  These benefits do not come completely for free (the quasiquoter had to be implemented), but once you have the extra capability to add more type information, I believe it pays off time and time again in program clarity and the ability to avoid mistakes as early as possible (compile-time).  Since I have a growing ecosystem of a core central library and lots of quickly hacked together analysis programs to explore data, the benefits of extra safety in the core libraries keep paying off as I use them in my small other programs.
+The types are now annotated \textit{exactly where they are used} inside the query string.  The above code will now give a compile-time error because of the mismatch in the ordering between user ID and session ID\@.  I have packaged this  type-annotation quasi-quoter into a library on Hackage (\url{http://hackage.haskell.org/package/mysql-simple-quasi}), so you can use it if you wish.
+
+As a general observation: these benefits do not come completely for free (the quasiquoter had to be implemented), but once you have the extra capability to add more type information, I believe it pays off time and time again in program clarity and the ability to avoid mistakes as early as possible (compile-time).  Since I have a growing ecosystem of a core central library and lots of quickly hacked together analysis programs to explore data, the benefits of extra safety in the core libraries keep paying off as I use them in my small other programs.
 
 \section{Types as Light-Weight Contracts}
 
-After all that database talk, here's a simpler example of using types to your advantage to end with. \EZY{Awkward}  Often, you will know a property or pre-requisite of a value, e.g. that a particular integer is (or should be) non-negative.  In my program I pull out sorted lists from the database (or sort them myself).  Later, I want to merge these lists into a single sorted list.  If I am playing it safe, I have to write the merge functions like so:
+After all that database talk, I will end with a simpler example of using types to your advantage. Often, you will know a property or pre-requisite of a value, e.g. that a particular integer is (or should be) non-negative.  In my program I pull out sorted lists from the database (or sort them myself).  Later, I want to merge these lists into a single sorted list.  If I am playing it safe, I have to write the merge functions like so:
 
 \begin{code}
 mergeLists :: [a] -> [a] -> [a]
 mergeLists xs ys = mergeSorted (sort xs) (sort ys)
 \end{code}
 
-If the list is already sorted, as is usually the case in my program, I am unnecessarily attempting to sort the lists again.  (This is not just slow because it makes an extra pass of the list, but it also forces evaluation of the list, which may interfere with laziness.)  Instead, I can annotate that the lists are sorted by making a new type for this:
+If the list is already sorted, as is usually the case in my program (because I use ``ORDER BY'' in the database query), I am unnecessarily attempting to sort the lists again.  (This is not just slow because it makes an extra pass of the list, but it also forces evaluation of the list, which may interfere with laziness.)  Instead, I can annotate that the lists are sorted by making a new type for this:
 
 \begin{code}
 newtype SortedList a = Sorted [a] deriving (Eq, Ord, ...)
@@ -365,8 +367,7 @@ I can then write an $O(n)$ function to merge two sorted lists and be sure that I
 mergeSorted :: SortedList a -> SortedList a -> SortedList a
 \end{code}
 
-This technique can also be used in other languages (e.g., defining a new collection class for sorted lists).  But Haskell's newtype wrappers make it very easy to add a new type, with all the features of the old type (by deriving type-classes automatically), and some more features added or removed.
-\EZY{Please cite Oleg's discussion of this approach in the more complex example of array index checking \url{http://okmij.org/ftp/Haskell/types.html#branding}}
+This technique can also be used in other languages (e.g., defining a new collection class for sorted lists).  But Haskell's newtype wrappers make it very easy to add a new type, with all the features of the old type (by deriving type-classes automatically), and some more features added or removed\footnote{You can see more discussion, and a more complicated example of this for array index checking, at Oleg's site: \url{http://okmij.org/ftp/Haskell/types.html\#branding}}
 
 \section{Conclusion}
 
