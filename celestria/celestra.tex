@@ -1,75 +1,73 @@
-\emph{The Monitor Celestra} is a Nordic Style Live Action Roleplaying Game (LARP), organized for the first time in 2013. 
+\emph{The Monitor Celestra} is a Nordic Style Live Action Roleplaying Game (LARP) which was organized for the first time in 2013. 
 The game, situated
-in the Battlestar Galactica\cite{larson_battlestar_1978} universe was a technology-heavy
-immersive experience for the participants with ambitious goals to
-transform the interior of a World War II era battleship into a
-space ship and allow the participants to forge their own path into the future.
+in the Battlestar Galactica\cite{larson_battlestar_1978} universe, had the ambitious goal of
+transforming the interior of a World War II era battleship into a
+space ship and allowing the participants to forge their own path into the future. \EZY{This paragraph is a bit hard to understand without reading the background section.  It may be better to think of the introduction as a condensed version of the background section, so try to make it self-contained, even if you defer some detail later}
 
-This full immersion was assisted by a host of different specific
-techniques. For instance, all signage was replaced by new signs with the right
-aesthetic to support the fiction, the ship had custom built control
-panels that tied in with a space dynamics simulator, and the game
-master team had access to triggering a large array of scripted, partially scripted or improvised events.
+This full immersion was implemented using a number of different techniques: the signage of the ship was replaced with signs that were
+in the Battlestar Galactica aesthetic, the ship
+had custom-built control panels controlled a space dynamics simulator, and the game
+master team had the ability to trigger a large array of scripted, partially scripted or improvised events \Red{in what?}.
 
-As a fundamental part of this, the ship was equipped with 15 pairs of
+An important part of this immersion was 15 pairs of
 loudspeakers, each pair hooked up to a Raspberry Pi\cite{rpi} and
 connected to a wired ethernet network. These loudspeakers played
 localized sound effects as well as an ambient sound backdrop through
 the entire game, drowning out the sounds of inner city Gothenburg and
 supporting the game experience by confirming consequences of player
-actions through mediated response.
+actions through mediated responses.
 
 \section{Background}
 \label{sec:background}
 
-LARP is a form of game where participants receive roles and then proceed to enact their roles within a framework of plots, story lines and clues. Traditionally LARPs have been focused on telling stories in a fantasy/medieval setting but has seen a wider spread of genres over years. LARP has developed into various design schools and style - mostly based on geographical distribution, thus one has Nordic LARP, American LARP and Russian LARP to name a few\cite{kp2011}. Each school of design has its own theories on what constitutes a good LARP and what goals one must strive to achieve with the game design, participation and outcome of the game. 
+LARP is a form of game where participants receive roles and then proceed to enact their roles within a framework of plots, story lines and clues. Traditionally, LARPs have been focused on telling stories in a fantasy/medieval setting, but the form has seen a wider spread of genres over years. LARP has developed into various design schools and style -- mostly based on geographical distribution. Thus, there are Nordic LARPs, American LARPs and Russian LARPs, to name a few\cite{kp2011}. Each school of design has its own theories on what constitutes a good LARP and what goals one must strive to achieve with the game design, participation and outcome of the game.
 
-Stemming from table-top role playing games and improvisation theatre, LARP is played out by players in real time in the same general physical area. Players wear costumes and make props to better simulate their respective characters and there's usually a consensus of what is deemed \emph{in-game} vs. \emph{off-game}. In general, participants receive instructions beforehand regarding specific game rules, other characters, shared background information and similar. Organizers define social mechanics and hard game rules for resolving combat, conflicts or sex. 
+In the same tradition as table-top role playing games and improvisation theatre, LARP is played out by players in real time in the same general physical area. Players wear costumes and make props to better simulate their respective characters. There is usually a consensus of what is deemed \emph{in-game} vs. \emph{off-game}. \EZY{Why is the in-game/out-of-game distinction important for the description here?} In general, participants receive instructions beforehand regarding specific game rules, other characters, shared background information, etc. Organizers define social mechanics and hard game rules for resolving combat, conflicts or sex. 
 
 \subsection{Nordic LARP}
 
 \emph{The Monitor Celestra} belonged to the Nordic LARP school of design. This school could be argued to emphasize a few different points as being major when creating or participating in the experience: 
 
 \begin{itemize}
-\item The game should represent the world as faithfully and completely as possible, this is commonly referred to as a 360\degree{} game. Everything players see and/or experience represents itself within the game - a gun is a gun, a knife is a knife.
+    \item The game should represent the world as faithfully and completely as possible (games which fulfill this criterion are commonly referred to as 360\degree{} games.) Everything players see and/or experience represents itself within the game -- a gun is a gun, a knife is a knife.
 \item Participants should put emotional engagement and experience above achieving in-game goals. Powerful emotional impacts should take precedence when deciding how to move the game forward.
-\item The players should control the outcome of the game. While parts of the game might be scripted, the main outcome of the game should be left in the players hand as far as possible.
+\item The players should control the outcome of the game. While parts of the game might be scripted, the main outcome of the game should be left to the players as far as possible.
 \end{itemize}
 
-Due to the nature of the Nordic school of design, games designed within that school tend to focus on moral choices and complex social interactions rather than traditional fantasy stories. There have been games depicting everything from danish hobos on the road in the LARP \emph{The White Road} \cite{pedersen2008}, students investigating possessed ladies in the LARP \emph{Prosopopeia} \cite{jonsson2006prosopopeia, montola2006prosopopeia} to 1950s families hiding from nuclear war in the LARP \emph{Ground Zero} and terminal cancer patients in the LARP \emph{Luminescence}, both described in \cite{nordiclarp}.
+Due to the nature of the Nordic school of design, games designed within that school tend to focus on moral choices and complex social interactions rather than traditional fantasy stories. There have been games depicting everything from Danish hobos on the road (\emph{The White Road}~\cite{pedersen2008}) and students investigating possessed ladies (\emph{Prosopopeia}~\cite{jonsson2006prosopopeia, montola2006prosopopeia}), to 1950s families hiding from nuclear war (\emph{Ground Zero}~\cite{nordiclarp}) and terminal cancer patients (\emph{Luminescence}~\cite{nordiclarp}).
 
 \subsection{LARP vs. Similar activities}
 
 What separates LARP from other similar activities such as tabletop
-roleplaying games, computer games or improvised theatre is still an
-open question. Researchers \cite{montola2012,turku3,henriksen2004}
+roleplaying games, computer games and improvised theatre is still an
+open question. Researchers~\cite{montola2012,turku3,henriksen2004}
 have pointed to a few main points; 
 
 \begin{itemize}
-\item Emotional engagements increased radically when players are physically engaged in the activity \cite{turku3}.
-\item Moral choices and consequences from player actions have large impact when acted out by other physical players \cite{turku3}.
-\item Players allow themselves more freedom when acting within a ludic circle,\musthavefootnote{\textit{ludic circle}: a shared space of playfulness, from \textit{ludic}: playful} thus allowing for a wider range of emotions, experiences and shared actions \cite{montola2012,stenros2012}.
-\item Reflections on the complexity of social and/or humanistic behavior or models yield a high level of understanding \cite{henriksen2004}.
+\item Emotional engagements increased radically when players are physically engaged in the activity~\cite{turku3}.
+\item Moral choices and consequences from player actions have larger impact when acted out by other physical players~\cite{turku3}.
+\item Players allow themselves more freedom when acting within a ludic circle,\musthavefootnote{\textit{ludic circle}: a shared space of playfulness, from \textit{ludic}: playful} thus allowing for a wider range of emotions, experiences and shared actions~\cite{montola2012,stenros2012}.
+\item Reflections on the complexity of social and/or humanistic behavior or models yield a higher level of understanding~\cite{henriksen2004}. \EZY{I don't really know what this means}
 \end{itemize}
 
-It has been humorously suggested that LARP may be seen as the extreme sport of interactive experiences due to the vast effort of both staging and participating in games, the powerful impact of properly designed and executed experiences and the cumulative effects of player actions and organizer design.
+It has been humorously suggested that LARPing may be seen as the ``extreme'' sport of interactive experiences due to the vast effort of both staging and participating in games, the powerful impact of properly designed and executed experiences and the cumulative effects of player actions and organizer design. \EZY{This sentence would be more effective if it sounded more neutral}
 
 \subsection{Similar Events}
 
-There has been other efforts to use technology to enhance LARP experiences, mainly within the Nordic school of LARP design. Historically, these experiments have been conducted by a small number of game designers and writers. Experiences where technology were used in a similar capacity as on \emph{The Monitor Celestra} includes: 
+There have been other efforts to use technology to enhance LARP experiences, mainly within the Nordic school of LARP design. \EZY{...cite?  I think it is better to qualify ``technology'' here appropriately; for example, the MIT Assassins' Guild regularly uses technology, e.g. to manage the economy of their larger LARPs, but this is in a sort of different capacity than Celestria} Historically, these experiments have been conducted by a small number of game designers and writers. Experiences where technology were used in a similar capacity as on \emph{The Monitor Celestra} includes: 
 
 \begin{itemize}
-\item \textbf{Prosopopeia: Bardo 1} A technology-enhanced LARP played in the autumn of 2005. Players used technology concealed in an old reel-recorder to communicated with dead spirits.
-\item \textbf{Prosopopeia: Momentum} An ambitious continuation to the Prosopopeia project, \emph{Momentum} was played in the autumn of 2006 by 36 players for 30 days. Players used a wide variety of technology, including custom-built hardware to explore and wage battles against force on the other side of death. 
-\item \textbf{Felsäkert Läge} A technology-enhanced LARP in the autumn of 2010 situated in a future, post-apocalyptic world, staged in an abandoned mining town in the north of Sweden. Technology was used to simulated surviving technology from before the catastrophe telling stories and providing quests, items and treasures for the players to find and use in their own game.
+\item \textbf{Prosopopeia: Bardo 1} A technology-enhanced LARP played in the autumn of 2005. Players used technology concealed in an old reel-recorder to communicate with dead spirits.
+\item \textbf{Prosopopeia: Momentum} An ambitious continuation to the Prosopopeia project, \emph{Momentum} was played in the autumn of 2006 by 36 players for 30 days. \EZY{This construction is not parallel to the other two bullet points} Players used a wide variety of technology, including custom-built hardware \EZY{what does custom built mean here?}, to explore and wage battles against forces on the other side of death. 
+\item \textbf{Felsäkert Läge} A technology-enhanced LARP in the autumn of 2010 situated in a future, post-apocalyptic world, staged in an abandoned mining town in the north of Sweden. Technology was used to simulated surviving technology from before the catastrophe, telling stories and providing quests, items and treasures for the players to find and use in their own game.
 \end{itemize}
 
-An overview of similar experiments (and others) can by found in \cite{nordiclarp}.
+An overview of similar experiments (and others) can by found in~\cite{nordiclarp}.
 
 \subsection{Immersive Soundscapes}
-Earlier efforts on immersive soundscapes include various implementations in Python, support in most holistic game engines and similar. However, the main difference between these implementations and the system built for \emph{The Monitor Celestra} is scale of spatiality. Often, these soundscapes are meant to be enjoyed by a single person in headphones or a handful of persons in a single or a few rooms. 
+Earlier efforts on immersive soundscapes include various implementations in Python, support in most holistic game engines and similar. However, the main difference between these implementations and the system built for \emph{The Monitor Celestra} is the spatial scale. Usually, these soundscapes are meant to be enjoyed by a single person in headphones or a handful of persons in a single or a few rooms. 
 
-The difference in scale between these implementations and the one described in this paper makes comparisons hard to do. Most issues met by the usual implementations were either deemed irrelevant (such as super-focused spatial placement in the scene, a rough idea was more than enough for a battleship) or too specific (solutions for physical placing loudspeakers in a square room). 
+The difference in scale between these implementations and the one described in this paper makes comparisons hard to do. Most issues met by the usual implementations were either deemed irrelevant (such as super-focused spatial placement in the scene -- a rough idea was more than enough for a battleship) or too specific (solutions for physical placing loudspeakers in a square room). 
 
 \begin{figure}[H]
   \centering
@@ -79,11 +77,11 @@ The difference in scale between these implementations and the one described in t
 \end{figure}
 
 \subsection{Structure of The Monitor Celestra}
-Every LARP differs in structure and design according to design goals, creators and aims with the project. The Monitor Celestra had three runs with 150 participants each, split over three weekends. The runs were separated from each other, and played out the same story with different participants (even though some participants bought tickets for all the runs). 
+Every LARP differs in structure and design according to the design goals, creators and aims with the project. The Monitor Celestra had three runs with 150 participants each, split over three weekends. The runs were separated from each other and played out the same story with different participants (even though some participants bought tickets for all the runs). 
 
-Every run was split into 4 game sessions at between 4--6 hours each, with breaks between for sleep and briefings. Food was distributed and eaten while in play. Even though the battleship Småland was equipped with bunks for its crew, fire regulations prohibit sleeping on board the ship. Hence, the participants slept at a nearby hostel between game days.
+Every run was split into four game sessions of 4--6 hours, with breaks between for sleep and briefings. Food was distributed and eaten while in play. Even though the battleship Småland was equipped with bunks for its crew, fire regulations prohibited sleeping on board the ship. Hence, the participants slept at a nearby hostel between game days.
 
-The game runs shared a common starting position in the story, and then took shape based on the participants actions - meaning that every game ended in a different way, ranging from a valiant effort to save the human race by nuclear suicide to setting course for deep space and forging a new path ahead.
+The game runs shared a common starting position in the story but took shape based on the participants actions -- meaning that every game ended in a different way, ranging from a valiant effort to save the human race by nuclear suicide to setting course for deep space and forging a new path ahead. \EZY{A little hard to understand if you're not familiar with the Battlestar Galactica setting}
 
 
 

@@ -15,10 +15,9 @@ This setting produced a number of requirements that we tried to adapt
 to during the project:
 \begin{description}
 \item[Simple output] Output from the DSL to the lower level systems
-  needed to have a simple structure. Preferably consist of discrete
+  needed to have a simple structure, preferably consisting of discrete
   orders to \textsc{Play}, \textsc{Loop}, \textsc{Stop} or
-  \textsc{Adjust} sounds addressed by integers at sound nodes
-  addressed by integers.
+  \textsc{Adjust} sounds at sound nodes (both addressed by integers).
 \item[Accessible input] The DSL needed an easy to read and easy to
   write format that the artistic side of the project could use to
   specify sound scenes.
@@ -28,18 +27,18 @@ to during the project:
   manpower available.
 \item[System compatibility] The DSL needed to react to \texttt{AMQP} messages,
   store state in \texttt{Redis}, and format its output in a way easy to parse
-  by the receiving low-level or high-level interfaces.
+  by the receiving low-level and high-level interfaces.
 \end{description}
 
 Due to earlier experiences with Haskell, we chose GHC and the Haskell
-Platform as a host system for the DSL development. We decided early on
+Platform as a host system for the DSL development. An early decision was
 to use the automatic parser generation in the standardized Haskell
-\texttt{Read} and \texttt{Show} classes, and later on used the
+\texttt{Read} and \texttt{Show} classes; later on, we used the
 \texttt{Generics} extension to automatically generate JSON parsers and
 formatters in order to plug into the existing \texttt{AMQP} message
 passing architecture. This reduced large amounts of DSL design to
 designing appropriate Haskell types: writing native Haskell code with
-custom-built data types that represent the domain allows for large
+custom-built data types that represented the domain allowed for large
 freedom in defining our own semantics while retaining the full power
 of Haskell packages and programming styles.
 

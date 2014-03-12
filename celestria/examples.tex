@@ -1,10 +1,12 @@
 \section{Usage examples}
 
-There were different types of sounds as specified by game masters and sound designers, based on the planned usage and design requirements of the sound. There were ambient sound loops used to simulate states such as running the ships main reactor, or the sounds of massive computer banks running in the sensor processing room. There were feedback sounds triggered in response to participant actions, such as loading a torpedo or triggering a sensor sweep. These sounds mainly functioned as both confirmation to the participant that the system has registered the event and to communicate what's happening to participants in other parts of the ship. Apart from these sounds, the game masters had access to a wide variety of sounds and noises with no predetermined meaning in order to simulate everything from debris hitting the outer hull to onboard fighting, as well as pre-recorded prologues used to segue players into the game at the start of each game session.
+\EZY{You're missing some intro text here, something like ``In this section, we give a few example programs written in the DSL...''}
 
-Some sounds needed to run through an Attack-Decay-Sustain-Release sequence, with different sound files for each place, and arbitrarily long sustain-phase. Other sounds needed to trigger with fixed time intervals.
+There were different types of sounds specified by game masters and sound designers, based on the planned usage and design requirements of the sound. There were ambient sound loops used to simulate states such as running the ships main reactor or the sounds of massive computer banks running in the sensor processing room. There were feedback sounds triggered in response to participant actions, such as loading a torpedo or triggering a sensor sweep. These sounds mainly functioned as both confirmation to the participant that the system has registered the event and to communicate the occurrence of an event to participants in other parts of the ship. Apart from these sounds, the game masters had access to a wide variety of sounds and noises with no predetermined meaning in order to simulate everything from debris hitting the outer hull to onboard fighting, as well as pre-recorded prologues used to segue players into the game at the start of each game session.
 
-All sounds needed to be played on a set of speakers -- but not all sounds were to be played on all speakers when played. For example, sounds of airlock doors opening were played in the section containing the doors, and sections immediately adjacent to it. 
+Some sounds needed to run through an Attack-Decay-Sustain-Release sequence, composed of multiple sound files and an arbitrarily long sustain-phase. Other sounds needed to trigger with fixed time intervals.
+
+All sounds needed to be played on a set of speakers -- but not all sounds were to be played on all speakers when played. For example, sounds of airlock doors opening were played in the section containing the doors and sections immediately adjacent to it.
 
 We built a setup script to handle all the sound setup in a repeatable and restartable way. The script had a \texttt{main} consisting of:
 \begin{verbatim}
@@ -13,9 +15,9 @@ main = mapM_ (putStrLn . show) $ <soundlist>
 where the list of sounds was constructed in bits and pieces. We will explain and give examples for each section
 of the sound list here.
 
-We also defined, and used in most declarations for this script, a
-single value for adressing all sound sites (except the engine room
-sub-woofer) simultaneously
+We also defined and used a
+single value for simultaneously addressing all sound sites (except the engine room
+sub-woofer)
 \begin{verbatim}
 global = [1..11] :: [Segment] 
 \end{verbatim}
@@ -29,9 +31,9 @@ concatSS = foldl (:+) NopS
 \subsection{Noises and game start sounds}
 \label{sec:noises}
 
-The very easiest sounds to program for our DSL were the sounds that just needed to sound somewhere once. A single sound file to start, and let it run through.
+The very easiest sounds to program for our DSL were the sounds that just needed to sound somewhere once. These consisted of a single sound file which was run all the way through.
 
-These were all global sounds. A typical sound definition for an
+All of these sounds were global. A typical sound definition for an
 environmental noise would look like the noise of a distant explosion.
 
 \begin{listing}
@@ -46,9 +48,9 @@ environmental noise would look like the noise of a distant explosion.
 \end{verbatim}
 \caption{Reactive event definition to play the sound of a distant explosion.}
 \end{listing}
-This sound would be triggered by the game masters through pushing a button in their sound control console that generated a \texttt{sound.trigger.explosion.distant.5} event on the joint \texttt{AMQP} communication bus.
+This sound would be triggered by the game masters by pushing a button in their sound control console that generated a \texttt{sound.trigger.explosion.distant.5} event on the joint \texttt{AMQP} communication bus.
 
-The same way the four different game starting sound sequences -- with mood-setting music and a spoken recap.
+The four different game starting sound sequences -- with mood-setting music and a spoken recap -- were triggered in the same way.
 
 \begin{listing}
 \begin{verbatim}
@@ -64,12 +66,12 @@ The same way the four different game starting sound sequences -- with mood-setti
   sound sequences.}
 \end{listing}
 
-The same structure also took care of the game end sequences: depending on which of 6 pre-written game ending sounds was deemed appropriate a different trigger was sent over \texttt{AMQP}. This then phased over to an improvised game master epilogue spoken over the ship's PA system.
+The same structure was used for game end sequences: depending on which of the six pre-written game ending sounds was deemed appropriate, a different trigger was sent over \texttt{AMQP}. This then phased over to an improvised game master epilogue spoken over the ship's PA system.
 
 \subsection{Participant-triggered noises}
 \label{sec:part-trigg-nois}
 
-Several of the participant actions were supposed to trigger noises as well. Whenever one of the players initiated a sensor scan, or a torpedo loading procedure, sounds were triggered that corresponded to that soundscape. The only fundamental difference between these and the game-mastering sounds described above was that the triggers used were game system events. As an example, we can consider the active scanning sensor system.
+Several of the participant actions were supposed to trigger noises as well. Whenever one of the players initiated a sensor scan or a torpedo loading procedure, sounds were triggered that corresponded to that soundscape. The only fundamental difference between these and the game-mastering sounds described above was that the triggers used were game system events. As an example, we can consider the active scanning sensor system.
 
 \begin{listing}
 \begin{verbatim}
@@ -143,9 +145,9 @@ Trigger "alarm trigger"
 \subsection{Attack-decay-sustain-release}
 \label{sec:attack-decay-sustain}
 
-A large family of the sounds used in the sound scape went through a sequence of sound files, with fades between them. First, a sound that started up this particular noise sequence. Next, a loopable sound that kept things running for a while -- preferably of a length that could be determined by the game masters at will. Finally, a sound that finished the noise sequence, often indicating success or failure of the corresponding player action.
+A large family of the sounds used in the soundscape went through a sequence of sound files, with fades between them. First, one sound would start the sequence. Next, a loopable sound would keep the sequence running -- preferably of a length that could be determined by the game masters at will. Finally, a sound would finish the noise sequence, often indicating success or failure of the corresponding player action.
 
-These were common enough and repetitive enough that we ended up building a specific function to generate them. In the \texttt{SoundSpec.hs} source file, we define a function \texttt{attackLoopDecay} that generates a sequence of chained sound commands.
+These were common enough and repetitive enough that we ended up building a specific function to generate them. In the \texttt{SoundSpec.hs} source file, we defined a function \texttt{attackLoopDecay} that generated a sequence of chained sound commands.
 
 \begin{listing}
 \begin{verbatim}
@@ -185,11 +187,11 @@ attackLoopDecay slug atF atL t lpF lpL locs opts =
 \caption{The \texttt{attackLoopDecay} utility function}
 \end{listing}
 
-First we execute the sound \texttt{atF} at loudness \texttt{atL} and
+First, we execute the sound \texttt{atF} at loudness \texttt{atL} and
 at all the locations in \texttt{locs}. Next, we launch the loop after
 a delay of \texttt{t} and at loudness 0. We launch our cross-fade
 sequence at \texttt{t+100}ms going from the attack sound to the loop
-sound. Then finally we generate a family of triggers for the possible
+sound. Finally, we generate a family of triggers for the possible
 phasing out options. Each such trigger has a numbered identifier, and
 contains both the required action for the phasing out option in
 \texttt{sc}, as well as commands to stop playing the loop and to clean
@@ -291,8 +293,8 @@ voice saying \textit{Countdown T minus three minutes and
 \texttt{SoundCommand} named \texttt{countdown 2m0s}.
 
 For the last 15 minutes, the countdown would drop down to counting
-every 30 seconds; for the last minute counts every 10 seconds, for
-the last 10 seconds count every second.
+every 30 seconds; for the last minute, it would count every 10 seconds, for
+the last 10 seconds, it would count every second.
 
 Access to these chains of callable commands was given to the game
 masters by generating triggers through versions of the trigger given

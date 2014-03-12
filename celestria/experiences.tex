@@ -1,9 +1,8 @@
 \section{Experiences}
 \label{sec:experiences}
 
-The experiences gathered in this project divide into the various
-stages at which the experiences showed up. We will be dividing our
-descriptions accordingly.
+The experiences gathered in this project can be organized into the various
+stages of the project.
 
 \subsection{Rapid development and package designs}
 \label{sec:rapid-devel-pack}
@@ -79,7 +78,7 @@ the examples above.
 There were latency issues in the performance use. We had, in the end,
 320 trigger expressions, each carrying up to 300 sound play events in
 short sequences. At the first performance, the on-site crew noticed
-latencies reaching up towards 8-10 seconds between triggering action
+latencies reaching up towards 8--10 seconds between triggering action
 and sound execution. Before we were able to isolate the cause of these
 issues, and while we were still comparing complexity properties of the
 chosen containers -- Haskell lists and strict hashmaps depending on
@@ -98,36 +97,36 @@ specific further optimizations.
 \subsection{Hardware Issues}
 \label{sec:hardware-issues}
 An issue arouse based on the hardware. Once the system was properly deployed and the project entered
-the testing and verification stage, it was discovered that before playing sounds, the system emitted a few seconds of pops and noise - regardless of the sound played. After researching the issue, this was proven to be a known issue with the RP platform, stemming from the way power supply is routed to the sound chips on the PCB. Known workarounds existed which were applied. These resolved enough of these issues for the solution to be acceptable.
+the testing and verification stage, it was discovered that before playing sounds, the system emitted a few seconds of pops and noise regardless of the sound played. After researching the issue, this was proven to be a known issue with the RP platform, stemming from the way power supply is routed to the sound chips on the PCB\@. Known workarounds existed which were applied. \EZY{cite?} These resolved enough of these issues for the solution to be acceptable.
 
 \subsection{Experiences on-site}
 \label{sec:experiences-on-site}
 
-The system was installed in the war ship two days before start of the game. Installation was done in three steps; preparing clients, server-side, and on-site configuration. Since circumstances at the location were more spartan than other, off-site locations available to the team - most preparation was done in-office and then transported to the actual game location. 
+The system was installed in the war ship two days before start of the game. Installation was done in three steps; preparing clients, server-side, and on-site configuration. Since circumstances at the location were more spartan than other, off-site locations available to the team -- most preparation was done in-office and then transported to the actual game location. 
 
-Client preparation consisted of pre-loading SD cards for the Raspberry Pis with client daemons, the pre-configured sound library and connection bridges. A disk image was prepared and then duplicated onto the memory cards. This saved time at installation time, but proved to be a bad choice on-site. Certain updates could be performed over the network - but due to issues with the disk image duplication the memory cards had to be reprogrammed. This could only be done with the physical cards in hand and since the Raspberry Pis were distributed over a large area and, in many cases, in locations hard or cumbersome to reach - this proved to be a larger job than anticipated. Apart from this, pre-loading the memory cards worked very well. 
+Client preparation consisted of pre-loading SD cards for the Raspberry Pis with client daemons, the pre-configured sound library and connection bridges. A disk image was prepared and then duplicated onto the memory cards. This saved time at installation time, but proved to be a bad choice on-site. Certain updates could be performed over the network -- but due to issues with the disk image duplication the memory cards had to be reprogrammed. This could only be done with the physical cards in hand and since the Raspberry Pis were distributed over a large area and, in many cases, in locations hard or cumbersome to reach -- this proved to be a larger job than anticipated. Apart from this, pre-loading the memory cards worked very well. 
 
 Server-side installation and configuration was done via \texttt{cabal} on the main game server. Haskell code was kept up-to-date via a Git repo and regularly synchronized from an online repository. Installation on server went as expected and was very easy to get set up. 
 
 On-site configuration was designed to be done in three steps; physical
 installation, soundscape configuration and verification. Physical
 installation was cumbersome but not beyond expectations. Soundscape
-configuration worked almost as expected. The \texttt{Commit} command built into the system proved invaluable since it allowed for one part of team working remotely to write an import-definition of the soundscape then send it to the on-site team who imported it into the server and then making local backups and exports.
+configuration worked almost as expected. The \texttt{Commit} command built into the system proved invaluable since it allowed for one part of team working remotely to write an import-definition of the soundscape then send it to the on-site team, who imported it into the server and then made local backups and exports.
 
 \section{Conclusion}
 \label{sec:conclusion}
 
 Haskell as a platform, coupled with programming techniques connected
-to a functional reactive programming style, to datatype construction
+to a functional reactive programming style, datatype construction
 for domain modeling and a package collection that neatly covered all
 required technological dependencies all combined to a successful
 project where the sound specification system produced significant
 value to the game experience and to the immersion into the game world
-for the participants. Features of Haskell as a platform, and of the
+for the participants. Features of Haskell as a platform and of the
 packages used produced a more capable deliverable than the original
 specification had expected.
 
-We are not releasing the source code for this system openly, however
+We are not releasing the source code for this system, however,
 we encourage anyone interested in further details or derivative
 projects to get in touch with any of the authors.
 
