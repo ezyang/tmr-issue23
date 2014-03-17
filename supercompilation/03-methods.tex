@@ -203,6 +203,7 @@ The redexes are underlined.
 The root node represents the task with its arguments.
 
 \begin{figure}[t!]
+\centering
 \caption{An example of a task evaluation}
 \label{fig-sll-int}
 \input{figures/int1}
@@ -216,7 +217,7 @@ for all arguments $args$, the results of both tasks must be the same:
 %\footnote{
 %Meaning that the SLL interpreter either gives equal results for both tasks, or
 %it goes into an infinite loop in both cases.}
-\[\mathcal{R}_{(e, p)}\llbracket args\rrbracket = \mathcal{R}_{(e', p')}\llbracket args\rrbracket\].
+\[\mathcal{R}_{(e, p)}\llbracket args\rrbracket = \mathcal{R}_{(e', p')}\llbracket args\rrbracket\]
 Our second requirement is optimization: the evaluation of the second task must require no more reduction steps than
 the evaluation of the first one. 
 (The number of steps of a reduction sequence can be computed by
@@ -270,8 +271,10 @@ What would happen, if we tried to perform the following task on an empty list of
 % (рассматриваем \texttt{x = Z(), x = S(Z()), x = S(S(Z())), \ldots, x = S(S(\ldots))}).
 
 The SLL interpreter is defined in such a way that it can actually evaluate (to some degree)
-expressions with free variables:\\
+expressions with free variables:
+\begin{center}
 \input{figures/driving1}
+\end{center}
 
 The interpreter does not expect a variable as a first argument of \texttt{add}. 
 The presence of such a free variable \texttt{x}, however, does not stop it from
@@ -296,12 +299,14 @@ instead of stopping with an error, let us consider the different ways in which
 evaluation might proceed.
 The definition of \texttt{add} in \texttt{prog1} provides 2 possibilities:
 either \texttt{x = Z()}, or \texttt{x = S(x1)}:
-
+\begin{center}
 \input{figures/driving2}
+\end{center}
 
 Now evaluation can proceed with the right subexpression, and so on:
-
+\begin{center}
 \input{figures/driving3}
+\end{center}
 
 The interpreter $\mathcal{I}_p$ is intended to reduce step-by-step closed expressions. 
 The result of interpretation $\mathcal{I}_p\llbracket e \rrbracket$ is some SLL value (unless there is an infinite loop).
@@ -417,8 +422,10 @@ by the subtree starting from node $n_i$ if
 % ... что означает, что сам узел n_n можно смело выкинуть
 we systematically rename the variables in the corresponding configurations.
 
-Consider the tree of configurations for the task \texttt{(even(sqr(x)), prog1)}: \\
+Consider the tree of configurations for the task \texttt{(even(sqr(x)), prog1)}:
+\begin{center}
 \input{figures/driving4}
+\end{center}
 
 The configuration in node $n_4$ is a renaming of the one in node $n_2$.
 The (infinite) subtrees starting from node $n_2$ and from $n_4$ differ only by the
@@ -471,8 +478,10 @@ It would be splendid if all trees of configurations were foldable!
 Unfortunately, this is not the case in general.
 The program \texttt{prog1} contains a function \texttt{add'}, which defines
 addition using an accumulating parameter.
-The construction of the tree of configurations for \texttt{(add'(x, y), prog1)} goes as follows:\\
+The construction of the tree of configurations for \texttt{(add'(x, y), prog1)} goes as follows:
+\begin{center}
 \input{figures/driving5}
+\end{center}
 
 This tree is not folding.
 Indeed, a configuration can only be a renaming of another if both have the same size.
@@ -558,8 +567,10 @@ Now, if we limit the growth of configurations (by size),
 for any task we can build a (potentially infinite) tree of configurations,
 which will in all cases be folded into a \emph{finite} graph of configurations.
 Returning to our current example, if we set \texttt{sizeBound} equal to 5, then as
-a result of generalizing the rightmost configuration we obtain:\\
+a result of generalizing the rightmost configuration we obtain:
+\begin{center}
 \input{figures/driving6}
+\end{center}
 
 \begin{exercise} 
 What properties should a task have, in order for the configuration
@@ -802,14 +813,17 @@ We can always -- thanks to the absence of side effects in SLL -- replace such a 
 % указать, что это практически inlining
 
 As an example, consider the top part of the graph of configurations 
-for the KMP-test program, which is produced by 
-\texttt{transform}:\\
-\input{figures/driving6a}\\
+for the KMP-test program, which is produced by \texttt{transform}:
+\begin{center}
+\input{figures/driving6a}
+\end{center}
 % можно ли в этих всех картинках использовать синтаксис Cons(v1,v2) вместо v1:v2?
 % поскольку он используется в текстах на SLL.
 The transient steps are displayed with zigzag arrows.
-If we remove them, the cleaned-up graph of configurations will look like this:\\
+If we remove them, the cleaned-up graph of configurations will look like this:
+\begin{center}
 \input{figures/driving7}
+\end{center}
 
 The SC~Mini sources contain a transformer \texttt{deforest} -- a modification
 of \texttt{transform} -- which removes transient edges and the corresponding nodes
@@ -882,8 +896,10 @@ A form of shortcut deforestation is implemented inside GHC, for example.
 
 \subsection{Information propagation}
 
-Here is the graph of configurations for the KMP test produced by \texttt{deforest}:\\
+Here is the graph of configurations for the KMP test produced by \texttt{deforest}:
+\begin{center}
 \input{figures/driving7a}
+\end{center}
 
 It contains a step which checks if the string \texttt{s} is empty or not (underlined).
 Below it, there is another step, which makes the same check (double-underlined),
@@ -895,12 +911,16 @@ Supercompilers remove such redundancies as follows:
 each time case analysis is performed during driving,
 information about its outcome is propagated in each corresponding subtree.
 
-Let's propagate the fact that \texttt{s = v1:v2} (and hence non-empty) in the corresponding subtree:\\
-\input{figures/driving7b}\\
+Let's propagate the fact that \texttt{s = v1:v2} (and hence non-empty) in the corresponding subtree:
+\begin{center}
+\input{figures/driving7b}
+\end{center}
 We have not only removed a superfluous test, but we have also unmasked
 a transient step, which can be further removed.
-As a result we obtain:\\
+As a result we obtain:
+\begin{center}
 \input{figures/driving8}
+\end{center}
 
 The transformer \texttt{supercompile} (inside SC~Mini sources) implements such information propagation.
 In contrast to \texttt{deforest}, each time driving performs case analysis,
