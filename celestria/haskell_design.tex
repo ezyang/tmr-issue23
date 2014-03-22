@@ -73,9 +73,9 @@ These types all have different roles:
 \end{description}
 
 Here, the \texttt{SoundCommand} type encodes all orders that the game
-masters and sound designers want to be able to give to the system,
+masters and sound designers want to be able to give to the system, while
 \texttt{DaemonSpec} abstractly encodes all command types the lower
-level system accepts, \EZY{Missing text here?!}
+level system accepts.
 
 All datatypes derive \texttt{Read}, \texttt{Show} and \texttt{Generic},
 which allows us to automate parsing both from a Read-Evaluate-Print-Loop as well as
@@ -86,7 +86,10 @@ create automatic JSON parsers and encoders from \texttt{Aeson}.
 
 Our separation of the sound scene description from the Haskell layer
 control commands and the automated reactive triggers builds on their
-separation into different datatypes. \EZY{What does this sentence mean?} At the top-most abstraction
+separation into different datatypes. 
+The family of datatypes we designed closely mirrors the task division
+for the system. 
+At the top-most abstraction
 level, there is a data type \texttt{SoundCommand} enumerating the
 various commands that can be given to the system. 
 
@@ -329,7 +332,10 @@ the package through all defined patterns in \texttt{triggers} and runs
 the associated action for each matching pattern. This linear lookup
 may have been slower than more complex solutions, but it had the benefit
 of being easy and reliable to design and was probably fast
-enough for this application. \EZY{Well, was it fast enough?}
+enough for this application. In the end, as we will describe later,
+there were some latency issues with the system as a whole. Our
+diagnostics of the trigger list handling were inconclusive, but did
+not seem to generate the observed latencies.
 
 The function \texttt{action} executes a \texttt{SoundCommand} and
 carries the entire logic of the system. This is where the data type is

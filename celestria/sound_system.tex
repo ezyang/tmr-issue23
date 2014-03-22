@@ -39,7 +39,7 @@ The original specifications for the Celestra sound system were as follows:
 \end{itemize}
 
 The rest of the game control system was designed to run on a
-relatively small number of servers in a control room. Similarly, \EZY{Why similarly? What's the similarity?} one
+relatively small number of servers in a control room. One
 option for the sound system would be to have a sound server with one
 sound card for each section, connected to pairs of speakers located
 in each section. However, it was decided that a better solution would
@@ -114,7 +114,9 @@ Ruby. The original idea was that this would be the entry point of the
 sound system. However, it turned out that its simple interface, while
 in principle sufficient for all sound purposes, was too low-level for
 creating the sound scenes that the sound designers wanted to build for
-the game. \EZY{Why was it too low-level?}
+the game: crossfades, seamless loops and other sound design features
+would require a higher abstraction than the play/loop/stop/change
+volume setup for this interface
 
 Thus, we were led to introduce the intermediate layer in Haskell,
 described in the following sections. From now on, we will be referring
