@@ -4,7 +4,7 @@
 
 The technology team for \emph{The Monitor Celestra} settled at a
 relatively early stage on an overall design for the game support
-technology; the choices made included: \EZY{Work harder to have parallel construction in this bulleted list. It might be easier if you use complete sentences.}
+technology; the choices made included:
 \begin{itemize}
 \item Wired ethernet communication for everything, split into three
   different parallel networks: sound, game system, and player hackable. Due to the nature of the 
@@ -12,15 +12,15 @@ technology; the choices made included: \EZY{Work harder to have parallel constru
 \item Communication between game components over \texttt{AMQP} from a RabbitMQ running on a local
 game server on the main network. Game logic, world engine and game rules were written in Ruby.
 \item Game consoles and GUIs written in HTML5 Canvas rendered on Chromium running in fullscreen.
-\item All game consoles must be able to used interchangeably with custom hardware components being plug-and-play.
+\item Game consoles able to be used interchangeably with everything being designed for plug-and-play.
 \item No authentication required within the game network. All published messages can be trusted on a system level. 
 \item A single game component responsible for game world, time progression and synchronization; in this case, a rack server running latest stable Ubuntu LTS\@.
 \item Connection to external network and Internet through a single point-of-entry, the main game server.
 \end{itemize}
 
-The choices were made based on experiences from earlier projects staged
-in similar contexts; not-for-profit with volunteers, widest match against available skillsets, relatively uncontrolled environments
-and subjected to the wear-and-tear of playing adults. \EZY{This sentence is really awkward}
+These choices were made based on experiences from earlier projects staged
+in similar contexts where the main body of the work was done by unpaid volounteers
+in uncontrolled and rough environments.
 
 
 \section{Sound system design}
