@@ -18,18 +18,18 @@ generation of parsers and serializers than all the alternatives.
 Our system ended up depending on a family of Haskell packages that
 cover many of the interoperability requirements. In total, we relied
 on 
-\texttt{aeson}\cite{aeson}, 
-\texttt{amqp}\cite{amqp}, 
-\texttt{attoparsec}\cite{attoparsec}, 
-\texttt{base}\cite{haskell}, 
-\texttt{bytestring}\cite{bytestring}, \\
-\texttt{containers}\cite{containers}, 
-\texttt{ghc-prim}\cite{haskell}, 
-\texttt{hedis}\cite{hedis}, \\
-\texttt{mtl}\cite{mtl}, 
-\texttt{regex-posix}\cite{regex-posix}, 
-\texttt{text}\cite{text}, and\\
-\texttt{unordered-containers}\cite{unordered-containers}, 
+\texttt{aeson}~\cite{aeson}, 
+\texttt{amqp}~\cite{amqp}, 
+\texttt{attoparsec}~\cite{attoparsec}, 
+\texttt{base}~\cite{haskell}, 
+\texttt{bytestring}~\cite{bytestring},
+\texttt{containers}~\cite{containers}, 
+\texttt{ghc-prim}~\cite{haskell}, 
+\texttt{hedis}~\cite{hedis},
+\texttt{mtl}~\cite{mtl}, 
+\texttt{regex-posix}~\cite{regex-posix}, 
+\texttt{text}~\cite{text}, and
+\texttt{unordered-containers}~\cite{unordered-containers}, 
 for all our library needs.
 
 From these preconditions, we decided that the best way to construct a
@@ -45,6 +45,7 @@ The resulting hierarchy of datatypes that we decided on was:\nopagebreak
 \begin{figure}[H]
   \centering
   \includegraphics{figure}
+  \vspace{1em}
   
   \caption{Dependency and compilation path hierarchy for the sound system.}
 \label{fig:sshierarchy}
